@@ -1,0 +1,32 @@
+query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String, $after: String) {
+  documentsCP(auth: $auth, first: $first, groupId: $groupId, userId: $userId, after: $after) {
+    edges {
+      node {
+        id
+        Paper {
+          id
+          title
+          isPosted
+          createdAt
+          updatedAt
+          User {
+            id
+            username
+            displayName
+          }
+          Group {
+            id
+            name
+            displayName
+            isPrivate
+          }
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

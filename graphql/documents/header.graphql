@@ -1,0 +1,22 @@
+query header($auth: Auth!, $groupId: String) {
+  session {
+    userSession {
+      ...userSessionFragment
+    }
+    adminSession {
+      ...adminSessionFragment
+    }
+  }
+  myJoinedGroups {
+    id
+    name
+    displayName
+  }
+  group(auth: $auth, id: $groupId) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+  }
+}

@@ -1,0 +1,150 @@
+query adminAuthPage {
+  configuration(auth:admin) {
+    authEnableEmailVerificationForLocalUsers
+    authEnableSamlLogin
+    groupEnableCreateGroupForUsers
+  }
+  samls(auth:admin) {
+    id
+    name
+  }
+}
+query adminGetUsersCP($cursor: String) {
+  usersCP(auth: admin, first:10, after:$cursor) {
+    edges {
+      cursor
+      node {
+        id
+        username
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+query adminGroupsIndexPage {
+  groups(auth: admin) {
+    id
+    name
+    displayName
+  }
+}
+query adminGroupPage($id: String!) {
+  group(auth:admin, id:$id) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+    MapUserGroup {
+      userId
+      isAdmin
+      User {
+        username
+        displayName
+      }
+    }
+  }
+}
+query adminIndexPage {
+  session {
+    userSession {
+      ...userSessionFragment
+    }
+    adminSession {
+      ...adminSessionFragment
+    }
+  }
+}
+query documentPage($documentId: String!) {
+  document(auth: user, id: $documentId) {
+    id
+    Paper {
+      documentIdLazy
+      User {
+        id
+        username
+        email
+        displayName
+      }
+      Group {
+        id
+        name
+        displayName
+      }
+      title
+      body
+      createdAt
+      updatedAt
+    }
+  }
+}
+query draftPage($paperId: String!) {
+  draft(auth: user, id: $paperId) {
+    id
+    documentIdLazy
+    userId
+    groupId
+    title
+    body
+    isPosted
+  }
+}
+query groupIndexPage($groupId: String!) {
+  session {
+    userSession {
+      id
+    }
+  }
+  group(auth: user, id: $groupId) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+    MapUserGroup {
+      isAdmin
+      User {
+        id
+        username
+        displayName
+      }
+    }
+  }
+  documents(auth: user, groupId: $groupId) {
+    id
+    Paper {
+      documentIdLazy
+      userId
+      groupId
+      title
+    }
+  }
+  drafts(auth: user, groupId: $groupId) {
+    id
+    documentIdLazy
+    Group {
+      id
+      name
+      displayName
+      isPrivate
+    }
+    title
+    body
+  }
+}
+query groupsPage {
+  groups(auth: user) {
+    id
+    name
+    displayName
+  }
+}
+query loginPage {
+  samls(auth: none) {
+    id
+    name
+  }
+}

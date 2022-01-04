@@ -1,0 +1,17 @@
+mutation UpdateConfiguration(
+  $auth: Auth!,
+  $authEnableEmailVerificationForLocalUsers: Int,
+  $authEnableSamlLogin: Int,
+  $groupEnableCreateGroupForUsers: Int
+) {
+  updateConfiguration(
+    auth: $auth,
+    authEnableEmailVerificationForLocalUsers:$authEnableEmailVerificationForLocalUsers,
+    authEnableSamlLogin: $authEnableSamlLogin,
+    groupEnableCreateGroupForUsers: $groupEnableCreateGroupForUsers
+  ){
+    authEnableEmailVerificationForLocalUsers
+    authEnableSamlLogin
+    groupEnableCreateGroupForUsers
+  }
+}

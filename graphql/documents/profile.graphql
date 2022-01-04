@@ -1,0 +1,19 @@
+query MyProfile {
+  myProfile {
+    id
+    uuid
+    username
+    email
+    displayName
+  }
+}
+
+mutation UpdateMyProfile($auth: Auth!, $username: String, $displayName: String) {
+  updateMyProfile(auth: $auth, username: $username, displayName: $displayName) {
+    id
+    uuid
+    username
+    email
+    displayName
+  }
+}

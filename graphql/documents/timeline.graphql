@@ -1,0 +1,37 @@
+query MyTimelineCP($first: Int!, $after: String) {
+  myTimelineCP(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        Paper {
+          id
+          userId
+          groupId
+          title
+          isPosted
+          User {
+            id
+            uuid
+            username
+            email
+            displayName
+          }
+          Group {
+            id
+            name
+            displayName
+            description
+            isPrivate
+          }
+          createdAt
+          updatedAt
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

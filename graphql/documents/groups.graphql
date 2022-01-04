@@ -1,0 +1,97 @@
+query GetGroup($auth: Auth!, $id: String) {
+  group(auth: $auth, id: $id) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+  }
+}
+
+query GetGroupWithMembers($auth: Auth!, $id: String) {
+  group(auth: $auth, id: $id) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+    MapUserGroup {
+      userId
+      isAdmin
+      User {
+        uuid
+        username
+        email
+        displayName
+      }
+    }
+  }
+}
+
+query MyJoinedGroupsCP($first: Int!, $after: String) {
+  myJoinedGroupsCP(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+        displayName
+        description
+        isPrivate
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+
+mutation CreateGroup($auth: Auth!, $name: String!, $displayName: String, $isPrivate: Int) {
+  createGroup(auth: $auth, name: $name, displayName: $displayName, isPrivate: $isPrivate) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+  }
+}
+
+mutation UpdateGroup($auth: Auth!, $id: String!, $name: String, $displayName: String, $description: String, $isPrivate: Int) {
+  updateGroup(auth: $auth, id: $id, name: $name, displayName: $displayName, description: $description, isPrivate: $isPrivate) {
+    id
+    name
+    displayName
+    description
+    isPrivate
+  }
+}
+
+mutation DeleteGroup($auth: Auth!, $id: String!) {
+  deleteGroup(auth: $auth, id: $id) {
+    id
+  }
+}
+
+mutation CreateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $isAdmin: Int) {
+  createMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId, isAdmin: $isAdmin) {
+    groupId
+    userId
+    isAdmin
+  }
+}
+
+mutation UpdateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $isAdmin: Int) {
+  updateMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId,  isAdmin: $isAdmin) {
+    groupId
+    userId
+    isAdmin
+  }
+}
+
+mutation DeleteGroupMember($auth: Auth!, $userId: String!, $groupId: String!) {
+  deleteMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId) {
+    groupId
+    userId
+  }
+}

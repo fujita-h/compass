@@ -1,0 +1,179 @@
+enum Auth {
+  user,
+  admin,
+  none,
+}
+
+type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean
+}
+
+type UserSession {
+  id: String!
+  random: String!
+}
+
+type AdminSession {
+  admin: Boolean!
+  random: String!
+}
+
+type Session {
+  userSession: UserSession
+  adminSession: AdminSession
+}
+
+type Configuration {
+  authEnableEmailVerificationForLocalUsers: Int!
+  authEnableSamlLogin: Int!
+  groupEnableCreateGroupForUsers: Int!
+}
+
+type Saml {
+  id: String!
+  name: String!
+  displayName: String!
+  entryPoint: String!
+  issuer: String!
+  cert: String!
+  userMapping: String!
+  attributeMappingForUuid: String!
+  attributeMappingForUsername: String!
+  attributeMappingForEmail: String!
+}
+
+type User {
+  id: String!
+  uuid: String!
+  username: String!
+  email: String!
+  displayName: String
+}
+
+type UserEdge {
+    node: User
+    cursor: String
+}
+
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo
+}
+
+type Group {
+  id: String!
+  name: String!
+  displayName: String
+  description: String
+  isPrivate: Int!
+}
+
+type GroupEdge {
+    node: Group
+    cursor: String
+}
+
+type GroupConnection {
+  edges: [GroupEdge]
+  pageInfo: PageInfo
+}
+
+
+type MapUserGroup {
+  userId: String!
+  groupId: String!
+  isAdmin: Int!
+  User: User
+  Group: Group
+}
+
+type GroupWithMember {
+  id: String!
+  name: String!
+  displayName: String
+  description: String
+  isPrivate: Int!
+  MapUserGroup: [MapUserGroup]
+}
+
+type Paper {
+  id: String!
+  userId: String!
+  groupId: String!
+  documentIdLazy: String
+  title: String!
+  body: String!
+  isPosted: Int!
+  User: User!
+  Group: Group!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Document {
+  id: String!
+  paperId: String!
+  Paper: Paper!
+}
+
+type DocumentEdge {
+  node: Document
+  cursor: String
+}
+
+type DocumentConnection {
+  edges: [DocumentEdge]
+  pageInfo: PageInfo
+}
+
+type Query {
+  session: Session
+
+  configuration(auth: Auth!): Configuration!
+  samls(auth: Auth!): [Saml!]
+
+  groups(auth: Auth!): [Group!]
+  group(auth: Auth!, id: String): GroupWithMember
+
+  joinedGroups(userId: String!): [Group!]
+  myJoinedGroups: [Group!]
+  myJoinedGroupsCP(first: Int!, after:String): GroupConnection
+
+  users(auth: Auth!, offset: Int, limit: Int): [User]
+  usersCP(auth: Auth!, first: Int!, after:String): UserConnection
+  countUsers(auth: Auth!): Int!
+  user(auth: Auth!, id: String): User
+
+  myProfile: User
+  myTimelineCP(first: Int!, after:String): DocumentConnection
+
+  documents(auth: Auth!, userId: String, groupId: String): [Document]!
+  documentsCP(auth: Auth!, userId: String, groupId: String, first: Int!, after:String): DocumentConnection
+  document(auth: Auth!, id: String!): Document
+
+  drafts(auth: Auth!, groupId: String): [Paper]!
+  draft(auth: Auth!, id: String!): Paper
+
+}
+
+type Mutation {
+  updateConfiguration(auth: Auth!, 
+    authEnableEmailVerificationForLocalUsers: Int, 
+    authEnableSamlLogin: Int, 
+    groupEnableCreateGroupForUsers: Int 
+  ): Configuration!
+
+  createGroup(auth: Auth!, name: String!, displayName: String, description: String, isPrivate: Int): Group
+  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, isPrivate: Int): Group
+  deleteGroup(auth: Auth!, id:String!): Group
+
+  createMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
+  updateMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
+  deleteMapUserGroup(auth: Auth!, userId: String!, groupId: String!): MapUserGroup
+  
+  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, documentId: String, isPosted: Int): Paper
+  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, isPosted: Int): Paper
+
+  updateMyProfile(auth: Auth!, username: String, displayName: String): User
+}

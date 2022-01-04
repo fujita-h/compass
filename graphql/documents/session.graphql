@@ -1,0 +1,10 @@
+query session {
+  session {
+    userSession {
+      ...userSessionFragment
+    }
+    adminSession {
+      ...adminSessionFragment
+    }
+  }
+}

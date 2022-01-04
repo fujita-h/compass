@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String          @id @db.VarChar(26)
+  uuid            String          @unique @db.VarChar(50)
+  username        String          @unique @db.VarChar(50)
+  email           String          @unique @db.VarChar(255)
+  displayName     String?         @db.VarChar(255)
+  hash            String?         @db.VarChar(127)
+  createdAt       String          @db.VarChar(50)
+  createdAtNumber BigInt          @default(0) @db.UnsignedBigInt
+  Attachment      Attachment[]
+  Comment         Comment[]
+  Follow          Follow[]        @relation("Follow_fromUserIdToUser")
+  Follower        Follow[]        @relation("Follow_toUserIdToUser")
+  MapUserGroup    MapUserGroup[]
+  Notification    Notification[]
+  Paper           Paper[]
+  Stock           Stock[]
+  StockCategory   StockCategory[]
+  UserIcon        UserIcon?
+}
+
+model Configuration {
+  ensureSingleRow                          Configuration_ensureSingleRow @unique(map: "Configuration_ensure_single_row_key") @default(single)
+  authEnableEmailVerificationForLocalUsers Int                           @default(0) @db.UnsignedTinyInt
+  authEnableSamlLogin                      Int                           @default(0) @db.UnsignedTinyInt
+  groupEnableCreateGroupForUsers           Int                           @default(0) @db.UnsignedTinyInt
+}
+
+model Saml {
+  id                          String           @id @db.VarChar(26)
+  name                        String           @unique @db.VarChar(50)
+  displayName                 String           @db.VarChar(255)
+  entryPoint                  String           @db.VarChar(255)
+  issuer                      String           @db.VarChar(255)
+  cert                        String           @db.Text
+  userMapping                 Saml_userMapping @default(email)
+  attributeMappingForUuid     String?          @db.VarChar(255)
+  attributeMappingForUsername String?          @db.VarChar(255)
+  attributeMappingForEmail    String?          @db.VarChar(255)
+}
+
+model Group {
+  id           String         @id @db.VarChar(26)
+  name         String         @unique @db.VarChar(127)
+  displayName  String?        @db.VarChar(127)
+  description  String?        @db.VarChar(255)
+  isPrivate    Int            @default(0) @db.UnsignedTinyInt
+  GroupIcon    GroupIcon?
+  MapUserGroup MapUserGroup[]
+  Paper        Paper[]
+}
+
+model MapUserGroup {
+  userId  String @db.VarChar(26)
+  groupId String @db.VarChar(26)
+  isAdmin Int    @default(0) @db.UnsignedTinyInt
+  Group   Group  @relation(fields: [groupId], references: [id])
+  User    User   @relation(fields: [userId], references: [id])
+
+  @@id([userId, groupId])
+  @@index([groupId], map: "groupId")
+  @@index([userId], map: "userId")
+}
+
+model Tag {
+  id          String        @id @db.VarChar(26)
+  text        String        @unique @db.VarChar(63)
+  MapPaperTag MapPaperTag[]
+}
+
+model Follow {
+  fromUserId String @db.VarChar(26)
+  toUserId   String @db.VarChar(26)
+  From       User   @relation("Follow_fromUserIdToUser", fields: [fromUserId], references: [id], onDelete: Cascade)
+  To         User   @relation("Follow_toUserIdToUser", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@index([fromUserId], map: "fromUserId")
+  @@index([toUserId], map: "toUserId")
+}
+
+model Document {
+  id       String    @id @db.VarChar(26)
+  paperId  String    @db.VarChar(26)
+  isShared Int       @default(0) @db.UnsignedTinyInt
+  Paper    Paper     @relation(fields: [paperId], references: [id])
+  Comment  Comment[]
+
+  @@index([paperId], map: "paperId")
+}
+
+model UserIcon {
+  id       String @id @db.VarChar(26)
+  userId   String @unique(map: "userId") @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Attachment {
+  id       String @id @db.VarChar(26)
+  userId   String @db.VarChar(26)
+  fileName String @db.VarChar(255)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.MediumBlob
+  User     User   @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@index([userId], map: "userId")
+}
+
+model GroupIcon {
+  id       String @id @db.VarChar(26)
+  groupId  String @unique(map: "groupId") @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  Group    Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model Paper {
+  id                String        @id @db.VarChar(26)
+  userId            String        @db.VarChar(26)
+  groupId           String        @db.VarChar(26)
+  documentIdLazy    String?       @db.VarChar(26)
+  parentPaperIdLazy String?       @db.VarChar(26)
+  title             String        @db.VarChar(255)
+  body              String        @db.LongText
+  isPosted          Int           @default(0) @db.UnsignedTinyInt
+  canReadAll        Int           @default(0) @db.UnsignedTinyInt
+  createdAt         String        @db.VarChar(50)
+  createdAtNumber   BigInt        @default(0) @db.UnsignedBigInt
+  updatedAt         String        @db.VarChar(50)
+  updatedAtNumber   BigInt        @default(0) @db.UnsignedBigInt
+  Group             Group         @relation(fields: [groupId], references: [id])
+  User              User          @relation(fields: [userId], references: [id])
+  Document          Document[]
+  MapPaperTag       MapPaperTag[]
+
+  @@index([canReadAll], map: "canReadAll")
+  @@index([createdAtNumber], map: "createdAtNumber")
+  @@index([documentIdLazy], map: "documentId")
+  @@index([groupId], map: "groupId")
+  @@index([isPosted], map: "isPosted")
+  @@index([parentPaperIdLazy], map: "parentPaperIdLazy")
+  @@index([updatedAtNumber], map: "updatedAtNumber")
+  @@index([userId], map: "userId")
+}
+
+model MapPaperTag {
+  paperId String @db.VarChar(26)
+  tagId   String @db.VarChar(26)
+  Paper   Paper  @relation(fields: [paperId], references: [id])
+  Tag     Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([paperId, tagId])
+  @@index([paperId], map: "paperId")
+  @@index([tagId], map: "tagId")
+}
+
+model Comment {
+  id                  String   @id @db.VarChar(26)
+  documentId          String   @db.VarChar(26)
+  userId              String   @db.VarChar(26)
+  parentCommentIdLazy String?  @db.VarChar(26)
+  body                String   @db.Text
+  isDeleted           Int      @default(0) @db.UnsignedTinyInt
+  createdAt           String   @db.VarChar(50)
+  createdAtNumber     BigInt   @default(0) @db.UnsignedBigInt
+  updatedAt           String   @db.VarChar(50)
+  updatedAtNumber     BigInt   @default(0) @db.UnsignedBigInt
+  deletedAt           String   @db.VarChar(50)
+  deletedAtNumber     BigInt   @default(0) @db.UnsignedBigInt
+  Document            Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  User                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([documentId], map: "documentId")
+  @@index([parentCommentIdLazy], map: "parentCommentIdLazy")
+  @@index([userId], map: "userId")
+}
+
+model Stock {
+  documentId      String        @db.VarChar(26)
+  userId          String        @db.VarChar(26)
+  stockCategoryId String        @db.VarChar(26)
+  StockCategory   StockCategory @relation(fields: [stockCategoryId], references: [id])
+  User            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, userId])
+  @@index([stockCategoryId], map: "stockCategoryId")
+  @@index([userId], map: "userId")
+}
+
+model StockCategory {
+  id     String  @id @db.VarChar(26)
+  userId String  @db.VarChar(26)
+  name   String  @db.VarChar(127)
+  User   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Stock  Stock[]
+
+  @@index([userId], map: "userId")
+}
+
+model Notification {
+  id              String @id @db.VarChar(26)
+  userId          String @db.VarChar(26)
+  body            String @db.Text
+  isRead          Int    @default(0) @db.TinyInt
+  createdAt       String @db.VarChar(50)
+  createdAtNumber BigInt @default(0) @db.UnsignedBigInt
+  User            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "userId")
+}
+
+enum Saml_userMapping {
+  uuid
+  username
+  email
+}
+
+enum Configuration_ensureSingleRow {
+  single
+}

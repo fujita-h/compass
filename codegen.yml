@@ -1,0 +1,31 @@
+overwrite: true
+schema: "graphql/schema.graphql"
+documents:
+  - "graphql/documents/**/*.graphql"
+generates:
+  graphql/generated/resolvers.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+  graphql/generated/operations.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+  graphql/generated/request.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+  graphql/generated/react-query.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-query"
+  graphql/generated/react-apollo.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+#  graphql/generated/schema.json:
+#    plugins:
+#      - "introspection"

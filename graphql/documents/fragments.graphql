@@ -1,0 +1,6 @@
+fragment userSessionFragment on UserSession {
+  id
+}
+fragment adminSessionFragment on AdminSession {
+  admin
+}
