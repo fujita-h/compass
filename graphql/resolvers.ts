@@ -506,7 +506,18 @@ export const resolvers: Resolvers = {
       }
       if (auth == Auth.User) {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        throw new ApolloError('Unimplemented')
+        const check = await prisma.mapUserGroup.findUnique({
+          where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
+          include: { Group: true }
+        })
+        if (!check) throw new ApolloError('Forbbiden')
+        if (check.Group.isPrivate) {
+          if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
+          return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
+        } else {
+          if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
+          return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
+        }
       }
       if (auth == Auth.None) {
         throw new ApolloError('Unimplemented')
@@ -535,14 +546,22 @@ export const resolvers: Resolvers = {
       const { auth, groupId, userId } = args
       if (auth == Auth.Admin) {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.mapUserGroup.delete({ where: { userId_groupId: { groupId, userId } } })
+        return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
       }
       if (auth == Auth.User) {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const check = await prisma.mapUserGroup.findUnique({ where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } } })
+        const check = await prisma.mapUserGroup.findUnique({
+          where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
+          include: { Group: true }
+        })
         if (!check) throw new ForbiddenError('Forbbiden')
-        if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-        return await prisma.mapUserGroup.delete({ where: { userId_groupId: { groupId, userId } } })
+        if (check.Group.isPrivate) {
+          if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
+          return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
+        } else {
+          if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
+          return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
+        }
       }
       if (auth == Auth.None) {
         throw new ApolloError('Unimplemented')

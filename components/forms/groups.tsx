@@ -16,6 +16,7 @@ import {
   useGetUsersQuery,
   useCreateGroupMemberMutation
 } from '@graphql/generated/react-apollo'
+import { InternalRefetchQueriesInclude } from '@apollo/client';
 
 const uploadGroupIcon = async (files, groupId) => {
   const body = new FormData()
@@ -25,7 +26,7 @@ const uploadGroupIcon = async (files, groupId) => {
   return res.json()
 }
 
-export const EditGroupForm = ({ auth, groupId }: { auth: Auth, groupId: string }) => {
+export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
 
   const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'cache-and-network' })
 
@@ -41,6 +42,7 @@ export const EditGroupForm = ({ auth, groupId }: { auth: Auth, groupId: string }
   const [updateGroup, { }] = useUpdateGroupMutation({
     //refetchさせる必要があるか。updateに失敗した場合の処理があれば不要なはず
     //refetchQueries: [GetGroupDocument]
+    refetchQueries: refetchQueries
   })
   const handleSubmit = async () => {
 

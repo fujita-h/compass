@@ -4,7 +4,7 @@ import { useSession } from '@lib/session'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
 import { EditGroupForm, EditGroupMemberTable, DangerZoneForm } from '@components/forms/groups'
-import { Auth, useGetGroupWithMembersQuery } from '@graphql/generated/react-apollo'
+import { Auth, GetGroupWithMembersDocument, useGetGroupWithMembersQuery } from '@graphql/generated/react-apollo'
 
 
 export default function Page() {
@@ -34,12 +34,13 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     <div className='max-w-7xl mt-4 mx-auto p-4 bg-white'>
       <div>Group Management Page</div>
       <div className='mt-3 border rounded-lg p-3'>
-        <EditGroupForm auth={Auth.User} groupId={data.group.id} />
+        <EditGroupForm auth={Auth.User} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
       </div>
-      <div className='mt-3 border rounded-lg p-3'>
-        <EditGroupMemberTable auth={Auth.User} groupId={data.group.id} />
-      </div>
-
+      {data.group.isPrivate ?
+        <div className='mt-3 border rounded-lg p-3'>
+          <EditGroupMemberTable auth={Auth.User} groupId={data.group.id} />
+        </div> : <></>
+      }
     </div>
   )
 }
