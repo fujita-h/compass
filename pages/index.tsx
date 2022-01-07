@@ -70,7 +70,7 @@ const Timeline = () => {
               <div className='border m-2 p-2 bg-white'>
                 <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.id)}`} passHref><a>
                   <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
-                    {doc.Paper.Group.displayName}
+                    {doc.Paper.Group.displayName || doc.Paper.Group.name}
                   </div>
                 </a></Link>
                 <div className='text-black'>
