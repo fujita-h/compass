@@ -94,6 +94,7 @@ model Document {
   isShared Int       @default(0) @db.UnsignedTinyInt
   Paper    Paper     @relation(fields: [paperId], references: [id])
   Comment  Comment[]
+  Stock    Stock[]
 
   @@index([paperId], map: "paperId")
 }
@@ -187,13 +188,15 @@ model Comment {
 }
 
 model Stock {
-  documentId      String        @db.VarChar(26)
   userId          String        @db.VarChar(26)
+  documentId      String        @db.VarChar(26)
   stockCategoryId String        @db.VarChar(26)
+  Document        Document      @relation(fields: [documentId], references: [id], onDelete: Cascade, map: "FK_Stock_Document")
   StockCategory   StockCategory @relation(fields: [stockCategoryId], references: [id])
   User            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([documentId, userId])
+  @@id([documentId, userId, stockCategoryId])
+  @@index([documentId], map: "documentId")
   @@index([stockCategoryId], map: "stockCategoryId")
   @@index([userId], map: "userId")
 }

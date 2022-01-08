@@ -1,0 +1,59 @@
+query StockCategories($auth: Auth!, $userId: String) {
+  stockCategories(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+  }
+}
+
+mutation CreateStockCategory($auth: Auth!, $userId: String!, $name: String!) {
+  createStockCategory(auth: $auth, userId: $userId, name: $name) {
+    id
+    userId
+    name
+  }
+}
+
+
+query Stocks($auth: Auth!, $userId: String, $documentId: String) {
+  stocks(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+    stockCategoryId
+  }
+}
+
+query CountStocks($auth: Auth!, $documentId: String!) {
+  countStocks(auth: $auth, documentId: $documentId)
+}
+
+mutation CreateStock($auth: Auth!, $userId: String!, $documentId: String!, $stockCategoryId: String!) {
+  createStock(auth: $auth, userId: $userId, documentId: $documentId, stockCategoryId: $stockCategoryId) {
+    userId
+    documentId
+    stockCategoryId
+  }
+}
+
+mutation DeleteStock($auth: Auth!, $userId: String!, $documentId: String!, $stockCategoryId: String!) {
+  deleteStock(auth: $auth, userId: $userId, documentId: $documentId, stockCategoryId: $stockCategoryId) {
+    userId
+    documentId
+    stockCategoryId
+  }
+}
+
+
+query StockCategoriesAndStocks($auth: Auth!, $userId: String!, $documentId: String!) {
+  stockCategories(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+  }
+  stocks(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+    stockCategoryId
+  }
+  countStocks(auth: $auth, documentId: $documentId)
+}

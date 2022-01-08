@@ -127,6 +127,18 @@ type DocumentConnection {
   pageInfo: PageInfo
 }
 
+type StockCategory {
+  id: String!
+  userId: String!
+  name: String!
+}
+
+type Stock {
+  userId: String!
+  documentId: String!
+  stockCategoryId: String!
+}
+
 type Query {
   session: Session
 
@@ -155,6 +167,9 @@ type Query {
   drafts(auth: Auth!, groupId: String): [Paper]!
   draft(auth: Auth!, id: String!): Paper
 
+  stockCategories(auth: Auth!, userId: String): [StockCategory]!
+  stocks(auth: Auth!, userId: String, documentId: String): [Stock]!
+  countStocks(auth: Auth!, documentId: String!): Int!
 }
 
 type Mutation {
@@ -176,4 +191,11 @@ type Mutation {
   updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, isPosted: Int): Paper
 
   updateMyProfile(auth: Auth!, username: String, displayName: String): User
+
+  createStockCategory(auth: Auth!, userId: String!, name: String!): StockCategory
+  updateStockCategory(auth: Auth!, id: String!, name: String!): StockCategory
+  deleteStockCategory(auth: Auth!, id: String!): StockCategory
+
+  createStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
+  deleteStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
 }

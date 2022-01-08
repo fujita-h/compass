@@ -9,8 +9,10 @@ import gfm from 'remark-gfm'
 import Image from 'next/image'
 import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
+import { BsBookmark, BsBookmarkCheckFill } from 'react-icons/bs'
 
-import { useDocumentPageQuery } from "@graphql/generated/react-apollo"
+import { Auth, DocumentPageQuery, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteStockMutation, useDocumentPageQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery } from "@graphql/generated/react-apollo"
+import { MyModal } from '@components/modals'
 
 const CONTENT_ANCHOR_PREFIX = 'content-line'
 const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
@@ -69,10 +71,109 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
         </div>
       </div>
       <div className='flex-none w-60 ml-4'>
-        <div className='sticky top-16'>
-          <ReactiveToC>{data.document.Paper.body}</ReactiveToC>
-        </div>
+        <RightPane userId={sessionUserId} documentPageQuery={data} />
       </div>
+
+    </div>
+  )
+}
+
+const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPageQuery: DocumentPageQuery }) => {
+  return (
+    <div className='sticky top-16'>
+      <div className='m-2'>
+        <StockComponents userId={userId} documentId={documentPageQuery.document.id} />
+      </div>
+      <div>
+        <ReactiveToC>{documentPageQuery.document.Paper.body}</ReactiveToC>
+      </div>
+    </div>
+
+  )
+}
+
+const StockComponents = ({ userId, documentId }: { userId: string, documentId: string }) => {
+  const [modalState, setModalState] = useState({ show: false })
+  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+
+  // ストックの更新用
+  const [createStock, { }] = useCreateStockMutation({
+    refetchQueries: [StockCategoriesAndStocksDocument]
+  })
+  const [deleteStock, { }] = useDeleteStockMutation({
+    refetchQueries: [StockCategoriesAndStocksDocument]
+  })
+  const handleStockCheckboxCanged = (e) => {
+    const stockCategoryId = e.target.dataset.categoryid
+    if (e.target.checked) {
+      createStock({
+        variables: {
+          auth: Auth.User,
+          userId: userId,
+          documentId: documentId,
+          stockCategoryId: stockCategoryId
+        }
+      })
+    } else {
+      deleteStock({
+        variables: {
+          auth: Auth.User,
+          userId: userId,
+          documentId: documentId,
+          stockCategoryId: stockCategoryId
+        }
+      })
+    }
+  }
+
+
+  // 新規のカテゴリ作成用
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [createStockCategory, { }] = useCreateStockCategoryMutation({
+    refetchQueries: [StockCategoriesAndStocksDocument]
+  })
+  const handleNewCategoryNameChanged = (e) => {
+    setNewCategoryName(e.target.value)
+  }
+  const handleCreateNewCategory = (e) => {
+    createStockCategory({ variables: { auth: Auth.User, userId: userId, name: newCategoryName } })
+  }
+
+
+
+  if (loading) return (<></>)
+  if (!data) return (<></>)
+
+
+  return (
+    <div>
+      <div className='border-0 border-green-700 text-green-700 rounded-xl m-1 px-2 py-1  text-center inline-block'
+        onClick={() => { setModalState({ ...modalState, show: true }) }}>
+        <span className='text-sm font-bold'>Stock</span>
+        {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ? 
+        <BsBookmarkCheckFill className='w-7 h-7 block mx-auto' /> :
+        <BsBookmark className='w-7 h-7 block mx-auto' /> }
+        <span className='text-sm font-bold'>{data.countStocks}</span>
+      </div>
+      <MyModal show={modalState.show} title="ストックするカテゴリー" close={() => { setModalState({ ...modalState, show: false }) }}>
+        <div>
+          {data.stockCategories.map((category) =>
+            <div key={`stockCategory-${category.id}`}>
+              <input type="checkbox" id={`stockCategory-checkbox-${category.id}`} className='mr-3 w-4 h-4 align-middle'
+                data-categoryid={category.id}
+                checked={data.stocks.some((stock) => stock.stockCategoryId == category.id)}
+                onChange={handleStockCheckboxCanged} />
+              <label htmlFor={`stockCategory-checkbox-${category.id}`} className='align-middle'>{category.name}</label>
+            </div>
+          )}
+        </div>
+        <div className='mt-3'>
+          <input type="text" className='p-2 border rounded-md w-60' value={newCategoryName} onChange={handleNewCategoryNameChanged}></input>
+          <button className='mx-2 p-2 border rounded-lg bg-blue-200' onClick={handleCreateNewCategory}>
+            <span>新しいカテゴリを作成</span>
+          </button>
+        </div>
+      </MyModal>
     </div>
   )
 }

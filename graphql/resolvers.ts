@@ -404,7 +404,68 @@ export const resolvers: Resolvers = {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
-    }
+    },
+    stockCategories: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stockCategory.findMany({ where: { userId: userId.toUpperCase() } })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    stocks: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stock.findMany({
+          where: {
+            userId: userId.toUpperCase(),
+            documentId: documentId ? documentId.toUpperCase() : undefined,
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    countStocks: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!documentId) throw new UserInputError('UserInputError')
+        const result = await prisma.stock.findMany({
+          where: {
+            documentId: documentId.toUpperCase()
+          },
+          distinct: ['userId']
+        })
+        return result?.length ?? 0
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
@@ -732,6 +793,124 @@ export const resolvers: Resolvers = {
           where: { id: _context.userSession.id.toUpperCase() },
           data: {
             username, displayName,
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, name } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!name) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stockCategory.create({
+          data: {
+            id: ulid(),
+            userId: userId.toUpperCase(),
+            name: name,
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    updateStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id, name } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        if (!name) throw new UserInputError('UserInputError')
+        const check = await prisma.stockCategory.findUnique({ where: { id: id } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stockCategory.update({
+          where: { id: id.toUpperCase() },
+          data: { name: name }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        const check = await prisma.stockCategory.findUnique({ where: { id: id } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stockCategory.delete({ where: { id: id.toUpperCase() } })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createStock: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId, stockCategoryId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!documentId) throw new UserInputError('UserInputError')
+        if (!stockCategoryId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stock.create({
+          data: {
+            userId: userId.toUpperCase(),
+            documentId: documentId.toUpperCase(),
+            stockCategoryId: stockCategoryId.toUpperCase(),
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteStock: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId, stockCategoryId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!documentId) throw new UserInputError('UserInputError')
+        if (!stockCategoryId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stock.delete({
+          where: {
+            documentId_userId_stockCategoryId: {
+              userId: userId.toUpperCase(),
+              documentId: documentId.toUpperCase(),
+              stockCategoryId: stockCategoryId.toUpperCase(),
+            }
           }
         })
       }
