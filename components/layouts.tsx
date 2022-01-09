@@ -10,7 +10,7 @@ export const Layout = ({ children, htmlTitle }: { children?: any, htmlTitle?: st
       <Head>
         <title key="title">{htmlTitle || 'compass'}</title>
       </Head>
-      <div className='bg-gray-50 min-h-screen'>
+      <div className='bg-gray-100 min-h-screen'>
         <header>
           <Header />
         </header>
@@ -28,8 +28,8 @@ export const UserSettingLayout = ({ children, htmlTitle }: { children?: any, htm
     return (
       <Link href={href} passHref>
         <a className={selected ?
-          "hover:text-gray-800 hover:bg-gray-100 flex items-center px-2 py-1 border border-l-3 border-l-orange-500 transition-colors text-gray-600 duration-200 bg-gray-100" :
-          "hover:text-gray-800 hover:bg-gray-100 flex items-center px-2 py-1 border transition-colors text-gray-600 duration-200"}
+          "hover:text-gray-800 hover:bg-gray-50 flex items-center px-2 py-1 border border-l-3 border-l-orange-500 transition-colors text-gray-600 duration-200 bg-gray-50" :
+          "hover:text-gray-800 hover:bg-gray-50 flex items-center px-2 py-1 border transition-colors text-gray-600 duration-200"}
         >
           <span className="mx-4 text-lg font-normal">{name}</span>
           <span className="flex-grow text-right">{badge}</span>
@@ -43,7 +43,7 @@ export const UserSettingLayout = ({ children, htmlTitle }: { children?: any, htm
       <Head>
         <title key="title">{htmlTitle || 'compass'}</title>
       </Head>
-      <div className='bg-gray-50 min-h-screen'>
+      <div className='bg-gray-100 min-h-screen'>
         <header>
           <Header />
         </header>
@@ -73,8 +73,8 @@ export const AdminLayout = ({ children, withMenu, fluid = "xxl" }:
     return (
       <Link href={href} passHref>
         <a className={selected ?
-          "hover:text-gray-800 hover:bg-gray-100 flex items-center p-2 my-3 transition-colors text-gray-600 rounded-lg duration-200 bg-gray-100" :
-          "hover:text-gray-800 hover:bg-gray-100 flex items-center p-2 my-3 transition-colors text-gray-600 rounded-lg duration-200"}
+          "hover:text-gray-800 hover:bg-gray-50 flex items-center p-2 my-3 transition-colors text-gray-600 rounded-lg duration-200 bg-gray-50" :
+          "hover:text-gray-800 hover:bg-gray-50 flex items-center p-2 my-3 transition-colors text-gray-600 rounded-lg duration-200"}
         >
           <span className="mx-4 text-lg font-normal">{name}</span>
           <span className="flex-grow text-right">{badge}</span>
@@ -88,7 +88,7 @@ export const AdminLayout = ({ children, withMenu, fluid = "xxl" }:
       <Head>
         <title key="title">compass Admin</title>
       </Head>
-      <div className='bg-gray-50 min-h-screen'>
+      <div className='bg-gray-100 min-h-screen'>
         <header>
           <AdminHeader />
         </header>

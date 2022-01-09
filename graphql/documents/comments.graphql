@@ -1,0 +1,96 @@
+query Comments($auth: Auth!, $userId: String, $documentId: String) {
+  comments(auth: $auth, userId: $userId, documentId: $documentId) {
+    id
+    userId
+    documentId
+    rawCommentId
+    refernceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation CreateComment($auth: Auth!, $userId: String!, $documentId: String!, $refernceCommentIdLazy: String, $body: String!) {
+  createComment(auth: $auth, userId: $userId, documentId: $documentId, refernceCommentIdLazy: $refernceCommentIdLazy, body: $body) {
+    id
+    userId
+    documentId
+    rawCommentId
+    refernceCommentIdLazy
+    createdAt
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation UpdateComment($auth: Auth!, $id: String!, $body: String!) {
+  updateComment(auth: $auth, id: $id, body: $body) {
+    id
+    userId
+    documentId
+    rawCommentId
+    refernceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation DeleteComment($auth: Auth!, $id: String!) {
+  deleteComment(auth: $auth, id: $id) {
+    id
+    userId
+    documentId
+    rawCommentId
+    refernceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}

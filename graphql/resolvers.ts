@@ -503,6 +503,29 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    comments: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId && !documentId) throw new UserInputError('UserInputError')
+        return await prisma.comment.findMany({
+          where: {
+            userId: userId ? userId.toUpperCase() : undefined,
+            documentId: documentId ? documentId.toUpperCase() : undefined,
+          },
+          include: { RawComment: true, User: true },
+          orderBy: { createdAtNumber: 'asc' }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
@@ -997,6 +1020,135 @@ export const resolvers: Resolvers = {
               documentId: documentId.toUpperCase(),
             }
           }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId, refernceCommentIdLazy, body } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        const check = await prisma.document.findUnique({
+          where: { id: documentId.toUpperCase() },
+          include: {
+            Paper: { include: { Group: { include: { MapUserGroup: true } } } }
+          }
+        })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.Paper.Group.isPrivate) {
+          if (!check.Paper.Group.MapUserGroup.find((m) => m.userId.toUpperCase() == userId.toUpperCase())) {
+            throw new ForbiddenError('Forbidden')
+          }
+        }
+        const now = Date.now()
+        const commentId = ulid()
+        return prisma.comment.create({
+          data: {
+            id: commentId,
+            User: { connect: { id: userId.toUpperCase() } },
+            Document: { connect: { id: documentId.toUpperCase() } },
+            referenceCommentIdLazy: refernceCommentIdLazy ? refernceCommentIdLazy.toUpperCase() : undefined,
+            createdAt: new Date(now).toISOString(),
+            createdAtNumber: now,
+            RawComment: {
+              create: {
+                id: ulid(),
+                userId: userId.toUpperCase(),
+                documentId: documentId.toUpperCase(),
+                commentIdLazy: commentId,
+                body: body,
+                createdAt: new Date(now).toISOString(),
+                createdAtNumber: now,
+              }
+            }
+          },
+          include: { RawComment: true, User: true }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    updateComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id, body } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const check = await prisma.comment.findUnique({
+          where: { id: id.toUpperCase() },
+          include: {
+            RawComment: true,
+            Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } }
+          }
+        })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        if (check.Document.Paper.Group.isPrivate) {
+          if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+            throw new ForbiddenError('Forbidden')
+          }
+        }
+        const now = Date.now()
+        return await prisma.comment.update({
+          where: { id: id.toUpperCase() },
+          data: {
+            RawComment: {
+              create: {
+                id: ulid(),
+                userId: check.RawComment.userId.toUpperCase(),
+                documentId: check.RawComment.documentId.toUpperCase(),
+                commentIdLazy: check.RawComment.commentIdLazy,
+                body: body,
+                createdAt: new Date(now).toISOString(),
+                createdAtNumber: now,
+              }
+            }
+          },
+          include: { RawComment: true, User: true }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const check = await prisma.comment.findUnique({
+          where: { id: id.toUpperCase() },
+          include: {
+            RawComment: true,
+            Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } }
+          }
+        })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        if (check.Document.Paper.Group.isPrivate) {
+          if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+            throw new ForbiddenError('Forbidden')
+          }
+        }
+        return await prisma.comment.delete({
+          where: { id: id.toUpperCase() },
+          include: { RawComment: true, User: true }
         })
       }
       if (auth == Auth.None) {

@@ -144,6 +144,26 @@ type Like {
   documentId: String!
 }
 
+type Comment {
+  id: String!
+  userId: String!
+  documentId: String!
+  rawCommentId: String!
+  refernceCommentIdLazy: String
+  createdAt: String!
+  User: User!
+  RawComment: RawComment!
+}
+
+type RawComment {
+  id: String!
+  userId: String!
+  documentId: String!
+  commentIdLazy: String
+  body: String!
+  createdAt: String!
+}
+
 type Query {
   session: Session
 
@@ -178,6 +198,8 @@ type Query {
 
   likes(auth: Auth!, userId: String, documentId: String): [Like]!
   countLikes(auth: Auth!, documentId: String!): Int!
+
+  comments(auth: Auth!, userId: String, documentId: String): [Comment]!
 }
 
 type Mutation {
@@ -209,4 +231,8 @@ type Mutation {
 
   createLike(auth: Auth!, userId: String!, documentId: String!): Like
   deleteLike(auth: Auth!, userId: String!, documentId: String!): Like
+
+  createComment(auth: Auth!, userId: String!, documentId: String!, refernceCommentIdLazy: String, body: String!): Comment
+  updateComment(auth: Auth!, id: String!, body: String!): Comment
+  deleteComment(auth: Auth!, id: String!): Comment
 }

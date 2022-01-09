@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useSessionQuery, useMyTimelineCpQuery, useMyJoinedGroupsCpQuery } from '@graphql/generated/react-apollo'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
+import {UserIconNameLinkSmall} from '@components/elements'
 
 export default function Page() {
 
@@ -74,16 +75,7 @@ const Timeline = () => {
                   </div>
                 </a></Link>
                 <div className='text-black'>
-                  <div className='inline-block'>
-                    <Link href={`/users/${encodeURIComponent(doc.Paper.User.id.toLowerCase())}`} passHref>
-                      <a className='group hover:underline'>
-                        <div className='inline-block mr-1 group-hover:brightness-95'>
-                          <Image loader={userIconLoader} src={doc.Paper.User.id.toLowerCase()} width={16} height={16} alt={doc.Paper.User.username} className='rounded-full' />
-                        </div>
-                        <span>@{doc.Paper.User.username}</span>
-                      </a>
-                    </Link>
-                  </div>
+                  <UserIconNameLinkSmall userId={doc.Paper.User.id} userName={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
                     が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
                   </div>

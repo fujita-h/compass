@@ -24,6 +24,7 @@ model User {
   MapUserGroup    MapUserGroup[]
   Notification    Notification[]
   Paper           Paper[]
+  RawComment      RawComment[]
   Stock           Stock[]
   StockCategory   StockCategory[]
   UserIcon        UserIcon?
@@ -90,13 +91,14 @@ model Follow {
 }
 
 model Document {
-  id       String    @id @db.VarChar(26)
-  paperId  String    @db.VarChar(26)
-  isShared Int       @default(0) @db.UnsignedTinyInt
-  Paper    Paper     @relation(fields: [paperId], references: [id])
-  Comment  Comment[]
-  Like     Like[]
-  Stock    Stock[]
+  id         String       @id @db.VarChar(26)
+  paperId    String       @db.VarChar(26)
+  isShared   Int          @default(0) @db.UnsignedTinyInt
+  Paper      Paper        @relation(fields: [paperId], references: [id])
+  Comment    Comment[]
+  Like       Like[]
+  RawComment RawComment[]
+  Stock      Stock[]
 
   @@index([paperId], map: "paperId")
 }
@@ -168,27 +170,6 @@ model MapPaperTag {
   @@index([tagId], map: "tagId")
 }
 
-model Comment {
-  id                  String   @id @db.VarChar(26)
-  documentId          String   @db.VarChar(26)
-  userId              String   @db.VarChar(26)
-  parentCommentIdLazy String?  @db.VarChar(26)
-  body                String   @db.Text
-  isDeleted           Int      @default(0) @db.UnsignedTinyInt
-  createdAt           String   @db.VarChar(50)
-  createdAtNumber     BigInt   @default(0) @db.UnsignedBigInt
-  updatedAt           String   @db.VarChar(50)
-  updatedAtNumber     BigInt   @default(0) @db.UnsignedBigInt
-  deletedAt           String   @db.VarChar(50)
-  deletedAtNumber     BigInt   @default(0) @db.UnsignedBigInt
-  Document            Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  User                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([documentId], map: "documentId")
-  @@index([parentCommentIdLazy], map: "parentCommentIdLazy")
-  @@index([userId], map: "userId")
-}
-
 model Stock {
   userId          String        @db.VarChar(26)
   documentId      String        @db.VarChar(26)
@@ -233,6 +214,40 @@ model Like {
 
   @@id([userId, documentId])
   @@index([documentId], map: "documentId")
+  @@index([userId], map: "userId")
+}
+
+model RawComment {
+  id              String    @id @db.VarChar(26)
+  userId          String    @db.VarChar(26)
+  documentId      String    @db.VarChar(26)
+  commentIdLazy   String?   @db.VarChar(26)
+  body            String    @db.Text
+  createdAt       String    @db.VarChar(50)
+  createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
+  Document        Document  @relation(fields: [documentId], references: [id])
+  User            User      @relation(fields: [userId], references: [id])
+  Comment         Comment[]
+
+  @@index([documentId], map: "documentId")
+  @@index([commentIdLazy], map: "parentCommentIdLazy")
+  @@index([userId], map: "userId")
+}
+
+model Comment {
+  id                     String     @id @db.VarChar(26)
+  userId                 String     @db.VarChar(26)
+  documentId             String     @db.VarChar(26)
+  rawCommentId           String     @db.VarChar(26)
+  referenceCommentIdLazy String?    @db.VarChar(26)
+  createdAt              String     @db.VarChar(50)
+  createdAtNumber        BigInt     @default(0) @db.UnsignedBigInt
+  Document               Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  RawComment             RawComment @relation(fields: [rawCommentId], references: [id])
+  User                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([documentId], map: "documentId")
+  @@index([rawCommentId], map: "rawCommentId")
   @@index([userId], map: "userId")
 }
 

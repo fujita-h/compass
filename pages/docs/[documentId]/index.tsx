@@ -3,7 +3,7 @@ import { useSession } from '@lib/session'
 import { Layout } from '@components/layouts'
 import { userIconLoader } from '@components/imageLoaders'
 import { getAsString } from '@lib/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from "react-markdown"
 import gfm from 'remark-gfm'
 import Image from 'next/image'
@@ -11,9 +11,12 @@ import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
 import { BsBookmark, BsBookmarkCheckFill } from 'react-icons/bs'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
-
-import { Auth, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery } from "@graphql/generated/react-apollo"
+import { Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteCommentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery, useUpdateCommentMutation } from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
+import { UserIconNameLinkSmall } from '@components/elements'
+import { XIcon } from '@heroicons/react/solid'
+
+
 
 const CONTENT_ANCHOR_PREFIX = 'content-line'
 const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
@@ -42,33 +45,37 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
   }
 
   return (
-    <div className='max-w-7xl mx-auto flex '>
-      <div className='flex-1 bg-white'>
-        <div className='mt-3 p-2'>
-          <div className='flex place-content-between'>
-            <div>
-              <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.id.toLowerCase())}`} passHref><a>
-                <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
-              </a></Link>
-              <div className='font-bold'>
-                <Link href={`/users/${encodeURIComponent(data.document.Paper.User.id.toLowerCase())}`} passHref>
-                  <a className='group hover:underline'>
-                    <div className='inline-block mr-1 group-hover:brightness-95'><Image loader={userIconLoader} src={data.document.Paper.User.id} width={16} height={16} alt={data.document.Paper.User.username} className='rounded-full' /></div>@{data.document.Paper.User.username}
-                  </a>
-                </Link></div>
-              <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
+    <div className='max-w-7xl mx-auto flex'>
+      <div className='flex-1'>
+        <div className='bg-white'>
+          <div className='mt-3 p-2'>
+            <div className='flex place-content-between'>
+              <div>
+                <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.id.toLowerCase())}`} passHref><a>
+                  <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
+                </a></Link>
+                <div className='font-bold'>
+                  <UserIconNameLinkSmall userId={data.document.Paper.User.id} userName={data.document.Paper.User.username} />
+                </div>
+                <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
+              </div>
+              <div>
+                {sessionUserId == data.document.Paper.User.id &&
+                  <div><Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a><div className='border rounded-md m-1 p-2 bg-orange-100 text-center'><GrEdit className='w-6 h-6 block mx-auto' /><span>Edit</span></div></a></Link></div>}
+              </div>
             </div>
-            <div>
-              {sessionUserId == data.document.Paper.User.id &&
-                <div><Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a><div className='border rounded-md m-1 p-2 bg-orange-100 text-center'><GrEdit className='w-6 h-6 block mx-auto' /><span>Edit</span></div></a></Link></div>}
-            </div>
+            <h1 className='text-3xl font-bold mt-1 mb-4'>
+              {data.document.Paper.title}
+            </h1>
           </div>
-          <h1 className='text-3xl font-bold mt-1 mb-4'>
-            {data.document.Paper.title}
-          </h1>
+          <div className='p-2'>
+            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.Paper.body}</ReactMarkdown>
+          </div>
         </div>
-        <div className='p-2'>
-          <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.Paper.body}</ReactMarkdown>
+        <div className='mt-8 mb-8 p-4 bg-white'>
+          <h2 className='text-2xl font-bold border-b mb-4'>コメント</h2>
+          <CommentsView userId={sessionUserId} documentId={documentId} />
+          <PostComment userId={sessionUserId} documentId={documentId} />
         </div>
       </div>
       <div className='flex-none w-60 ml-4'>
@@ -261,5 +268,169 @@ const ReactiveToC = ({ children }) => {
 
   return (
     <ReactMarkdown allowedElements={['h1', 'h2']} components={{ h1: H1, h2: H2 }}>{children}</ReactMarkdown>
+  )
+}
+
+const CommentsView = ({ userId, documentId }: { userId: string, documentId: string }) => {
+  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId } })
+
+  if (loading) return (<></>)
+  if (!data) return (<></>)
+
+  return (
+    <div>
+      {data.comments.map((comment) =>
+        <div key={`document-comment-${comment.id}`} className='border m-1 p-2'>
+          <CommentView commentId={comment.id} userId={comment.User.id} userName={comment.User.username}
+            createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt}
+            body={comment.RawComment.body} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, body }) => {
+
+  const [editorModeState, setEditorModeState] = useState(false)
+  const [deleteModalState, setDeleteModalState] = useState(false)
+  const [bodyText, setBodyText] = useState(body)
+  const [updateComment, { }] = useUpdateCommentMutation({
+    refetchQueries: [CommentsDocument],
+    onCompleted: () => setEditorModeState(false)
+  })
+  const [deleteComment, { }] = useDeleteCommentMutation({
+    refetchQueries: [CommentsDocument],
+    onCompleted: () => setDeleteModalState(false)
+  })
+
+  const handleEditSubmit = (e) => {
+    updateComment({
+      variables: {
+        auth: Auth.User, id: commentId, body: bodyText
+      }
+    })
+  }
+
+  const viewerClass = editorModeState ? 'hidden' : ''
+  const editorClass = editorModeState ? '' : 'hidden'
+
+  return (
+    <div>
+      <div className={`${viewerClass}`}>
+        <div className='flex justify-between'>
+          <div>
+            <UserIconNameLinkSmall userId={userId} userName={userName} />
+          </div>
+          <div>
+            {new Date(createdAt).toLocaleString()}
+            {createdAt == rawCreatedAt ? '' : ' (編集済み)'}
+            <div className='text-right'>
+              <button className='border rounded-lg px-2 py-1 mx-1 bg-blue-200' onClick={() => setEditorModeState(true)}>編集</button>
+              <button className='border rounded-lg px-2 py-1 mx-1 bg-red-200' onClick={() => setDeleteModalState(true)}>削除</button>
+            </div>
+
+          </div>
+        </div>
+        <div>
+          <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false}>{body}</ReactMarkdown>
+        </div>
+      </div>
+
+      <div className={`${editorClass}`}>
+        <CommentEditForm bodyText={bodyText} setBodyText={setBodyText} submitButtonLabel="コメントを修正" handleSubmit={handleEditSubmit} handleCancelButton={() => { setEditorModeState(false) }} />
+      </div>
+
+      <MyModal show={deleteModalState} close={() => { setDeleteModalState(false) }} title="コメントの削除">
+        <div>
+          コメントを削除しますか？
+        </div>
+        <div className='flex justify-between mt-3'>
+          <button className='border px-2 py-1 bg-gray-200' onClick={() => { setDeleteModalState(false) }}>キャンセル</button>
+          <button className='border px-2 py-1 bg-red-200' onClick={() => { deleteComment({ variables: { auth: Auth.User, id: commentId } }) }}>削除する</button>
+        </div>
+      </MyModal>
+
+    </div>
+  )
+}
+
+const PostComment = ({ userId, documentId }: { userId: string, documentId: string }) => {
+
+  const [bodyText, setBodyText] = useState('')
+  const [postComment, { }] = useCreateCommentMutation({
+    refetchQueries: [CommentsDocument]
+  })
+
+  const handleSubmit = (e) => {
+    postComment({
+      variables: { auth: Auth.User, userId, documentId, body: bodyText },
+      onCompleted: (data) => { setBodyText('') }
+    })
+  }
+
+  return <CommentEditForm bodyText={bodyText} setBodyText={setBodyText} submitButtonLabel="投稿" handleSubmit={handleSubmit} handleCancelButton={undefined} />
+}
+
+
+const CommentEditForm = ({ bodyText, setBodyText, submitButtonLabel, handleSubmit, handleCancelButton }:
+  {
+    bodyText: string, setBodyText: Dispatch<SetStateAction<string>>, submitButtonLabel: string,
+    handleSubmit: MouseEventHandler<HTMLButtonElement>, handleCancelButton: MouseEventHandler<HTMLButtonElement>
+  }) => {
+
+  const [selectedTab, setSelectedTab] = useState(0)
+  const handleTextChanged = (e) => {
+    setBodyText(e.target.value)
+  }
+
+  const editTabClass = selectedTab == 0 ? 'border-blue-600' : ''
+  const previewTabClass = selectedTab == 1 ? 'border-blue-600' : ''
+  const editContentClass = selectedTab == 0 ? '' : 'hidden'
+  const previewContentClass = selectedTab == 1 ? '' : 'hidden'
+
+
+  return (
+    <div className='p-3'>
+      <ul className="flex flex-col md:flex-row flex-wrap list-none border-b-0 pl-0 mb-2">
+        <li className='flex-none'>
+          <div className={`block border-x-0 border-t-0 border-b-2 border-transparent px-6 py-3 my-2 hover:cursor-pointer hover:bg-gray-100 ${editTabClass}`}
+            onClick={() => { setSelectedTab(0) }}>
+            <span>編集</span>
+          </div>
+        </li>
+        <li className='flex-none'>
+          <div className={`block border-x-0 border-t-0 border-b-2 border-transparent px-6 py-3 my-2 hover:cursor-pointer hover:bg-gray-100 ${previewTabClass}`}
+            onClick={() => { setSelectedTab(1) }}>
+            <span>プレビュー</span>
+          </div>
+        </li>
+        {handleCancelButton ?
+          <li className='flex-grow'>
+            <div className='block pt-6 my-2 text-right'>
+              <button type="button" className="" onClick={handleCancelButton}><XIcon className="text-gray-600 w-6 h-6 border-1 rounded-md" /></button>
+            </div>
+          </li> : <></>}
+      </ul>
+      <div className='min-h-[100px]'>
+        <div className={`${editContentClass}`} >
+          <textarea className='w-full h-full min-h-[80px] p-3 m-1 border'
+            value={bodyText}
+            onChange={handleTextChanged}
+            onInput={(e) => {
+              e.currentTarget.style.height = '80px'
+              e.currentTarget.style.height = e.currentTarget.scrollHeight + 5 + 'px'
+            }}></textarea>
+        </div>
+        <div className={`${previewContentClass}`}>
+          <div className='w-full h-full min-h-[80px] p-0 m-1 border inline-block'>
+            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false}>{bodyText}</ReactMarkdown>
+          </div>
+        </div>
+      </div>
+      <div className='text-right'>
+        <button className='px-2 py-2 border rounded-lg bg-blue-100' onClick={handleSubmit}>{submitButtonLabel}</button>
+      </div>
+    </div>
   )
 }
