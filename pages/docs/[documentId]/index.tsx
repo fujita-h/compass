@@ -82,11 +82,11 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
 const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPageQuery: DocumentPageQuery }) => {
   return (
     <div className='sticky top-16'>
-      <div className='m-2 flex'>
-        <StockComponents userId={userId} documentId={documentPageQuery.document.id} />
+      <div className='m-2 flex gap-1'>
+        <StockBadge userId={userId} documentId={documentPageQuery.document.id} />
         <LikeBadge userId={userId} documentId={documentPageQuery.document.id} />
       </div>
-      <div>
+      <div className='mt-2'>
         <ReactiveToC>{documentPageQuery.document.Paper.body}</ReactiveToC>
       </div>
     </div>
@@ -94,7 +94,7 @@ const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPage
   )
 }
 
-const StockComponents = ({ userId, documentId }: { userId: string, documentId: string }) => {
+const StockBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
   const [modalState, setModalState] = useState({ show: false })
   const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
 
@@ -149,12 +149,12 @@ const StockComponents = ({ userId, documentId }: { userId: string, documentId: s
 
   return (
     <div>
-      <div className='border-0 border-green-700 text-green-700 rounded-xl m-1 px-2 py-1  text-center inline-block'
+      <div className='outline-green-700 text-green-700 rounded-xl px-3 py-1 text-center inline-block hover:outline hover:cursor-pointer'
         onClick={() => { setModalState({ ...modalState, show: true }) }}>
         <span className='text-sm font-bold'>Stock</span>
         {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ?
           <BsBookmarkCheckFill className='w-7 h-7 block mx-auto' /> :
-        <BsBookmark className='w-7 h-7 block mx-auto' /> }
+          <BsBookmark className='w-7 h-7 block mx-auto' />}
         <span className='text-sm font-bold'>{data.countStocks}</span>
       </div>
       <MyModal show={modalState.show} title="ストックするカテゴリー" close={() => { setModalState({ ...modalState, show: false }) }}>
@@ -208,16 +208,15 @@ const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string 
 
 
   return (
-    <div className='border-0 border-pink-600 text-pink-600 rounded-xl m-1 px-2 py-1  text-center inline-block'
+    <div className='outline-pink-600 text-pink-600 rounded-xl px-3 py-1 text-center inline-block hover:outline hover:cursor-pointer'
       onClick={handleClick} data-isliked={isLiked}>
-      <span className='text-sm font-bold'>Like</span>
+      <span className='text-sm font-bold'> Like </span>
       {isLiked ?
         <AiFillLike className='w-7 h-7 block mx-auto' /> :
         <AiOutlineLike className='w-7 h-7 block mx-auto' />}
       <span className='text-sm font-bold'>{countLikes}</span>
     </div>
   )
-
 }
 
 
