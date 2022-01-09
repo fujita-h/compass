@@ -466,6 +466,43 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    likes: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId && !documentId) throw new UserInputError('UserInputError')
+        return await prisma.like.findMany({
+          where: {
+            userId: userId ? userId.toUpperCase() : undefined,
+            documentId: documentId ? documentId.toUpperCase() : undefined,
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    countLikes: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!documentId) throw new UserInputError('UserInputError')
+        return await prisma.like.count({ where: { documentId: documentId.toUpperCase() } })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
@@ -910,6 +947,54 @@ export const resolvers: Resolvers = {
               userId: userId.toUpperCase(),
               documentId: documentId.toUpperCase(),
               stockCategoryId: stockCategoryId.toUpperCase(),
+            }
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createLike: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!documentId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.like.create({
+          data: {
+            userId: userId.toUpperCase(),
+            documentId: documentId.toUpperCase(),
+          }
+        })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteLike: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!documentId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.like.delete({
+          where: {
+            userId_documentId: {
+              userId: userId.toUpperCase(),
+              documentId: documentId.toUpperCase(),
             }
           }
         })

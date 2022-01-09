@@ -20,6 +20,7 @@ model User {
   Comment         Comment[]
   Follow          Follow[]        @relation("Follow_fromUserIdToUser")
   Follower        Follow[]        @relation("Follow_toUserIdToUser")
+  Like            Like[]
   MapUserGroup    MapUserGroup[]
   Notification    Notification[]
   Paper           Paper[]
@@ -94,6 +95,7 @@ model Document {
   isShared Int       @default(0) @db.UnsignedTinyInt
   Paper    Paper     @relation(fields: [paperId], references: [id])
   Comment  Comment[]
+  Like     Like[]
   Stock    Stock[]
 
   @@index([paperId], map: "paperId")
@@ -220,6 +222,17 @@ model Notification {
   createdAtNumber BigInt @default(0) @db.UnsignedBigInt
   User            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "userId")
+}
+
+model Like {
+  userId     String   @db.VarChar(26)
+  documentId String   @db.VarChar(26)
+  Document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+  @@index([documentId], map: "documentId")
   @@index([userId], map: "userId")
 }
 

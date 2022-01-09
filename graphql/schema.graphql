@@ -139,6 +139,11 @@ type Stock {
   stockCategoryId: String!
 }
 
+type Like {
+  userId: String!
+  documentId: String!
+}
+
 type Query {
   session: Session
 
@@ -170,6 +175,9 @@ type Query {
   stockCategories(auth: Auth!, userId: String): [StockCategory]!
   stocks(auth: Auth!, userId: String, documentId: String): [Stock]!
   countStocks(auth: Auth!, documentId: String!): Int!
+
+  likes(auth: Auth!, userId: String, documentId: String): [Like]!
+  countLikes(auth: Auth!, documentId: String!): Int!
 }
 
 type Mutation {
@@ -198,4 +206,7 @@ type Mutation {
 
   createStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
   deleteStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
+
+  createLike(auth: Auth!, userId: String!, documentId: String!): Like
+  deleteLike(auth: Auth!, userId: String!, documentId: String!): Like
 }

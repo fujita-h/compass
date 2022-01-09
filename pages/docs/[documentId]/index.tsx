@@ -3,15 +3,16 @@ import { useSession } from '@lib/session'
 import { Layout } from '@components/layouts'
 import { userIconLoader } from '@components/imageLoaders'
 import { getAsString } from '@lib/utils'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from "react-markdown"
 import gfm from 'remark-gfm'
 import Image from 'next/image'
 import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
 import { BsBookmark, BsBookmarkCheckFill } from 'react-icons/bs'
+import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 
-import { Auth, DocumentPageQuery, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteStockMutation, useDocumentPageQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery } from "@graphql/generated/react-apollo"
+import { Auth, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery } from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
 
 const CONTENT_ANCHOR_PREFIX = 'content-line'
@@ -81,8 +82,9 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
 const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPageQuery: DocumentPageQuery }) => {
   return (
     <div className='sticky top-16'>
-      <div className='m-2'>
+      <div className='m-2 flex'>
         <StockComponents userId={userId} documentId={documentPageQuery.document.id} />
+        <LikeBadge userId={userId} documentId={documentPageQuery.document.id} />
       </div>
       <div>
         <ReactiveToC>{documentPageQuery.document.Paper.body}</ReactiveToC>
@@ -150,8 +152,8 @@ const StockComponents = ({ userId, documentId }: { userId: string, documentId: s
       <div className='border-0 border-green-700 text-green-700 rounded-xl m-1 px-2 py-1  text-center inline-block'
         onClick={() => { setModalState({ ...modalState, show: true }) }}>
         <span className='text-sm font-bold'>Stock</span>
-        {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ? 
-        <BsBookmarkCheckFill className='w-7 h-7 block mx-auto' /> :
+        {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ?
+          <BsBookmarkCheckFill className='w-7 h-7 block mx-auto' /> :
         <BsBookmark className='w-7 h-7 block mx-auto' /> }
         <span className='text-sm font-bold'>{data.countStocks}</span>
       </div>
@@ -177,6 +179,47 @@ const StockComponents = ({ userId, documentId }: { userId: string, documentId: s
     </div>
   )
 }
+
+
+const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
+
+  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId } })
+  const [createLike, { }] = useCreateLikeMutation({
+    refetchQueries: [LikesDocument]
+  })
+  const [deleteLike, { }] = useDeleteLikeMutation({
+    refetchQueries: [LikesDocument]
+  })
+
+
+  const isLiked = useMemo(() => data?.likes?.find((like) => like.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countLikes = useMemo(() => data?.likes.length, [data])
+
+  const handleClick = (e) => {
+    if (isLiked) {
+      deleteLike({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+    } else {
+      createLike({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+    }
+  }
+
+  if (loading) return (<></>)
+  if (!data) return (<></>)
+
+
+  return (
+    <div className='border-0 border-pink-600 text-pink-600 rounded-xl m-1 px-2 py-1  text-center inline-block'
+      onClick={handleClick} data-isliked={isLiked}>
+      <span className='text-sm font-bold'>Like</span>
+      {isLiked ?
+        <AiFillLike className='w-7 h-7 block mx-auto' /> :
+        <AiOutlineLike className='w-7 h-7 block mx-auto' />}
+      <span className='text-sm font-bold'>{countLikes}</span>
+    </div>
+  )
+
+}
+
 
 const ReactiveToC = ({ children }) => {
 
