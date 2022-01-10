@@ -28,7 +28,7 @@ const uploadGroupIcon = async (files, groupId) => {
 
 export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
 
-  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId } })
 
   useEffect(() => {
     if (!data?.group) return
@@ -371,7 +371,7 @@ const SearchUserForm = ({ auth, state, setState, groupId, currentMembers }: { au
   const ITEMS_PER_PAGE = 10
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedUsers, setSelectedUsers] = useState({})
-  const { data, loading, error } = useGetUsersQuery({ variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }, fetchPolicy: 'cache-and-network' })
+  const { data, loading, error } = useGetUsersQuery({ variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE } })
   const [createGroupMember, { }] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })
   const handlePaginationChanged = (index) => {
     setPageIndex(index)

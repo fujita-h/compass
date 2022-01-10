@@ -11,7 +11,7 @@ export function useSession(
   { redirectTo, redirectIfFound }: { redirectTo?: string, redirectIfFound?: boolean } = {}
 ) {
 
-  const { data, error } = useSessionQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, error } = useSessionQuery()
   const uuid = data?.session?.userSession?.id || null
   const hasId = Boolean(uuid)
   const finished = Boolean(data)
@@ -30,7 +30,7 @@ export function useSession(
 export function useAdminSession({ redirectTo, redirectIfFound }
   : { redirectTo?: string, redirectIfFound?: boolean } = {}) {
 
-  const { data, error } = useSessionQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, error } = useSessionQuery()
   const adminFlag = data?.session?.adminSession?.admin || null
   const hasAdminFlag = Boolean(adminFlag)
   const finished = Boolean(data)

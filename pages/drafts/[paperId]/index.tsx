@@ -17,7 +17,7 @@ export default function Page() {
 
 const InnerPage = ({ paperId }: { paperId: string }) => {
   console.log('test innnerPage render')
-  const { data, loading } = useDraftPageQuery({ variables: { paperId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useDraftPageQuery({ variables: { paperId } })
 
   const [updateDraft, { data: updateDraftData, loading: updateDraftLoading, error: updateDraftError, client }] = useUpdateDraftMutation({
     onCompleted: (data) => {

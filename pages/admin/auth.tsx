@@ -6,7 +6,7 @@ import { Toggle } from '@components/elements'
 export default function Page() {
 
   const session = useAdminSession({ redirectTo: '/admin/login' })
-  const { data, loading } = useAdminAuthPageQuery({fetchPolicy: 'cache-and-network'})
+  const { data, loading } = useAdminAuthPageQuery()
   const [setConfiguration, {}] = useUpdateConfigurationMutation({refetchQueries:[AdminAuthPageDocument]})
 
   if (loading) return (<AdminLayout />)

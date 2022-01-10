@@ -10,7 +10,7 @@ export default function Page() {
   const session = useAdminSession({ redirectTo: '/admin/login' })
   const [createModalState, setCreateModalState] = useState({ show: false, groupData: null });
 
-  const { data, loading, refetch } = useAdminGroupsIndexPageQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, loading, refetch } = useAdminGroupsIndexPageQuery()
 
   if (!session) return (<AdminLayout />)
   if (loading) return (<AdminLayout />)

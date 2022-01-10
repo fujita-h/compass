@@ -111,7 +111,7 @@ export const Header = () => {
 
 export const AdminHeader = () => {
   //const session = useAdminSession()
-  const { data, loading } = useSessionQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useSessionQuery()
 
   if (loading) return (<></>)
   if (!data) return (<></>)

@@ -6,7 +6,7 @@ import { useGroupsPageQuery } from '@graphql/generated/react-apollo'
 export default function Page() {
 
   const session = useSession({ redirectTo: "/login" })
-  const { data, loading } = useGroupsPageQuery({fetchPolicy: 'cache-and-network'})
+  const { data, loading } = useGroupsPageQuery()
 
   if (!session) return (<></>)
   if (loading) return (<></>)

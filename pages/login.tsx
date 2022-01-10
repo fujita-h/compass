@@ -9,7 +9,7 @@ const Login = () => {
   const session = useSession({ redirectTo: '/', redirectIfFound: true })
   const router = useRouter()
 
-  const { data, loading } = useLoginPageQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useLoginPageQuery()
 
   const [errorMsg, setErrorMsg] = useState('')
 

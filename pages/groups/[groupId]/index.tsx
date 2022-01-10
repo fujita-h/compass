@@ -20,7 +20,7 @@ export default function Page(props) {
 }
 
 const InnerPage = ({ groupId }: { groupId: string }) => {
-  const { data, loading } = useGroupIndexPageQuery({ variables: { groupId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useGroupIndexPageQuery({ variables: { groupId } })
   if (loading) return (<></>)
   if (!data.group) return (<div className="text-red-500">{groupId} Not Found.</div>)
 

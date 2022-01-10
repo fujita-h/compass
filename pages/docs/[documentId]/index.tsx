@@ -40,7 +40,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, documentId: string }) => {
-  const { data, loading } = useDocumentPageQuery({ variables: { documentId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useDocumentPageQuery({ variables: { documentId } })
 
   const H1 = useCallback(({ node, ...props }) => <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h1>, [])
   const H2 = useCallback(({ node, ...props }) => <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h2>, [])
@@ -110,7 +110,7 @@ const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPage
 
 const StockBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
   const [modalState, setModalState] = useState({ show: false })
-  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
 
   // ストックの更新用
   const [createStock, { }] = useCreateStockMutation({
@@ -191,7 +191,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
 }
 
 const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
-  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId } })
   const [createLike, { }] = useCreateLikeMutation({
     refetchQueries: [LikesDocument]
   })
@@ -270,7 +270,7 @@ const ReactiveToC = ({ children }) => {
 }
 
 const CommentsView = ({ userId, documentId }: { userId: string, documentId: string }) => {
-  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId } })
   const [refCommentId, setRefCommentId] = useState('')
   const [featureCommentId, setFeatureCommentId] = useState('')
 
@@ -539,7 +539,7 @@ const CommentEditForm = ({ bodyText, setBodyText, refCommentId, setRefCommentId,
 }
 
 const CommentSummary = ({ commentId }) => {
-  const { data, loading } = useCommentQuery({ variables: { auth: Auth.User, id: commentId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useCommentQuery({ variables: { auth: Auth.User, id: commentId } })
 
   if (loading) return (<span></span>)
   if (!data) return (<span>削除されたコメント</span>)

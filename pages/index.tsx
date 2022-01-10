@@ -8,7 +8,7 @@ import { UserIconNameLinkSmall } from '@components/elements'
 export default function Page() {
 
   // Indexページはログインの有無でページを切り替える必要があるので、errorPolicy:all
-  const { data, loading, refetch, } = useSessionQuery({ fetchPolicy: 'cache-and-network', errorPolicy: 'all' })
+  const { data, loading, refetch, } = useSessionQuery({ errorPolicy: 'all' })
   if (loading) return (<Layout />)
 
   // userSession が無ければ、未ログイン

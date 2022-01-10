@@ -18,7 +18,7 @@ export default function Page() {
 
 const InnerPage = ({ userId, documentId }: { userId: string, documentId: string }) => {
 
-  const { data: document, loading: loadingDocument } = useDocumentPageQuery({ variables: { documentId }, fetchPolicy: 'cache-and-network' })
+  const { data: document, loading: loadingDocument } = useDocumentPageQuery({ variables: { documentId } })
 
   const [createDraft, { data, loading, error, client }] = useCreateDraftMutation({
     onCompleted: (data) => {
