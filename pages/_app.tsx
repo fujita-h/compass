@@ -15,6 +15,13 @@ const client = new ApolloClient({
           myTimelineCP: relayStylePagination(),
           documentsCP: relayStylePagination(),
         }
+      },
+      Document: {
+        fields: {
+          Paper: {
+            merge: true
+          }
+        }
       }
     }
   }),
