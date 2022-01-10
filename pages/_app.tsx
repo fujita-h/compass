@@ -25,6 +25,17 @@ const client = new ApolloClient({
       }
     }
   }),
+  defaultOptions: {
+    query: {
+      fetchPolicy: 'network-only'
+    },
+    watchQuery: {
+      fetchPolicy: 'cache-and-network'
+    },
+    mutate: {
+      fetchPolicy: 'network-only'
+    }
+  }
 });
 
 const App = ({ Component, pageProps }: AppProps) => (
