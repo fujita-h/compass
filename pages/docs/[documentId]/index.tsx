@@ -1,22 +1,30 @@
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/session'
 import { Layout } from '@components/layouts'
-import { userIconLoader } from '@components/imageLoaders'
 import { getAsString } from '@lib/utils'
 import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from "react-markdown"
 import gfm from 'remark-gfm'
-import Image from 'next/image'
 import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
-import { BsBookmark, BsBookmarkCheckFill } from 'react-icons/bs'
+import { BsBookmark, BsBookmarkCheckFill, BsThreeDots } from 'react-icons/bs'
+import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
-import { Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, StockCategoriesDocument, useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation, useDeleteCommentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery, useStockCategoriesAndStocksQuery, useStockCategoriesQuery, useUpdateCommentMutation } from "@graphql/generated/react-apollo"
+import {
+  Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
+  useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation,
+  useDeleteCommentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery,
+  useStockCategoriesAndStocksQuery, useUpdateCommentMutation
+} from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
 import { UserIconNameLinkSmall } from '@components/elements'
 import { XIcon } from '@heroicons/react/solid'
 
-
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import remarkRehype from 'remark-rehype'
+import rehypeStringify from 'rehype-stringify'
 
 const CONTENT_ANCHOR_PREFIX = 'content-line'
 const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
@@ -54,7 +62,7 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
                 <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.id.toLowerCase())}`} passHref><a>
                   <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
                 </a></Link>
-                <div className='font-bold'>
+                <div>
                   <UserIconNameLinkSmall userId={data.document.Paper.User.id} userName={data.document.Paper.User.username} />
                 </div>
                 <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
@@ -75,7 +83,6 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
         <div className='mt-8 mb-8 p-4 bg-white'>
           <h2 className='text-2xl font-bold border-b mb-4'>コメント</h2>
           <CommentsView userId={sessionUserId} documentId={documentId} />
-          <PostComment userId={sessionUserId} documentId={documentId} />
         </div>
       </div>
       <div className='flex-none w-60 ml-4'>
@@ -103,7 +110,7 @@ const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPage
 
 const StockBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
   const [modalState, setModalState] = useState({ show: false })
-  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId }, fetchPolicy: 'cache-and-network' })
 
   // ストックの更新用
   const [createStock, { }] = useCreateStockMutation({
@@ -135,7 +142,6 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     }
   }
 
-
   // 新規のカテゴリ作成用
   const [newCategoryName, setNewCategoryName] = useState('')
   const [createStockCategory, { }] = useCreateStockCategoryMutation({
@@ -148,11 +154,8 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     createStockCategory({ variables: { auth: Auth.User, userId: userId, name: newCategoryName } })
   }
 
-
-
   if (loading) return (<></>)
   if (!data) return (<></>)
-
 
   return (
     <div>
@@ -187,10 +190,8 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
   )
 }
 
-
 const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
-
-  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId } })
+  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId }, fetchPolicy: 'cache-and-network' })
   const [createLike, { }] = useCreateLikeMutation({
     refetchQueries: [LikesDocument]
   })
@@ -213,7 +214,6 @@ const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string 
   if (loading) return (<></>)
   if (!data) return (<></>)
 
-
   return (
     <div className='outline-pink-600 text-pink-600 rounded-xl px-3 py-1 text-center inline-block hover:outline hover:cursor-pointer'
       onClick={handleClick} data-isliked={isLiked}>
@@ -226,9 +226,7 @@ const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string 
   )
 }
 
-
 const ReactiveToC = ({ children }) => {
-
   const [scrollMarker, setScrollMarker] = useState('')
   const throrttleTimer = useRef(Date.now())
   const throttle = useCallback((fn, delay) => {
@@ -272,28 +270,57 @@ const ReactiveToC = ({ children }) => {
 }
 
 const CommentsView = ({ userId, documentId }: { userId: string, documentId: string }) => {
-  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId } })
+  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId }, fetchPolicy: 'cache-and-network' })
+  const [refCommentId, setRefCommentId] = useState('')
+  const [featureCommentId, setFeatureCommentId] = useState('')
+
+  const handleResetfeature = (e) => {
+    if (e.currentTarget?.dataset?.commentid?.toLowerCase() == featureCommentId.toLowerCase()) {
+      setFeatureCommentId('')
+    }
+  }
 
   if (loading) return (<></>)
   if (!data) return (<></>)
 
   return (
     <div>
-      {data.comments.map((comment) =>
-        <div key={`document-comment-${comment.id}`} className='border m-1 p-2'>
-          <CommentView commentId={comment.id} userId={comment.User.id} userName={comment.User.username}
-            createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt}
-            body={comment.RawComment.body} />
-        </div>
-      )}
+      <div>
+        {data.comments.map((comment) => {
+          const feaColoredBorder = comment.id.toUpperCase() === featureCommentId.toUpperCase() ? 'border-blue-300 border-2' : ''
+          const refColoredBorder = comment.id.toUpperCase() === refCommentId.toUpperCase() ? 'border-red-300 border-2' : ''
+          return (
+            <div key={`document-comment-${comment.id}`} className={`border m-1 p-2 ${feaColoredBorder} ${refColoredBorder}`} data-commentid={comment.id} onClick={handleResetfeature}>
+              <CommentView commentId={comment.id} userId={comment.User.id} userName={comment.User.username}
+                createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt} body={comment.RawComment.body}
+                refCommentId={comment.referenceCommentIdLazy} setRefCommentId={setRefCommentId} setFeatureCommentId={setFeatureCommentId} />
+            </div>
+          )
+        })}
+      </div>
+      <div id="postNewComment">
+        <PostComment userId={userId} documentId={documentId} refCommentId={refCommentId} setRefCommentId={setRefCommentId} />
+      </div>
     </div>
   )
 }
 
-const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, body }) => {
+const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, body, refCommentId, setRefCommentId, setFeatureCommentId }:
+  {
+    commentId: string,
+    userId: string,
+    userName: string,
+    createdAt: string,
+    rawCreatedAt: string,
+    body: string,
+    refCommentId: string,
+    setRefCommentId: Dispatch<SetStateAction<string>>,
+    setFeatureCommentId: Dispatch<SetStateAction<string>>
+  }) => {
 
   const [editorModeState, setEditorModeState] = useState(false)
   const [deleteModalState, setDeleteModalState] = useState(false)
+  const [subMenuOpen, setSubMenuOpen] = useState(false)
   const [bodyText, setBodyText] = useState(body)
   const [updateComment, { }] = useUpdateCommentMutation({
     refetchQueries: [CommentsDocument],
@@ -312,24 +339,64 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
     })
   }
 
-  const viewerClass = editorModeState ? 'hidden' : ''
-  const editorClass = editorModeState ? '' : 'hidden'
+  const handleFeatureComment = (e) => {
+    e.stopPropagation()
+    setFeatureCommentId(refCommentId)
+    document.getElementById('comment-' + refCommentId.toLowerCase()).scrollIntoView()
+  }
+
+  const handleReply = (e) => {
+    setRefCommentId(commentId)
+    document.getElementById('postNewComment').scrollIntoView()
+    setSubMenuOpen(false)
+  }
 
   return (
     <div>
-      <div className={`${viewerClass}`}>
+      <div id={`comment-${commentId.toLowerCase()}`} hidden={editorModeState}>
+        {refCommentId ?
+          <div className='text-gray-500 flex'>
+            <div className='flex-none mr-2'>
+              <IoReturnUpForward className='ml-2 mr-2 w-6 h-6 inline-block' />
+              <span>返信元:</span>
+            </div>
+            <div className='flex-1 inline-block align-bottom mr-10 bg-gray-100 hover:cursor-pointer' onClick={handleFeatureComment}>
+              <CommentSummary commentId={refCommentId} />
+            </div>
+          </div> : <></>
+        }
         <div className='flex justify-between'>
           <div>
             <UserIconNameLinkSmall userId={userId} userName={userName} />
           </div>
           <div>
-            {new Date(createdAt).toLocaleString()}
-            {createdAt == rawCreatedAt ? '' : ' (編集済み)'}
-            <div className='text-right'>
-              <button className='border rounded-lg px-2 py-1 mx-1 bg-blue-200' onClick={() => setEditorModeState(true)}>編集</button>
-              <button className='border rounded-lg px-2 py-1 mx-1 bg-red-200' onClick={() => setDeleteModalState(true)}>削除</button>
+            <div className='inline-block align-top mr-2'>
+              {new Date(createdAt).toLocaleString()}
+              {createdAt == rawCreatedAt ? '' : ' (編集済み)'}
             </div>
 
+            {/* sub-menu */}
+            <div className='relative inline-block hover:cursor-pointer'
+              onClick={(e) => e.currentTarget.focus}
+              onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSubMenuOpen(false) } }}
+              tabIndex={0}>
+              {/* menu button */}
+              <div className='w-6 h-6 p-1 border'
+                onClick={() => setSubMenuOpen(!subMenuOpen)}>
+                <BsThreeDots className='w-full h-full' />
+              </div>
+              {/* menu list */}
+              <div hidden={!subMenuOpen}
+                className='z-40 origin-top-right absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10'>
+                <div>
+                  <span className='block px-4 py-2 hover:bg-gray-100' onClick={handleReply}>このコメントに返信</span>
+                  <span className="block border-b"></span>
+                  <span className='block px-4 py-2 hover:bg-gray-100' onClick={() => setEditorModeState(true)}>編集</span>
+                  <span className="block border-b"></span>
+                  <span className='block px-4 py-2 hover:bg-gray-100' onClick={() => setDeleteModalState(true)}>削除</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div>
@@ -337,7 +404,7 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
         </div>
       </div>
 
-      <div className={`${editorClass}`}>
+      <div hidden={!editorModeState}>
         <CommentEditForm bodyText={bodyText} setBodyText={setBodyText} submitButtonLabel="コメントを修正" handleSubmit={handleEditSubmit} handleCancelButton={() => { setEditorModeState(false) }} />
       </div>
 
@@ -355,7 +422,13 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
   )
 }
 
-const PostComment = ({ userId, documentId }: { userId: string, documentId: string }) => {
+const PostComment = ({ userId, documentId, refCommentId, setRefCommentId }:
+  {
+    userId: string,
+    documentId: string,
+    refCommentId?: string,
+    setRefCommentId?: Dispatch<SetStateAction<string>>
+  }) => {
 
   const [bodyText, setBodyText] = useState('')
   const [postComment, { }] = useCreateCommentMutation({
@@ -364,19 +437,35 @@ const PostComment = ({ userId, documentId }: { userId: string, documentId: strin
 
   const handleSubmit = (e) => {
     postComment({
-      variables: { auth: Auth.User, userId, documentId, body: bodyText },
-      onCompleted: (data) => { setBodyText('') }
+      variables: {
+        auth: Auth.User,
+        userId,
+        documentId,
+        body: bodyText,
+        referenceCommentIdLazy: refCommentId ? refCommentId : undefined
+      },
+      onCompleted: (data) => {
+        setBodyText('')
+        setRefCommentId('')
+      }
     })
   }
 
-  return <CommentEditForm bodyText={bodyText} setBodyText={setBodyText} submitButtonLabel="投稿" handleSubmit={handleSubmit} handleCancelButton={undefined} />
+  return <CommentEditForm bodyText={bodyText} setBodyText={setBodyText}
+    refCommentId={refCommentId} setRefCommentId={setRefCommentId}
+    submitButtonLabel="投稿" handleSubmit={handleSubmit} />
 }
 
 
-const CommentEditForm = ({ bodyText, setBodyText, submitButtonLabel, handleSubmit, handleCancelButton }:
+const CommentEditForm = ({ bodyText, setBodyText, refCommentId, setRefCommentId, submitButtonLabel, handleSubmit, handleCancelButton }:
   {
-    bodyText: string, setBodyText: Dispatch<SetStateAction<string>>, submitButtonLabel: string,
-    handleSubmit: MouseEventHandler<HTMLButtonElement>, handleCancelButton: MouseEventHandler<HTMLButtonElement>
+    bodyText: string,
+    setBodyText: Dispatch<SetStateAction<string>>,
+    refCommentId?: string,
+    setRefCommentId?: Dispatch<SetStateAction<string>>,
+    submitButtonLabel: string,
+    handleSubmit: MouseEventHandler<HTMLButtonElement>,
+    handleCancelButton?: MouseEventHandler<HTMLButtonElement>
   }) => {
 
   const [selectedTab, setSelectedTab] = useState(0)
@@ -386,9 +475,6 @@ const CommentEditForm = ({ bodyText, setBodyText, submitButtonLabel, handleSubmi
 
   const editTabClass = selectedTab == 0 ? 'border-blue-600' : ''
   const previewTabClass = selectedTab == 1 ? 'border-blue-600' : ''
-  const editContentClass = selectedTab == 0 ? '' : 'hidden'
-  const previewContentClass = selectedTab == 1 ? '' : 'hidden'
-
 
   return (
     <div className='p-3'>
@@ -413,7 +499,7 @@ const CommentEditForm = ({ bodyText, setBodyText, submitButtonLabel, handleSubmi
           </li> : <></>}
       </ul>
       <div className='min-h-[100px]'>
-        <div className={`${editContentClass}`} >
+        <div hidden={selectedTab !== 0}>
           <textarea className='w-full h-full min-h-[80px] p-3 m-1 border'
             value={bodyText}
             onChange={handleTextChanged}
@@ -422,15 +508,55 @@ const CommentEditForm = ({ bodyText, setBodyText, submitButtonLabel, handleSubmi
               e.currentTarget.style.height = e.currentTarget.scrollHeight + 5 + 'px'
             }}></textarea>
         </div>
-        <div className={`${previewContentClass}`}>
+        <div hidden={selectedTab !== 1}>
           <div className='w-full h-full min-h-[80px] p-0 m-1 border inline-block'>
             <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false}>{bodyText}</ReactMarkdown>
           </div>
         </div>
       </div>
-      <div className='text-right'>
-        <button className='px-2 py-2 border rounded-lg bg-blue-100' onClick={handleSubmit}>{submitButtonLabel}</button>
+      <div className='flex justify-between gap-20'>
+        <div>
+          {refCommentId && setRefCommentId ?
+            <div>
+              <div className='mb-1'>
+                <span>以下に返信</span>
+                <button className='ml-3 border rounded-lg px-2 py-1 bg-blue-200 hover:bg-blue-300' onClick={() => { setRefCommentId('') }}>取り消す</button>
+              </div>
+              <div className='bg-gray-100'>
+                <span><a href={`#comment-${refCommentId.toLowerCase()}`}>
+                  <CommentSummary commentId={refCommentId} />
+                </a></span>
+              </div>
+            </div> : <></>
+          }
+        </div>
+        <div className='flex-none'>
+          <button className='px-2 py-2 border rounded-lg bg-blue-100' onClick={handleSubmit}>{submitButtonLabel}</button>
+        </div>
       </div>
     </div>
   )
+}
+
+const CommentSummary = ({ commentId }) => {
+  const { data, loading } = useCommentQuery({ variables: { auth: Auth.User, id: commentId }, fetchPolicy: 'cache-and-network' })
+
+  if (loading) return (<span></span>)
+  if (!data) return (<span>削除されたコメント</span>)
+
+  const file = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .processSync(data.comment.RawComment.body)
+  const html = String(file)
+
+  return (
+    <div className='line-clamp-1'>
+      <div className='inline-block mr-2'>
+        <UserIconNameLinkSmall userId={data.comment.User.id} userName={data.comment.User.username} />
+      </div>
+      <span className='text-sm from-neutral-700'>{html.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '').slice(0, 300)}</span>
+    </div>)
 }

@@ -149,7 +149,7 @@ type Comment {
   userId: String!
   documentId: String!
   rawCommentId: String!
-  refernceCommentIdLazy: String
+  referenceCommentIdLazy: String
   createdAt: String!
   User: User!
   RawComment: RawComment!
@@ -200,6 +200,7 @@ type Query {
   countLikes(auth: Auth!, documentId: String!): Int!
 
   comments(auth: Auth!, userId: String, documentId: String): [Comment]!
+  comment(auth: Auth!, id: String!): Comment
 }
 
 type Mutation {
@@ -232,7 +233,7 @@ type Mutation {
   createLike(auth: Auth!, userId: String!, documentId: String!): Like
   deleteLike(auth: Auth!, userId: String!, documentId: String!): Like
 
-  createComment(auth: Auth!, userId: String!, documentId: String!, refernceCommentIdLazy: String, body: String!): Comment
+  createComment(auth: Auth!, userId: String!, documentId: String!, referenceCommentIdLazy: String, body: String!): Comment
   updateComment(auth: Auth!, id: String!, body: String!): Comment
   deleteComment(auth: Auth!, id: String!): Comment
 }

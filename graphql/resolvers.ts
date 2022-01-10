@@ -512,6 +512,9 @@ export const resolvers: Resolvers = {
       if (auth == Auth.User) {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId && !documentId) throw new UserInputError('UserInputError')
+
+        // need to check group private
+
         return await prisma.comment.findMany({
           where: {
             userId: userId ? userId.toUpperCase() : undefined,
@@ -520,6 +523,30 @@ export const resolvers: Resolvers = {
           include: { RawComment: true, User: true },
           orderBy: { createdAtNumber: 'asc' }
         })
+      }
+      if (auth == Auth.None) {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    comment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == Auth.Admin) {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == Auth.User) {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const result = await prisma.comment.findUnique({
+          where: { id: id.toUpperCase() },
+          include: { RawComment: true, User: true, Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } } },
+        })
+        if (result.Document.Paper.Group.isPrivate) {
+          if (!result.Document.Paper.Group.MapUserGroup.find(x=> x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+            throw new ForbiddenError('Forbbiden')
+          }
+        }
+        return result
       }
       if (auth == Auth.None) {
         throw new ApolloError('Unimplemented')
@@ -1028,7 +1055,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     createComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, documentId, refernceCommentIdLazy, body } = args
+      const { auth, userId, documentId, referenceCommentIdLazy, body } = args
       if (auth == Auth.Admin) {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -1055,7 +1082,7 @@ export const resolvers: Resolvers = {
             id: commentId,
             User: { connect: { id: userId.toUpperCase() } },
             Document: { connect: { id: documentId.toUpperCase() } },
-            referenceCommentIdLazy: refernceCommentIdLazy ? refernceCommentIdLazy.toUpperCase() : undefined,
+            referenceCommentIdLazy: referenceCommentIdLazy ? referenceCommentIdLazy.toUpperCase() : undefined,
             createdAt: new Date(now).toISOString(),
             createdAtNumber: now,
             RawComment: {
