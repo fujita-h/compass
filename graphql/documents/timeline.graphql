@@ -5,24 +5,19 @@ query MyTimelineCP($first: Int!, $after: String) {
         id
         Paper {
           id
-          userId
-          groupId
           title
-          isPosted
           User {
             id
-            uuid
             username
-            email
             displayName
           }
           Group {
             id
             name
             displayName
-            description
             isPrivate
           }
+          isPosted
           createdAt
           updatedAt
         }

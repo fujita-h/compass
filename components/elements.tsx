@@ -90,12 +90,12 @@ export const UserIconNameLinkSmall = ({ userId, userName }: { userId: string, us
   return (
     <div className='inline-block'>
       <Link href={`/users/${encodeURIComponent(userId.toLowerCase())}`} passHref>
-        <a className='group hover:underline font-bold'>
-          <div className='inline-block mr-1 group-hover:brightness-95'>
+        <div className='group hover:underline font-bold hover:cursor-pointer'>
+          <div className='inline-block mr-1 group-hover:brightness-90'>
             <Image loader={userIconLoader} src={userId.toLowerCase()} width={16} height={16} alt={userName} className='rounded-full' />
           </div>
           <span>@{userName}</span>
-        </a>
+        </div>
       </Link>
     </div>
   )

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useSessionQuery, useMyTimelineCpQuery, useMyJoinedGroupsCpQuery } from '@graphql/generated/react-apollo'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
-import {UserIconNameLinkSmall} from '@components/elements'
+import { UserIconNameLinkSmall } from '@components/elements'
 
 export default function Page() {
 
@@ -11,7 +11,6 @@ export default function Page() {
   const { data, loading, refetch, } = useSessionQuery({ fetchPolicy: 'cache-and-network', errorPolicy: 'all' })
   if (loading) return (<Layout />)
 
-  console.log(data)
   // userSession が無ければ、未ログイン
   if (!data.session.userSession) {
     return (
@@ -69,11 +68,11 @@ const Timeline = () => {
           <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
             <a className='hover:text-green-700'>
               <div className='border m-2 p-2 bg-white'>
-                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.id)}`} passHref><a>
+                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.id)}`} passHref>
                   <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
                     {doc.Paper.Group.displayName || doc.Paper.Group.name}
                   </div>
-                </a></Link>
+                </Link>
                 <div className='text-black'>
                   <UserIconNameLinkSmall userId={doc.Paper.User.id} userName={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
@@ -106,9 +105,9 @@ const MyJoinedGroup = () => {
   return (
     <div className='pt-2'>
       {nodes.map((group) =>
-        <Link href={`/groups/${encodeURIComponent(group.id.toLowerCase())}`} passHref>
+        <Link key={`myGroups-${group.id}`} href={`/groups/${encodeURIComponent(group.id.toLowerCase())}`} passHref>
           <a className='hover:bg-orange-200'>
-            <div key={`myGroups-${group.id}`} className='w-full border rounded-md p-2 my-1 hover:bg-orange-200'>
+            <div className='w-full border rounded-md p-2 my-1 hover:bg-orange-200'>
               <div>{group.displayName || group.name}</div>
 
             </div>       </a>

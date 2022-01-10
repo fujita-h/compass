@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { getAsString } from '@lib/utils'
 import { useGroupIndexPageQuery, GroupIndexPageQuery, useDocumentsCpQuery, Auth } from '@graphql/generated/react-apollo'
 import { RiLock2Fill } from 'react-icons/ri'
+import { UserIconNameLinkSmall } from '@components/elements'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: "/login" })
@@ -93,16 +94,7 @@ const GroupDocuments = ({ groupId }: { groupId: string }) => {
             <a className='hover:text-blue-500'>
               <div key={doc.id} className='border m-2 p-2 bg-white'>
                 <div className='text-black'>
-                  <div className='inline-block'>
-                    <Link href={`/users/${encodeURIComponent(doc.Paper.User.id.toLowerCase())}`} passHref>
-                      <a className='group hover:underline'>
-                        <div className='inline-block mr-1 group-hover:brightness-95'>
-                          <Image loader={userIconLoader} src={doc.Paper.User.id.toLowerCase()} width={16} height={16} alt={doc.Paper.User.username} className='rounded-full' />
-                        </div>
-                        <span>@{doc.Paper.User.username}</span>
-                      </a>
-                    </Link>
-                  </div>
+                  <UserIconNameLinkSmall userId={doc.Paper.User.id} userName={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
                     が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
                   </div>
