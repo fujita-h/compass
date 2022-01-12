@@ -28,6 +28,7 @@ model User {
   Stock           Stock[]
   StockCategory   StockCategory[]
   UserIcon        UserIcon?
+  Watch           Watch[]
 }
 
 model Configuration {
@@ -56,9 +57,13 @@ model Group {
   displayName  String?        @db.VarChar(127)
   description  String?        @db.VarChar(255)
   isPrivate    Int            @default(0) @db.UnsignedTinyInt
+  type         Group_type     @default(public)
   GroupIcon    GroupIcon?
   MapUserGroup MapUserGroup[]
   Paper        Paper[]
+  Watch        Watch[]
+
+  @@index([type], map: "type")
 }
 
 model MapUserGroup {
@@ -77,17 +82,6 @@ model Tag {
   id          String        @id @db.VarChar(26)
   text        String        @unique @db.VarChar(63)
   MapPaperTag MapPaperTag[]
-}
-
-model Follow {
-  fromUserId String @db.VarChar(26)
-  toUserId   String @db.VarChar(26)
-  From       User   @relation("Follow_fromUserIdToUser", fields: [fromUserId], references: [id], onDelete: Cascade)
-  To         User   @relation("Follow_toUserIdToUser", fields: [toUserId], references: [id], onDelete: Cascade)
-
-  @@id([fromUserId, toUserId])
-  @@index([fromUserId], map: "fromUserId")
-  @@index([toUserId], map: "toUserId")
 }
 
 model Document {
@@ -251,6 +245,28 @@ model Comment {
   @@index([userId], map: "userId")
 }
 
+model Follow {
+  fromUserId String @db.VarChar(26)
+  toUserId   String @db.VarChar(26)
+  From       User   @relation("Follow_fromUserIdToUser", fields: [fromUserId], references: [id], onDelete: Cascade)
+  To         User   @relation("Follow_toUserIdToUser", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@index([fromUserId], map: "fromUserId")
+  @@index([toUserId], map: "toUserId")
+}
+
+model Watch {
+  userId  String @db.VarChar(26)
+  groupId String @db.VarChar(26)
+  Group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@index([groupId], map: "groupId")
+  @@index([userId], map: "userId")
+}
+
 enum Saml_userMapping {
   uuid
   username
@@ -259,4 +275,10 @@ enum Saml_userMapping {
 
 enum Configuration_ensureSingleRow {
   single
+}
+
+enum Group_type {
+  public
+  announce
+  private
 }
