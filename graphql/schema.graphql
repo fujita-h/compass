@@ -4,6 +4,12 @@ enum Auth {
   none,
 }
 
+enum GroupType {
+  public,
+  announce,
+  private,
+}
+
 type PageInfo {
     endCursor: String
     hasNextPage: Boolean
@@ -66,7 +72,7 @@ type Group {
   name: String!
   displayName: String
   description: String
-  isPrivate: Int!
+  type: GroupType!
 }
 
 type GroupEdge {
@@ -93,7 +99,7 @@ type GroupWithMember {
   name: String!
   displayName: String
   description: String
-  isPrivate: Int!
+  type: GroupType!
   MapUserGroup: [MapUserGroup]
 }
 
@@ -210,8 +216,8 @@ type Mutation {
     groupEnableCreateGroupForUsers: Int 
   ): Configuration!
 
-  createGroup(auth: Auth!, name: String!, displayName: String, description: String, isPrivate: Int): Group
-  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, isPrivate: Int): Group
+  createGroup(auth: Auth!, name: String!, displayName: String, description: String, type: GroupType): Group
+  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, type: GroupType): Group
   deleteGroup(auth: Auth!, id:String!): Group
 
   createMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup

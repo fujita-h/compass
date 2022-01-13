@@ -15,7 +15,7 @@ query MyTimelineCP($first: Int!, $after: String) {
             id
             name
             displayName
-            isPrivate
+            type
           }
           isPosted
           createdAt

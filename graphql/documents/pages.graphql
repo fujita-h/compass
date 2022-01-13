@@ -37,7 +37,7 @@ query adminGroupPage($id: String!) {
     name
     displayName
     description
-    isPrivate
+    type
     MapUserGroup {
       userId
       isAdmin
@@ -106,7 +106,7 @@ query groupIndexPage($groupId: String!) {
     name
     displayName
     description
-    isPrivate
+    type
     MapUserGroup {
       isAdmin
       User {
@@ -123,7 +123,7 @@ query groupIndexPage($groupId: String!) {
       id
       name
       displayName
-      isPrivate
+      type
     }
     title
   }

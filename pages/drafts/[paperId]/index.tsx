@@ -32,7 +32,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
     if (submitType == 'publish') {
       updateDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           paperId,
           title: data.title,
           body: data.body,
@@ -42,7 +42,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
     } else { // submitType == 'draft' || submitType == null
       updateDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           paperId,
           title: data.title,
           body: data.body,

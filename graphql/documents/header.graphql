@@ -17,6 +17,6 @@ query header($auth: Auth!, $groupId: String) {
     name
     displayName
     description
-    isPrivate
+    type
   }
 }

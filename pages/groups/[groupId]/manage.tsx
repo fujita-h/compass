@@ -20,7 +20,7 @@ export default function Page() {
 
 const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => {
 
-  const { data, loading } = useGetGroupWithMembersQuery({ variables: { auth: Auth.User, id: groupId } })
+  const { data, loading } = useGetGroupWithMembersQuery({ variables: { auth: 'user', id: groupId } })
 
   if (loading) return (<></>)
   if (!data.group) return (<></>)
@@ -34,11 +34,11 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     <div className='max-w-7xl mt-4 mx-auto p-4 bg-white'>
       <div>Group Management Page</div>
       <div className='mt-3 border rounded-lg p-3'>
-        <EditGroupForm auth={Auth.User} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
+        <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
       </div>
-      {data.group.isPrivate ?
+      {data.group.type === 'private' || data.group.type === 'announce' ?
         <div className='mt-3 border rounded-lg p-3'>
-          <EditGroupMemberTable auth={Auth.User} groupId={data.group.id} />
+          <EditGroupMemberTable auth={'user'} groupId={data.group.id} />
         </div> : <></>
       }
     </div>

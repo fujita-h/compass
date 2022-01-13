@@ -32,7 +32,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2">
               グループ設定
             </p>
-            <EditGroupForm auth={Auth.Admin} groupId={groupId} />
+            <EditGroupForm auth={'admin'} groupId={groupId} />
           </FullCard>
         </div>
 
@@ -41,7 +41,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2">
               メンバー
             </p>
-            <EditGroupMemberTable auth={Auth.Admin} groupId={groupId} />
+            <EditGroupMemberTable auth={'admin'} groupId={groupId} />
           </FullCard>
         </div>
 
@@ -50,7 +50,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2 border-b">
               Danger Zone
             </p>
-            <DangerZoneForm auth={Auth.Admin} groupId={groupId} />
+            <DangerZoneForm auth={'admin'} groupId={groupId} />
           </FullCard>
 
         </div>

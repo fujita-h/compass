@@ -24,26 +24,26 @@ export const resolvers: Resolvers = {
     },
     configuration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.configuration.findFirst()
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     samls: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.saml.findMany()
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return (await prisma.saml.findMany())
           .map(x => {
@@ -51,7 +51,7 @@ export const resolvers: Resolvers = {
             return x
           })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         return (await prisma.saml.findMany())
           .map(x => {
             x.cert = ''
@@ -62,15 +62,15 @@ export const resolvers: Resolvers = {
     },
     groups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.group.findMany({})
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.group.findMany({})
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -79,17 +79,17 @@ export const resolvers: Resolvers = {
       const { auth, id } = args
       const include: Prisma.GroupInclude = { MapUserGroup: { include: { User: true } } }
 
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('Invalid argument')
         return await prisma.group.findUnique({ where: { id }, include })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('Invalid argument')
         return await prisma.group.findUnique({ where: { id }, include })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -133,18 +133,18 @@ export const resolvers: Resolvers = {
     },
     users: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, offset, limit } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.findMany({ skip: offset, take: limit })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.findMany({
           select: { id: true, uuid: true, username: true, email: true },
           skip: offset, take: limit
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -152,7 +152,7 @@ export const resolvers: Resolvers = {
     usersCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, first, after } = args
 
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
 
         const targetId: string = after ? (Buffer.from(after, 'base64').toString()) : ''
@@ -171,41 +171,41 @@ export const resolvers: Resolvers = {
         const result: UserConnection = { edges, pageInfo }
         return result
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     countUsers: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.count()
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.count()
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     user: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -254,11 +254,11 @@ export const resolvers: Resolvers = {
     },
     documents: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.document.findMany({
           where: {
@@ -266,7 +266,7 @@ export const resolvers: Resolvers = {
               userId,
               groupId,
               OR: [
-                { Group: { isPrivate: { equals: 0 } } },
+                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
                 { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -275,18 +275,18 @@ export const resolvers: Resolvers = {
           include: { Paper: { include: { User: true, Group: true } } }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     documentsCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId, first, after } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
 
         /**
@@ -301,7 +301,7 @@ export const resolvers: Resolvers = {
               userId: userId ? userId.toUpperCase() : undefined,
               groupId: groupId ? groupId.toUpperCase() : undefined,
               OR: [
-                { Group: { isPrivate: { equals: 0 } } },
+                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
                 { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -326,25 +326,25 @@ export const resolvers: Resolvers = {
         const result: DocumentConnection = { edges, pageInfo }
         return result
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     document: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.document.findFirst({
           where: {
             id,
             Paper: {
               OR: [
-                { Group: { isPrivate: { equals: 0 } } },
+                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
                 { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -353,18 +353,18 @@ export const resolvers: Resolvers = {
           include: { Paper: { include: { User: true, Group: true } } }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     drafts: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, groupId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.paper.findMany({
           where: {
@@ -375,60 +375,60 @@ export const resolvers: Resolvers = {
           include: { User: true, Group: true }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     draft: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.paper.findFirst({
           where: {
             id: id.toUpperCase(),
             userId: _context.userSession.id.toUpperCase(),
             OR: [
-              { Group: { isPrivate: { equals: 0 } } },
+              { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
               { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
           include: { User: true, Group: true }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     stockCategories: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         return await prisma.stockCategory.findMany({ where: { userId: userId.toUpperCase() } })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     stocks: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
@@ -439,18 +439,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     countStocks: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!documentId) throw new UserInputError('UserInputError')
         const result = await prisma.stock.findMany({
@@ -461,18 +461,18 @@ export const resolvers: Resolvers = {
         })
         return result?.length ?? 0
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     likes: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId && !documentId) throw new UserInputError('UserInputError')
         return await prisma.like.findMany({
@@ -482,34 +482,34 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     countLikes: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!documentId) throw new UserInputError('UserInputError')
         return await prisma.like.count({ where: { documentId: documentId.toUpperCase() } })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     comments: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId && !documentId) throw new UserInputError('UserInputError')
 
@@ -524,31 +524,31 @@ export const resolvers: Resolvers = {
           orderBy: { createdAtNumber: 'asc' }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     comment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const result = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
           include: { RawComment: true, User: true, Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } } },
         })
-        if (result.Document.Paper.Group.isPrivate) {
-          if (!result.Document.Paper.Group.MapUserGroup.find(x=> x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+        if (result.Document.Paper.Group.type === 'private') {
+          if (!result.Document.Paper.Group.MapUserGroup.find(x => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbbiden')
           }
         }
         return result
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -557,30 +557,29 @@ export const resolvers: Resolvers = {
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, ...configuration } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.configuration.upsert({
           create: configuration, update: configuration, where: { ensureSingleRow: 'single' }
         })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         throw new ForbiddenError('Forbbiden')
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ForbiddenError('Forbbiden')
       }
       throw new ApolloError('Unknown')
     },
     createGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, name, displayName, description, isPrivate } = args
-      const isPrivateNum = isPrivate ? 1 : 0
-      if (auth == Auth.Admin) {
+      const { auth, name, displayName, description, type } = args
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
-        return await prisma.group.create({ data: { id: ulid(), name, displayName, description, isPrivate: isPrivateNum } })
+        return await prisma.group.create({ data: { id: ulid(), name, displayName, description, type } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
         return await prisma.group.create(
@@ -590,7 +589,7 @@ export const resolvers: Resolvers = {
               name,
               displayName,
               description,
-              isPrivate: isPrivateNum,
+              type,
               MapUserGroup: {
                 create: {
                   userId: _context.userSession.id,
@@ -600,66 +599,65 @@ export const resolvers: Resolvers = {
             }
           })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     updateGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, id, name, displayName, description, isPrivate } = args
-      const isPrivateNum = isPrivate ? 1 : 0
-      if (auth == Auth.Admin) {
+      const { auth, id, name, displayName, description, type } = args
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.group.update({ data: { name, displayName, description, isPrivate: isPrivateNum }, where: { id } })
+        return await prisma.group.update({ data: { name, displayName, description, type }, where: { id } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.group.findUnique({ where: { id }, include: { MapUserGroup: true } })
         if (!check) throw new UserInputError('NotFound')
         const checkAdmin = check.MapUserGroup.find(x => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
         return await prisma.group.update({
-          data: { name, displayName, description, isPrivate: isPrivateNum },
+          data: { name, displayName, description, type },
           where: { id }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         /*
         ** deleteGroupした際、いろいろなものがカスケードで削除されるか確認すること
         */
         return await prisma.group.delete({ where: { id } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     createMapUserGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId, isAdmin } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.mapUserGroup.create({ data: { userId, groupId, isAdmin } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.mapUserGroup.findUnique({
           where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
           include: { Group: true }
         })
         if (!check) throw new ApolloError('Forbbiden')
-        if (check.Group.isPrivate) {
+        if (check.Group.type === 'private' || check.Group.type === 'announce') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
           return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
         } else {
@@ -667,43 +665,43 @@ export const resolvers: Resolvers = {
           return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
         }
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     updateMapUserGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId, isAdmin } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.mapUserGroup.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.mapUserGroup.findUnique({ where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } } })
         if (!check) throw new ForbiddenError('Forbbiden')
         if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
         return await prisma.mapUserGroup.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteMapUserGroup: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, groupId, userId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.mapUserGroup.findUnique({
           where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
           include: { Group: true }
         })
         if (!check) throw new ForbiddenError('Forbbiden')
-        if (check.Group.isPrivate) {
+        if (check.Group.type === 'private' || check.Group.type === 'announce') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
           return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
         } else {
@@ -711,7 +709,7 @@ export const resolvers: Resolvers = {
           return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
         }
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -730,11 +728,11 @@ export const resolvers: Resolvers = {
        * 
        */
 
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         // 入力チェック
         if (!groupId) { throw new UserInputError('groupId is not set') }
@@ -746,7 +744,7 @@ export const resolvers: Resolvers = {
             include: { MapUserGroup: { where: { userId: { equals: _context.userSession.id } } } }
           })
           if (!check) { throw new ApolloError('Group not found.') }
-          if (check.isPrivate && !check.MapUserGroup.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
+          if ((check.type === 'private' || check.type === 'announce') && !check.MapUserGroup.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
         }
 
         // args.documentId がある場合は、チェックをを実施する必要がある (documentIdの乗っ取り防止)
@@ -803,7 +801,7 @@ export const resolvers: Resolvers = {
           })
         }
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -820,19 +818,19 @@ export const resolvers: Resolvers = {
        * 
        */
 
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
 
         const check = await prisma.paper.findUnique({ where: { id: paperId }, include: { Group: { include: { MapUserGroup: { include: { User: { select: { id: true } } } } } } } })
         if (!check) throw new ApolloError('NotFound')
         if (check.isPosted) throw new ApolloError('PageAlreadyPublished') // published がすでにマークされたものは変更不可
         if (check.userId !== _context.userSession.id) throw new ForbiddenError('Forbidden') // 自分のpaperでない場合は変更不可
-        if (check.Group.isPrivate) {
-          // 記事のグループがprivateだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は変更不可
+        if (check.Group.type === 'private' || check.Group.type === 'announce') {
+          // 記事のグループがprivate/announceだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は変更不可
           if (!(check.Group.MapUserGroup.map((x) => x.User.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
         }
 
@@ -863,18 +861,18 @@ export const resolvers: Resolvers = {
 
 
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     updateMyProfile: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, username, displayName } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.update({
           where: { id: _context.userSession.id.toUpperCase() },
@@ -883,18 +881,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     createStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, name } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (!name) throw new UserInputError('UserInputError')
@@ -907,18 +905,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     updateStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id, name } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('UserInputError')
         if (!name) throw new UserInputError('UserInputError')
@@ -930,18 +928,18 @@ export const resolvers: Resolvers = {
           data: { name: name }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteStockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('UserInputError')
         const check = await prisma.stockCategory.findUnique({ where: { id: id } })
@@ -949,18 +947,18 @@ export const resolvers: Resolvers = {
         if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
         return await prisma.stockCategory.delete({ where: { id: id.toUpperCase() } })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     createStock: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId, stockCategoryId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (!documentId) throw new UserInputError('UserInputError')
@@ -974,18 +972,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteStock: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId, stockCategoryId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (!documentId) throw new UserInputError('UserInputError')
@@ -1001,18 +999,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     createLike: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (!documentId) throw new UserInputError('UserInputError')
@@ -1024,18 +1022,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteLike: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (!documentId) throw new UserInputError('UserInputError')
@@ -1049,18 +1047,18 @@ export const resolvers: Resolvers = {
           }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     createComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, documentId, referenceCommentIdLazy, body } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         const check = await prisma.document.findUnique({
@@ -1070,7 +1068,7 @@ export const resolvers: Resolvers = {
           }
         })
         if (!check) throw new ApolloError('NotFound')
-        if (check.Paper.Group.isPrivate) {
+        if (check.Paper.Group.type === 'private') {
           if (!check.Paper.Group.MapUserGroup.find((m) => m.userId.toUpperCase() == userId.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
@@ -1100,18 +1098,18 @@ export const resolvers: Resolvers = {
           include: { RawComment: true, User: true }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     updateComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id, body } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
@@ -1122,7 +1120,7 @@ export const resolvers: Resolvers = {
         })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        if (check.Document.Paper.Group.isPrivate) {
+        if (check.Document.Paper.Group.type === 'private') {
           if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
@@ -1146,18 +1144,18 @@ export const resolvers: Resolvers = {
           include: { RawComment: true, User: true }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
     },
     deleteComment: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
-      if (auth == Auth.Admin) {
+      if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
-      if (auth == Auth.User) {
+      if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const check = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
@@ -1168,7 +1166,7 @@ export const resolvers: Resolvers = {
         })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        if (check.Document.Paper.Group.isPrivate) {
+        if (check.Document.Paper.Group.type === 'private') {
           if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
@@ -1178,7 +1176,7 @@ export const resolvers: Resolvers = {
           include: { RawComment: true, User: true }
         })
       }
-      if (auth == Auth.None) {
+      if (auth == 'none') {
         throw new ApolloError('Unimplemented')
       }
       throw new ApolloError('Unknown')
@@ -1188,15 +1186,15 @@ export const resolvers: Resolvers = {
 
 const _dummy_dummy_dummy_ = async (_parent, args, _context: GraphQLResolveContext, _info) => {
   const { auth } = args
-  if (auth == Auth.Admin) {
+  if (auth == 'admin') {
     if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
     throw new ApolloError('Unimplemented')
   }
-  if (auth == Auth.User) {
+  if (auth == 'user') {
     if (!_context.userSession) throw new AuthenticationError('Unauthorized')
     throw new ApolloError('Unimplemented')
   }
-  if (auth == Auth.None) {
+  if (auth == 'none') {
     throw new ApolloError('Unimplemented')
   }
   throw new ApolloError('Unknown')

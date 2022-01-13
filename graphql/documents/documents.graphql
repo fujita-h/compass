@@ -15,7 +15,7 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
             id
             name
             displayName
-            isPrivate
+            type
           }
           documentIdLazy
           isPosted

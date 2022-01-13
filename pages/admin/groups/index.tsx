@@ -69,7 +69,7 @@ const CreateGroupModal = ({ state, setState }) => {
     setFormState({ ...formState, [e.target.name]: e.target.value })
   }
   const handleSubmit = async (e) => {
-    createGroup({ variables: { auth: Auth.Admin, name: formState.name } })
+    createGroup({ variables: { auth: 'admin', name: formState.name } })
   }
 
   const closeModal = () => {

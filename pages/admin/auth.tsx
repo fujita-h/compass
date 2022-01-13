@@ -14,9 +14,9 @@ export default function Page() {
 
   const handleChanged = async (e) => {
     if (e.target.type == 'checkbox') {
-      setConfiguration({variables: { auth: Auth.Admin, [e.target.name]: e.target.checked ? 1 : 0 }})
+      setConfiguration({variables: { auth: 'admin', [e.target.name]: e.target.checked ? 1 : 0 }})
     } else {
-      setConfiguration({variables: { auth: Auth.Admin, [e.target.name]: e.target.value }})
+      setConfiguration({variables: { auth: 'admin', [e.target.name]: e.target.value }})
     }
   }
 

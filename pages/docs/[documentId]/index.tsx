@@ -110,7 +110,7 @@ const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPage
 
 const StockBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
   const [modalState, setModalState] = useState({ show: false })
-  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+  const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: 'user', userId: userId, documentId: documentId } })
 
   // ストックの更新用
   const [createStock, { }] = useCreateStockMutation({
@@ -124,7 +124,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     if (e.target.checked) {
       createStock({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: userId,
           documentId: documentId,
           stockCategoryId: stockCategoryId
@@ -133,7 +133,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     } else {
       deleteStock({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: userId,
           documentId: documentId,
           stockCategoryId: stockCategoryId
@@ -151,7 +151,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     setNewCategoryName(e.target.value)
   }
   const handleCreateNewCategory = (e) => {
-    createStockCategory({ variables: { auth: Auth.User, userId: userId, name: newCategoryName } })
+    createStockCategory({ variables: { auth: 'user', userId: userId, name: newCategoryName } })
   }
 
   if (loading) return (<></>)
@@ -191,7 +191,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
 }
 
 const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string }) => {
-  const { data, loading } = useLikesQuery({ variables: { auth: Auth.User, documentId: documentId } })
+  const { data, loading } = useLikesQuery({ variables: { auth: 'user', documentId: documentId } })
   const [createLike, { }] = useCreateLikeMutation({
     refetchQueries: [LikesDocument]
   })
@@ -205,9 +205,9 @@ const LikeBadge = ({ userId, documentId }: { userId: string, documentId: string 
 
   const handleClick = (e) => {
     if (isLiked) {
-      deleteLike({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+      deleteLike({ variables: { auth: 'user', userId: userId, documentId: documentId } })
     } else {
-      createLike({ variables: { auth: Auth.User, userId: userId, documentId: documentId } })
+      createLike({ variables: { auth: 'user', userId: userId, documentId: documentId } })
     }
   }
 
@@ -270,7 +270,7 @@ const ReactiveToC = ({ children }) => {
 }
 
 const CommentsView = ({ userId, documentId }: { userId: string, documentId: string }) => {
-  const { data, loading } = useCommentsQuery({ variables: { auth: Auth.User, documentId } })
+  const { data, loading } = useCommentsQuery({ variables: { auth: 'user', documentId } })
   const [refCommentId, setRefCommentId] = useState('')
   const [featureCommentId, setFeatureCommentId] = useState('')
 
@@ -334,7 +334,7 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
   const handleEditSubmit = (e) => {
     updateComment({
       variables: {
-        auth: Auth.User, id: commentId, body: bodyText
+        auth: 'user', id: commentId, body: bodyText
       }
     })
   }
@@ -414,7 +414,7 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
         </div>
         <div className='flex justify-between mt-3'>
           <button className='border px-2 py-1 bg-gray-200' onClick={() => { setDeleteModalState(false) }}>キャンセル</button>
-          <button className='border px-2 py-1 bg-red-200' onClick={() => { deleteComment({ variables: { auth: Auth.User, id: commentId } }) }}>削除する</button>
+          <button className='border px-2 py-1 bg-red-200' onClick={() => { deleteComment({ variables: { auth: 'user', id: commentId } }) }}>削除する</button>
         </div>
       </MyModal>
 
@@ -438,7 +438,7 @@ const PostComment = ({ userId, documentId, refCommentId, setRefCommentId }:
   const handleSubmit = (e) => {
     postComment({
       variables: {
-        auth: Auth.User,
+        auth: 'user',
         userId,
         documentId,
         body: bodyText,
@@ -539,7 +539,7 @@ const CommentEditForm = ({ bodyText, setBodyText, refCommentId, setRefCommentId,
 }
 
 const CommentSummary = ({ commentId }) => {
-  const { data, loading } = useCommentQuery({ variables: { auth: Auth.User, id: commentId } })
+  const { data, loading } = useCommentQuery({ variables: { auth: 'user', id: commentId } })
 
   if (loading) return (<span></span>)
   if (!data) return (<span>削除されたコメント</span>)

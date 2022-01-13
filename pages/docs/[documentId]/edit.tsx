@@ -37,7 +37,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     if (submitType == 'publish') {
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: document.document.Paper.User.id,
           groupId: document.document.Paper.Group.id,
           documentId: document.document.id,
@@ -50,7 +50,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     } else { // submitType == 'draft' || submitType == null
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: document.document.Paper.User.id,
           groupId: document.document.Paper.Group.id,
           documentId: document.document.id,

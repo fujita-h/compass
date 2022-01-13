@@ -34,7 +34,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
           <div className='border rounded-lg px-2 py-4'>
             <div className='text-center break-words'>
               <Image loader={groupIconLoader} src={data.group.id} width={96} height={96} alt={data.group.name} className='rounded-lg' />
-              <h3 className='text-lg font-bold'>{data.group.displayName || data.group.name}{Boolean(data.group.isPrivate) && <RiLock2Fill className='ml-1 inline-block' />}</h3>
+              <h3 className='text-lg font-bold'>{data.group.displayName || data.group.name}{Boolean(data.group.type === 'private') && <RiLock2Fill className='ml-1 inline-block' />}</h3>
               <h4 className='text-md font-bold text-gray-600'>{data.group.name}</h4>
             </div>
 
@@ -77,7 +77,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
 const GroupDocuments = ({ groupId }: { groupId: string }) => {
 
   const { data, loading, fetchMore } = useDocumentsCpQuery({
-    variables: { auth: Auth.User, groupId: groupId, first: 20 },
+    variables: { auth: 'user', groupId: groupId, first: 20 },
     fetchPolicy: "network-only"
   })
 

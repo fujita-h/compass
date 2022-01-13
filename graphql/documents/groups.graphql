@@ -4,7 +4,7 @@ query GetGroup($auth: Auth!, $id: String) {
     name
     displayName
     description
-    isPrivate
+    type
   }
 }
 
@@ -14,7 +14,7 @@ query GetGroupWithMembers($auth: Auth!, $id: String) {
     name
     displayName
     description
-    isPrivate
+    type
     MapUserGroup {
       userId
       isAdmin
@@ -36,7 +36,7 @@ query MyJoinedGroupsCP($first: Int!, $after: String) {
         name
         displayName
         description
-        isPrivate
+        type
       }
       cursor
     }
@@ -47,23 +47,23 @@ query MyJoinedGroupsCP($first: Int!, $after: String) {
   }
 }
 
-mutation CreateGroup($auth: Auth!, $name: String!, $displayName: String, $isPrivate: Int) {
-  createGroup(auth: $auth, name: $name, displayName: $displayName, isPrivate: $isPrivate) {
+mutation CreateGroup($auth: Auth!, $name: String!, $displayName: String, $type: GroupType) {
+  createGroup(auth: $auth, name: $name, displayName: $displayName, type: $type) {
     id
     name
     displayName
     description
-    isPrivate
+    type
   }
 }
 
-mutation UpdateGroup($auth: Auth!, $id: String!, $name: String, $displayName: String, $description: String, $isPrivate: Int) {
-  updateGroup(auth: $auth, id: $id, name: $name, displayName: $displayName, description: $description, isPrivate: $isPrivate) {
+mutation UpdateGroup($auth: Auth!, $id: String!, $name: String, $displayName: String, $description: String, $type: GroupType) {
+  updateGroup(auth: $auth, id: $id, name: $name, displayName: $displayName, description: $description, type: $type) {
     id
     name
     displayName
     description
-    isPrivate
+    type
   }
 }
 

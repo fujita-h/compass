@@ -56,7 +56,6 @@ model Group {
   name         String         @unique @db.VarChar(127)
   displayName  String?        @db.VarChar(127)
   description  String?        @db.VarChar(255)
-  isPrivate    Int            @default(0) @db.UnsignedTinyInt
   type         Group_type     @default(public)
   GroupIcon    GroupIcon?
   MapUserGroup MapUserGroup[]
