@@ -21,6 +21,8 @@ export const Header = () => {
   const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
   const [groupMenuOpen, setGroupMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
+  const [searchSuggestList, setSearchSuggestList] = useState([])
 
   if (loading) return (<BlankHeader />)
   if (!data) return (<BlankHeader />)
@@ -28,23 +30,39 @@ export const Header = () => {
   return (<BlankHeader>
     <div className="flex items-center justify-between h-full">
 
-      {Boolean(data.session?.userSession?.id) ?
-        <div>
-            <div>
-              <Link href="/" passHref>
-                <a className='hover:text-gray-300'>Compass</a>
-              </Link>
+      <div className='block'>
+        <div className='flex gap-3'>
+          <div className='my-auto'>
+            <Link href="/" passHref>
+              <a className='hover:text-gray-300'>Compass</a>
+            </Link>
+          </div>
+
+          <div className='group mr-2 items-center h-7'>
+            <input type="text" className='box-border w-52 h-full border-2 rounded-xl pl-2 pr-3 text-sm text-gray-700 focus:outline-none focus:shadow-outline focus:border-blue-300 focus:w-100 duration-200' onFocus={() => { setSearchSuggestOpen(true) }} onBlur={() => { setSearchSuggestOpen(false) }} placeholder='検索..' />
+            <div hidden={!searchSuggestOpen}
+              className="z-40 origin-top-right absolute mt-2 w-52 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10">
+              <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu" >
+                <Link href="/profile" passHref>
+                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">Profile</a>
+                </Link>
+                <span className="block border-b"></span>
+                <Link href="/settings/profile" passHref>
+                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">設定</a>
+                </Link>
+                <span className="block border-b"></span>
+                <Link href="/admin" passHref>
+                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">管理メニュー</a>
+                </Link>
+                <span className="block border-b"></span>
+                <a href="/logout" className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">ログアウト</a>
+              </div>
             </div>
+          </div>
+
         </div>
-        :
-        <div className="block items-center">
-          <Link href="/" passHref>
-            <a className="flex-shrink-0 hover:text-current">
-              <span className="font-bold text-2xl">compass</span>
-            </a>
-          </Link>
-        </div>
-      }
+      </div>
+
 
       <div className="block items-center">
         <div className="ml-4 flex items-center">
