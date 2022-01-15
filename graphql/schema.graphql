@@ -170,6 +170,16 @@ type RawComment {
   createdAt: String!
 }
 
+type Follow {
+  fromUserId: String!
+  toUserId: String!
+}
+
+type Watch {
+  userId: String!
+  groupId: String!
+}
+
 type Query {
   session: Session
 
@@ -207,6 +217,9 @@ type Query {
 
   comments(auth: Auth!, userId: String, documentId: String): [Comment]!
   comment(auth: Auth!, id: String!): Comment
+
+  follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
+  watches(auth: Auth!, userId: String, groupId: String): [Watch]!
 }
 
 type Mutation {
@@ -242,4 +255,11 @@ type Mutation {
   createComment(auth: Auth!, userId: String!, documentId: String!, referenceCommentIdLazy: String, body: String!): Comment
   updateComment(auth: Auth!, id: String!, body: String!): Comment
   deleteComment(auth: Auth!, id: String!): Comment
+
+  createFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
+  deleteFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
+
+  createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+  deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+
 }

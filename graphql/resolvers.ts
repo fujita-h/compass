@@ -553,6 +553,48 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    follows: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, fromUserId, toUserId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!fromUserId && !toUserId) throw new UserInputError('UserInputError')
+        return await prisma.follow.findMany({
+          where: {
+            fromUserId: fromUserId ? fromUserId.toUpperCase() : undefined,
+            toUserId: toUserId ? toUserId.toUpperCase() : undefined,
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    watches: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, groupId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId && !groupId) throw new UserInputError('UserInputError')
+        return await prisma.watch.findMany({
+          where: {
+            userId: userId ? userId.toUpperCase() : undefined,
+            groupId: groupId ? groupId.toUpperCase() : undefined,
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
@@ -1174,6 +1216,102 @@ export const resolvers: Resolvers = {
         return await prisma.comment.delete({
           where: { id: id.toUpperCase() },
           include: { RawComment: true, User: true }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, fromUserId, toUserId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!fromUserId) throw new UserInputError('UserInputError')
+        if (!toUserId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.follow.create({
+          data: {
+            fromUserId: fromUserId.toUpperCase(),
+            toUserId: toUserId.toUpperCase(),
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, fromUserId, toUserId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!fromUserId) throw new UserInputError('UserInputError')
+        if (!toUserId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.follow.delete({
+          where: {
+            fromUserId_toUserId: {
+              fromUserId: fromUserId.toUpperCase(),
+              toUserId: toUserId.toUpperCase(),
+            }
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createWatch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, groupId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!groupId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.watch.create({
+          data: {
+            userId: userId.toUpperCase(),
+            groupId: groupId.toUpperCase(),
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteWatch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, groupId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId) throw new UserInputError('UserInputError')
+        if (!groupId) throw new UserInputError('UserInputError')
+        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.watch.delete({
+          where: {
+            userId_groupId: {
+              userId: userId.toUpperCase(),
+              groupId: groupId.toUpperCase(),
+            }
+          }
         })
       }
       if (auth == 'none') {
