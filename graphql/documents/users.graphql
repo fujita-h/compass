@@ -5,3 +5,19 @@ query GetUsers($auth: Auth!, $offset: Int, $limit: Int) {
   }
   countUsers(auth: $auth)
 }
+
+query User($auth: Auth!, $id: String, $uuid: String, $username: String, $email: String) {
+  user(auth: $auth, id: $id, uuid: $uuid, username: $username, email: $email) {
+    id
+    uuid
+    username
+    email
+    displayName
+    Follow {
+      toUserId
+    }
+    Follower {
+      fromUserId
+    }
+  }
+}

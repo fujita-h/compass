@@ -196,14 +196,22 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     user: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth } = args
+      const { auth, id, uuid, username, email } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        throw new ApolloError('Unimplemented')
+        return await prisma.user.findUnique({
+          where: {
+            id: id ? id.toUpperCase() : undefined,
+            uuid: uuid ? uuid.toUpperCase() : undefined,
+            username: username ?? undefined,
+            email: email ?? undefined,
+          },
+          include: { Follow: true, Follower: true }
+        })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

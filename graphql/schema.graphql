@@ -55,6 +55,8 @@ type User {
   username: String!
   email: String!
   displayName: String
+  Follow: [Follow]
+  Follower: [Follow]
 }
 
 type UserEdge {
@@ -196,7 +198,7 @@ type Query {
   users(auth: Auth!, offset: Int, limit: Int): [User]
   usersCP(auth: Auth!, first: Int!, after:String): UserConnection
   countUsers(auth: Auth!): Int!
-  user(auth: Auth!, id: String): User
+  user(auth: Auth!, id: String, uuid: String, username: String, email: String): User
 
   myProfile: User
   myTimelineCP(first: Int!, after:String): DocumentConnection
