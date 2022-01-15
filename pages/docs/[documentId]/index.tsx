@@ -59,7 +59,7 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
           <div className='mt-3 p-2'>
             <div className='flex place-content-between'>
               <div>
-                <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.id.toLowerCase())}`} passHref><a>
+                <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.name)}`} passHref><a>
                   <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
                 </a></Link>
                 <div>

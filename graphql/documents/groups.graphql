@@ -1,5 +1,5 @@
-query GetGroup($auth: Auth!, $id: String) {
-  group(auth: $auth, id: $id) {
+query Group($auth: Auth!, $id: String, $name: String) {
+  group(auth: $auth, id: $id, name: $name) {
     id
     name
     displayName

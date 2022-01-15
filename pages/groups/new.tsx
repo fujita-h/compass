@@ -90,7 +90,7 @@ const CreateGroupModal = ({ state, setState }: { state: CreateGroupModalStateTyp
   const [createGroup, { data, loading, error }] = useCreateGroupMutation({
     onCompleted: (data) => {
       closeModal()
-      Router.push('/groups/' + data.createGroup.id)
+      Router.push('/groups/' + data.createGroup.name)
     },
     onError: (error) => { console.error(error.message) }
   })

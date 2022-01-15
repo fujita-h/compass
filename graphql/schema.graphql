@@ -189,7 +189,7 @@ type Query {
   samls(auth: Auth!): [Saml!]
 
   groups(auth: Auth!): [Group!]
-  group(auth: Auth!, id: String): GroupWithMember
+  group(auth: Auth!, id: String, name: String): GroupWithMember
 
   joinedGroups(userId: String!): [Group!]
   myJoinedGroups: [Group!]

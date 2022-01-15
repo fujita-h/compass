@@ -76,18 +76,28 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     group: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, id } = args
-      const include: Prisma.GroupInclude = { MapUserGroup: { include: { User: true } } }
-
+      const { auth, id, name } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        if (!id) throw new UserInputError('Invalid argument')
-        return await prisma.group.findUnique({ where: { id }, include })
+        if (!id && !name) throw new UserInputError('Invalid argument')
+        return await prisma.group.findUnique({
+          where: {
+            id: id ? id.toUpperCase() : undefined,
+            name: name ?? undefined,
+          },
+          include: { MapUserGroup: { include: { User: true } } }
+        })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!id) throw new UserInputError('Invalid argument')
-        return await prisma.group.findUnique({ where: { id }, include })
+        if (!id && !name) throw new UserInputError('Invalid argument')
+        return await prisma.group.findUnique({
+          where: {
+            id: id ? id.toUpperCase() : undefined,
+            name: name ?? undefined,
+          },
+          include: { MapUserGroup: { include: { User: true } } }
+        })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

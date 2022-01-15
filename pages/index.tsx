@@ -68,7 +68,7 @@ const Timeline = () => {
           <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
             <a className='hover:text-green-700'>
               <div className='border m-2 p-2 bg-white'>
-                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.id)}`} passHref>
+                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.name)}`} passHref>
                   <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
                     {doc.Paper.Group.displayName || doc.Paper.Group.name}
                   </div>
@@ -105,7 +105,7 @@ const MyJoinedGroup = () => {
   return (
     <div className='pt-2'>
       {nodes.map((group) =>
-        <Link key={`myGroups-${group.id}`} href={`/groups/${encodeURIComponent(group.id.toLowerCase())}`} passHref>
+        <Link key={`myGroups-${group.id}`} href={`/groups/${encodeURIComponent(group.name)}`} passHref>
           <a className='hover:bg-orange-200'>
             <div className='w-full border rounded-md p-2 my-1 hover:bg-orange-200'>
               <div>{group.displayName || group.name}</div>

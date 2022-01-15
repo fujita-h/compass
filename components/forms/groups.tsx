@@ -7,7 +7,7 @@ import Image from 'next/image'
 
 import {
   Auth,
-  useGetGroupQuery, GetGroupDocument,
+  useGroupQuery, GroupDocument,
   useUpdateGroupMutation,
   useUpdateGroupMemberMutation,
   useGetGroupWithMembersQuery, GetGroupWithMembersDocument, GetGroupWithMembersQuery,
@@ -28,7 +28,7 @@ const uploadGroupIcon = async (files, groupId) => {
 
 export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
 
-  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId } })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
   useEffect(() => {
     if (!data?.group) return
@@ -230,7 +230,7 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth, groupId: s
 
 export const DangerZoneForm = ({ auth, groupId }: { auth: Auth, groupId: string }) => {
 
-  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false })
 

@@ -24,7 +24,7 @@ export default function Page() {
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
         {data.groups.map(group => (<tr key={group.id}>
-          <td className="px-6 py-4 whitespace-nowrap"><Link href={"/groups/" + group.id}>{group.name}</Link></td>
+          <td className="px-6 py-4 whitespace-nowrap"><Link href={"/groups/" + group.name}>{group.name}</Link></td>
           <td className="px-6 py-4 whitespace-nowrap">{group.displayName}</td>
           <td className="px-6 py-4 whitespace-nowrap">
           </td>

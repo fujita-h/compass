@@ -92,7 +92,7 @@ query draftPage($paperId: String!) {
     isPosted
   }
 }
-query groupIndexPage($groupId: String!) {
+query groupIndexPage($groupName: String!) {
   session {
     userSession {
       ...userSessionFragment
@@ -101,7 +101,7 @@ query groupIndexPage($groupId: String!) {
       ...adminSessionFragment
     }
   }
-  group(auth: user, id: $groupId) {
+  group(auth: user, name: $groupName) {
     id
     name
     displayName
@@ -115,17 +115,6 @@ query groupIndexPage($groupId: String!) {
         displayName
       }
     }
-  }
-  drafts(auth: user, groupId: $groupId) {
-    id
-    documentIdLazy
-    Group {
-      id
-      name
-      displayName
-      type
-    }
-    title
   }
 }
 query groupsPage {

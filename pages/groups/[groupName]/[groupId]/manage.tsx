@@ -10,8 +10,9 @@ import { Auth, GetGroupWithMembersDocument, useGetGroupWithMembersQuery } from '
 export default function Page() {
   const session = useSession({ redirectTo: "/login" })
   const router = useRouter()
-  const { identifier } = router.query
   const groupId = getAsString(router.query?.groupId)
+
+  console.log(groupId)
 
   if (!session?.id) return (<Layout></Layout>)
   if (!groupId) return (<Layout></Layout>)
