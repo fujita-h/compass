@@ -2,11 +2,13 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/session'
 import { Layout } from '@components/layouts'
-import { FollowsDocument, useCreateFollowMutation, useDeleteFollowMutation, useFollowsQuery, useGetUsersQuery, UserQuery, useUserQuery } from '@graphql/generated/react-apollo'
+import { FollowsDocument, useCreateFollowMutation, useDeleteFollowMutation, useDocumentsCpQuery, useFollowsQuery, useGetUsersQuery, UserQuery, useUserQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import Image from 'next/image'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import { useMemo } from 'react'
+import Link from 'next/link'
+import { UserIconNameLinkSmall } from '@components/elements'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: "/login" })
@@ -42,8 +44,11 @@ const InnerPage = ({ sessionUserId, userData }: { sessionUserId: string, userDat
             <FollowButton sessionUserId={sessionUserId} userId={userData.user.id} />
           </div>
         </div>
-
         <div className='flex-1'>
+          <div className="mt-2 text-lg font-bold border-b">Documents</div>
+          <div>
+            <UserDocuments userId={userData.user.id} />
+          </div>
         </div>
       </div>
     </div>
@@ -73,4 +78,46 @@ const FollowButton = ({ sessionUserId, userId }: { sessionUserId: string, userId
     </button>
   )
 
+}
+
+
+const UserDocuments = ({ userId }: { userId: string }) => {
+  const { data, loading, fetchMore } = useDocumentsCpQuery({
+    variables: { auth: 'user', userId: userId, first: 20 },
+    fetchPolicy: "network-only"
+  })
+
+  if (loading) return (<></>)
+
+  const nodes = data.documentsCP.edges.map((edge) => edge.node)
+  const pageInfo = data.documentsCP.pageInfo
+
+  return (
+    <div className='m-2 p-2'>
+      {nodes.map((doc) =>
+        <div key={`docs-${doc.id}`}>
+          <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
+            <a className='hover:text-blue-500'>
+              <div key={doc.id} className='border m-2 p-2 bg-white'>
+                <div className='text-black'>
+                  <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
+                  <div className='inline-block ml-2'>
+                    が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
+                  </div>
+                </div>
+                <div className='text-lg font-bold'>{doc.Paper.title || 'UNTITLED'}</div>
+              </div></a>
+          </Link>
+        </div>
+      )}
+      {pageInfo.hasNextPage &&
+        <div className='text-center'>
+          <button className='border rounded-md px-4 py-2 bg-gray-100'
+            onClick={() => {
+              fetchMore({ variables: { after: pageInfo.endCursor, } })
+            }}>もっと読み込む</button>
+        </div>
+      }
+    </div>
+  )
 }
