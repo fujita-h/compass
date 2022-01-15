@@ -5,9 +5,11 @@ import { Layout } from '@components/layouts'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
 import { getAsString } from '@lib/utils'
-import { useGroupIndexPageQuery, GroupIndexPageQuery, useDocumentsCpQuery, Auth } from '@graphql/generated/react-apollo'
+import { useGroupIndexPageQuery, GroupIndexPageQuery, useDocumentsCpQuery, Auth, useWatchesQuery, useCreateWatchMutation, WatchesDocument, useDeleteWatchMutation } from '@graphql/generated/react-apollo'
 import { RiLock2Fill } from 'react-icons/ri'
+import { BsFlag, BsFlagFill, BsSquare, BsCheck2Square, BsEye, BsEyeFill } from 'react-icons/bs'
 import { UserIconNameLinkSmall } from '@components/elements'
+import { useMemo } from 'react'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: "/login" })
@@ -16,10 +18,10 @@ export default function Page(props) {
 
   if (!session?.id) return (<Layout></Layout>)
   if (!groupId) return (<Layout></Layout>)
-  return (<Layout><InnerPage groupId={groupId} /></Layout>)
+  return (<Layout><InnerPage userId={session.id.toUpperCase()} groupId={groupId} /></Layout>)
 }
 
-const InnerPage = ({ groupId }: { groupId: string }) => {
+const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => {
   const { data, loading } = useGroupIndexPageQuery({ variables: { groupId } })
   if (loading) return (<></>)
   if (!data.group) return (<div className="text-red-500">{groupId} Not Found.</div>)
@@ -57,15 +59,19 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
         </div>
         <div className='flex-none w-60 m-2'>
           <div>
+            <div className='mb-4'>
+              <WatchBadge userId={userId} groupId={groupId} />
+            </div>
+
             <div>
               <Link href={`${encodeURIComponent(groupId)}/drafts/new`} passHref>
                 <a><div className="border rounded-lg p-2 text-center bg-blue-100">Create New Document</div></a>
               </Link>
             </div>
           </div>
+
           <div className="mt-8 text-lg font-bold border-b">Your Drafts</div>
           <MyGroupDrafts data={data} />
-
         </div>
       </div>
     </div >
@@ -130,3 +136,41 @@ const MyGroupDrafts = ({ data }: { data: GroupIndexPageQuery }) => {
   )
 }
 
+const WatchBadge = ({ userId, groupId }: { userId: string, groupId: string }) => {
+  const { data, loading } = useWatchesQuery({ variables: { auth: 'user', groupId: groupId } })
+  const [createWatch, { }] = useCreateWatchMutation({ refetchQueries: [WatchesDocument] })
+  const [deleteWatch, { }] = useDeleteWatchMutation({ refetchQueries: [WatchesDocument] })
+
+  const isWatched = useMemo(() => data?.watches?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countWatches = useMemo(() => data?.watches.length, [data])
+
+  const handleClick = (e) => {
+    if (isWatched) {
+      deleteWatch({ variables: { auth: 'user', userId: userId, groupId: groupId } })
+    } else {
+      createWatch({ variables: { auth: 'user', userId: userId, groupId: groupId } })
+    }
+  }
+
+  if (loading || !data) return (
+    <div className='outline-indigo-600 text-indigo-600 rounded-xl px-3 py-1 text-center inline-block hover:outline hover:cursor-pointer'>
+      <span className='text-sm font-bold'> Watch </span>
+        <BsEye className='w-7 h-7 block mx-auto' />
+      <span className='text-sm font-bold'>&nbsp;</span>
+    </div>
+  )
+
+  return (
+    <div className='outline-indigo-600 text-indigo-600 rounded-xl px-3 py-1 text-center inline-block hover:outline hover:cursor-pointer'
+      onClick={handleClick} data-isliked={isWatched}>
+      <span className='text-sm font-bold'> Watch </span>
+      {isWatched ?
+        <BsEyeFill className='w-7 h-7 block mx-auto' /> :
+        <BsEye className='w-7 h-7 block mx-auto' />}
+      <span className='text-sm font-bold'>{countWatches}</span>
+    </div>
+  )
+
+
+
+}
