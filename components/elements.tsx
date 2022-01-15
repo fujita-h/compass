@@ -86,15 +86,15 @@ export const Pagination = ({ maxCount, pageCount, pageIndex, onPageIndexChangedH
   )
 }
 
-export const UserIconNameLinkSmall = ({ userId, userName }: { userId: string, userName: string }) => {
+export const UserIconNameLinkSmall = ({ userId, username }: { userId: string, username: string }) => {
   return (
     <div className='inline-block'>
-      <Link href={`/users/${encodeURIComponent(userId.toLowerCase())}`} passHref>
+      <Link href={`/users/${encodeURIComponent(username.toLowerCase())}`} passHref>
         <div className='group hover:underline font-bold hover:cursor-pointer'>
           <div className='inline-block mr-1 group-hover:brightness-90'>
-            <Image loader={userIconLoader} src={userId.toLowerCase()} width={16} height={16} alt={userName} className='rounded-full' />
+            <Image loader={userIconLoader} src={userId.toLowerCase()} width={16} height={16} alt={username} className='rounded-full' />
           </div>
-          <span>@{userName}</span>
+          <span>@{username}</span>
         </div>
       </Link>
     </div>

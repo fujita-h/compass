@@ -74,7 +74,7 @@ const Timeline = () => {
                   </div>
                 </Link>
                 <div className='text-black'>
-                  <UserIconNameLinkSmall userId={doc.Paper.User.id} userName={doc.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
                     が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
                   </div>

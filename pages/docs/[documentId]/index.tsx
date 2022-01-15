@@ -63,7 +63,7 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
                   <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
                 </a></Link>
                 <div>
-                  <UserIconNameLinkSmall userId={data.document.Paper.User.id} userName={data.document.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={data.document.Paper.User.id} username={data.document.Paper.User.username} />
                 </div>
                 <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
               </div>
@@ -291,7 +291,7 @@ const CommentsView = ({ userId, documentId }: { userId: string, documentId: stri
           const refColoredBorder = comment.id.toUpperCase() === refCommentId.toUpperCase() ? 'border-red-300 border-2' : ''
           return (
             <div key={`document-comment-${comment.id}`} className={`border m-1 p-2 ${feaColoredBorder} ${refColoredBorder}`} data-commentid={comment.id} onClick={handleResetfeature}>
-              <CommentView commentId={comment.id} userId={comment.User.id} userName={comment.User.username}
+              <CommentView commentId={comment.id} userId={comment.User.id} username={comment.User.username}
                 createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt} body={comment.RawComment.body}
                 refCommentId={comment.referenceCommentIdLazy} setRefCommentId={setRefCommentId} setFeatureCommentId={setFeatureCommentId} />
             </div>
@@ -305,11 +305,11 @@ const CommentsView = ({ userId, documentId }: { userId: string, documentId: stri
   )
 }
 
-const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, body, refCommentId, setRefCommentId, setFeatureCommentId }:
+const CommentView = ({ commentId, userId, username, createdAt, rawCreatedAt, body, refCommentId, setRefCommentId, setFeatureCommentId }:
   {
     commentId: string,
     userId: string,
-    userName: string,
+    username: string,
     createdAt: string,
     rawCreatedAt: string,
     body: string,
@@ -367,7 +367,7 @@ const CommentView = ({ commentId, userId, userName, createdAt, rawCreatedAt, bod
         }
         <div className='flex justify-between'>
           <div>
-            <UserIconNameLinkSmall userId={userId} userName={userName} />
+            <UserIconNameLinkSmall userId={userId} username={username} />
           </div>
           <div>
             <div className='inline-block align-top mr-2'>
@@ -555,7 +555,7 @@ const CommentSummary = ({ commentId }) => {
   return (
     <div className='line-clamp-1'>
       <div className='inline-block mr-2'>
-        <UserIconNameLinkSmall userId={data.comment.User.id} userName={data.comment.User.username} />
+        <UserIconNameLinkSmall userId={data.comment.User.id} username={data.comment.User.username} />
       </div>
       <span className='text-sm from-neutral-700'>{html.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '').slice(0, 300)}</span>
     </div>)
