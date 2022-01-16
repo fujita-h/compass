@@ -9,7 +9,8 @@ import { useGroupIndexPageQuery, GroupIndexPageQuery, useDocumentsCpQuery, Auth,
 import { RiLock2Fill } from 'react-icons/ri'
 import { BsFlag, BsFlagFill, BsSquare, BsCheck2Square, BsEye, BsEyeFill } from 'react-icons/bs'
 import { UserIconNameLinkSmall } from '@components/elements'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { updatePageViews } from '@lib/localStorage/pageViews'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: "/login" })
@@ -23,7 +24,13 @@ export default function Page(props) {
 
 const InnerPage = ({ userId, groupName }: { userId: string, groupName: string }) => {
   const { data, loading } = useGroupIndexPageQuery({ variables: { groupName } })
-  if (loading) return (<></>)
+  
+  useEffect(() => {
+    if (!data?.group?.name) return
+    updatePageViews('group', data.group.name)
+  }, [data?.group?.name])
+
+  if (loading || !data) return (<></>)
   if (!data.group) return (<div className="text-red-500">{groupName} Not Found.</div>)
 
   const groupId = data.group.id
@@ -125,10 +132,8 @@ const GroupDocuments = ({ groupId }: { groupId: string }) => {
 
 
 const MyGroupDrafts = ({ groupId }: { groupId: string }) => {
-
-  const { data, loading } = useDraftsQuery({ variables: { auth:'user', groupId: groupId } })
-
-  if(loading || !data) return (<div></div>)
+  const { data, loading } = useDraftsQuery({ variables: { auth: 'user', groupId: groupId } })
+  if (loading || !data) return (<div></div>)
 
   return (
     <div>

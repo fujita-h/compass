@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useSessionQuery, useHeaderQuery, Auth } from '@graphql/generated/react-apollo'
 import { FaUserCircle } from 'react-icons/fa'
 import { BiDownArrow } from 'react-icons/bi'
+import { getPageViews } from '@lib/localStorage/pageViews';
 
 export type MyProfile = {
   id: String
@@ -19,10 +20,10 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (<>
 export const Header = () => {
 
   const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
-  const [groupMenuOpen, setGroupMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
-  const [searchSuggestList, setSearchSuggestList] = useState([])
+
+  const handleCloseSuggest = (e) => { setSearchSuggestOpen(false) }
 
   if (loading) return (<BlankHeader />)
   if (!data) return (<BlankHeader />)
@@ -38,24 +39,15 @@ export const Header = () => {
             </Link>
           </div>
 
-          <div className='group mr-2 items-center h-7'>
-            <input type="text" className='box-border w-52 h-full border-2 rounded-xl pl-2 pr-3 text-sm text-gray-700 focus:outline-none focus:shadow-outline focus:border-blue-300 focus:w-100 duration-200' onFocus={() => { setSearchSuggestOpen(true) }} onBlur={() => { setSearchSuggestOpen(false) }} placeholder='検索..' />
+          <div className='mr-2 items-center h-7'
+            onFocus={() => { setSearchSuggestOpen(true) }}
+            onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSearchSuggestOpen(false) } }}          >
+            <input type="text" placeholder='検索..'
+              className={`box-border w-52 h-full border-2 rounded-lg pl-2 pr-3 text-sm text-gray-700 duration-200 focus:rounded-b-none focus:outline-none focus:shadow-outline  focus:w-100`} />
             <div hidden={!searchSuggestOpen}
-              className="z-40 origin-top-right absolute mt-2 w-52 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10">
+              className="z-40 origin-top-right absolute mt-0 w-100 rounded-b-lg shadow-lg bg-white ring-1 ring-black ring-opacity-10">
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu" >
-                <Link href="/profile" passHref>
-                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">Profile</a>
-                </Link>
-                <span className="block border-b"></span>
-                <Link href="/settings/profile" passHref>
-                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">設定</a>
-                </Link>
-                <span className="block border-b"></span>
-                <Link href="/admin" passHref>
-                  <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">管理メニュー</a>
-                </Link>
-                <span className="block border-b"></span>
-                <a href="/logout" className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">ログアウト</a>
+                {searchSuggestOpen ? <SearchMenu handleCloseSuggest={handleCloseSuggest} /> : <></>}
               </div>
             </div>
           </div>
@@ -72,9 +64,6 @@ export const Header = () => {
               <>
                 {/* Logged-in Menu */}
                 <div className='flex'>
-                  <div className='mr-2 items-center '>
-                    <input type="text" className='box-border w-52 h-full border-2 rounded-xl pl-2 pr-3 text-sm text-gray-700 focus:outline-none focus:shadow-outline focus:border-blue-300' placeholder='検索..'></input>
-                  </div>
 
                   {/* User Menu */}
                   <div
@@ -165,4 +154,22 @@ export const AdminHeader = () => {
     </nav>
 
   )
+}
+
+const SearchMenu = ({handleCloseSuggest}) => {
+  const pageViews = getPageViews()
+  const pvEntries = Object.entries(pageViews).sort(([key_a, value_a], [key_b, value_b]) => value_b.lastVisitedAt - value_a.lastVisitedAt).slice(0, 10)
+
+  return (<div>
+    {pvEntries.map(([key, value]) => {
+      const keys = key.split(':', 2)
+      if (keys[0] == 'group') {
+        return (
+          <Link key={`suggest-${key}`} href={`/groups/${encodeURIComponent(keys[1])}`} passHref>
+            <a className="block px-4 py-1 border-b text-gray-700 hover:bg-gray-100 hover:text-gray-900 last:border-none text-base" onClick={handleCloseSuggest}>groups/{keys[1]}</a>
+          </Link>
+        )
+      }
+    })}
+  </div>)
 }

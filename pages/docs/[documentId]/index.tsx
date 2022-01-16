@@ -19,6 +19,7 @@ import {
 import { MyModal } from '@components/modals'
 import { UserIconNameLinkSmall } from '@components/elements'
 import { XIcon } from '@heroicons/react/solid'
+import { updatePageViews } from '@lib/localStorage/pageViews'
 
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -44,6 +45,11 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
 
   const H1 = useCallback(({ node, ...props }) => <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h1>, [])
   const H2 = useCallback(({ node, ...props }) => <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h2>, [])
+
+  useEffect(() => {
+    if (!data?.document?.Paper?.Group?.name) return
+    updatePageViews('group', data?.document?.Paper?.Group?.name)
+  }, [data?.document?.Paper?.Group?.name])
 
   if (loading) return (<></>)
   if (!data.document) {
