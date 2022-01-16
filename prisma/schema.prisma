@@ -78,9 +78,9 @@ model MapUserGroup {
 }
 
 model Tag {
-  id          String        @id @db.VarChar(26)
-  text        String        @unique @db.VarChar(63)
-  MapPaperTag MapPaperTag[]
+  id     String        @id @db.VarChar(26)
+  text   String        @unique @db.VarChar(63)
+  Papers MapPaperTag[]
 }
 
 model Document {
@@ -140,7 +140,7 @@ model Paper {
   Group             Group         @relation(fields: [groupId], references: [id])
   User              User          @relation(fields: [userId], references: [id])
   Document          Document[]
-  MapPaperTag       MapPaperTag[]
+  Tags              MapPaperTag[]
 
   @@index([canReadAll], map: "canReadAll")
   @@index([createdAtNumber], map: "createdAtNumber")

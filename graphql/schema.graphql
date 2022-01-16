@@ -115,6 +115,7 @@ type Paper {
   isPosted: Int!
   User: User!
   Group: Group!
+  Tags: [MapPaperTag]
   createdAt: String!
   updatedAt: String!
 }
@@ -182,6 +183,18 @@ type Watch {
   groupId: String!
 }
 
+type Tag {
+  id: String!
+  text: String!
+}
+
+type MapPaperTag {
+  paperId: String!
+  tagId: String!
+  Paper: Paper
+  Tag: Tag
+}
+
 type Query {
   session: Session
 
@@ -239,8 +252,8 @@ type Mutation {
   updateMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   deleteMapUserGroup(auth: Auth!, userId: String!, groupId: String!): MapUserGroup
   
-  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, documentId: String, isPosted: Int): Paper
-  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, isPosted: Int): Paper
+  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, tags: [String]!, documentId: String, isPosted: Int): Paper
+  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, tags: [String]!, isPosted: Int): Paper
 
   updateMyProfile(auth: Auth!, username: String, displayName: String): User
 

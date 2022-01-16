@@ -368,7 +368,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { Paper: { include: { User: true, Group: true } } }
+          include: { Paper: { include: { User: true, Group: true, Tags: { include: {Tag : true}} } } }
         })
       }
       if (auth == 'none') {
@@ -775,7 +775,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     createPaper: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, groupId, title, body, documentId, isPosted } = args
+      const { auth, userId, groupId, title, body, tags, documentId, isPosted } = args
 
       /**
        * createPaper は以下のパターンで分岐する
@@ -867,7 +867,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     updatePaper: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, paperId, title, body, isPosted } = args
+      const { auth, paperId, title, body, tags, isPosted } = args
 
       /**
        * createPaper は以下のパターンで分岐する

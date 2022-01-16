@@ -2,7 +2,7 @@ import router, { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
-import { DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
+import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
 import { Auth, useDraftPageQuery, useUpdateDraftMutation } from '@graphql/generated/react-apollo'
 
 export default function Page() {
@@ -26,7 +26,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
     }
   })
 
-  const handleSubmit = (submitType, data: { title: string, body: string }) => {
+  const handleSubmit = (submitType, data: DocumentData) => {
     if (submitType == 'publish') {
       updateDraft({
         variables: {
@@ -34,6 +34,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
           paperId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
           isPosted: 1
         }
       })
@@ -44,20 +45,28 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
           paperId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
         }
       })
     }
 
   }
 
-  const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: data?.draft?.documentIdLazy ? 'ドキュメントを更新': '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
+  const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: data?.draft?.documentIdLazy ? 'ドキュメントを更新' : '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
   if (loading) return (<Layout></Layout>)
   if (!data.draft) return (<div>404</div>)
 
+  const initDocData: DocumentData =
+  {
+    title: data.draft.title,
+    body: data.draft.body,
+    tags: data.draft.Tags.map((x) => x.Tag.text)
+  }
+
   return (
     <Layout>
-      <DocumentEditorForm initDocData={data.draft} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+      <DocumentEditorForm initDocData={initDocData} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
     </Layout>
   )
 }

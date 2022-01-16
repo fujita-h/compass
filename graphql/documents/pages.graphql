@@ -74,6 +74,12 @@ query documentPage($documentId: String!) {
         name
         displayName
       }
+      Tags {
+        Tag {
+          id
+          text
+        }
+      }
       title
       body
       createdAt
@@ -89,6 +95,12 @@ query draftPage($paperId: String!) {
     groupId
     title
     body
+    Tags {
+      Tag {
+        id
+        text
+      }
+    }
     isPosted
   }
 }

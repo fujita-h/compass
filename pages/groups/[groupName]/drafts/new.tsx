@@ -32,7 +32,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
     onError: (error) => { console.error(error) }
   })
 
-  const handleSubmit = (submitType, data: { title: string, body: string }) => {
+  const handleSubmit = (submitType, data: DocumentData) => {
     if (submitType == 'publish') {
       createDraft({
         variables: {
@@ -40,6 +40,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
           userId, groupId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
           isPosted: 1
         }
       })
@@ -51,6 +52,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
           userId, groupId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
         }
       })
     }
@@ -58,7 +60,8 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
 
   const initDocData: DocumentData = {
     title: '',
-    body: ''
+    body: '',
+    tags: [],
   }
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
