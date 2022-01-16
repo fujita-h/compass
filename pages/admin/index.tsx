@@ -1,5 +1,5 @@
 import { AdminLayout } from '@components/layouts'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { useAdminIndexPageQuery } from '@graphql/generated/react-apollo'
 
 const Index = () => {

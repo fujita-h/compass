@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'

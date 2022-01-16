@@ -1,5 +1,5 @@
 import { Layout } from "@components/layouts"
-import { useSession } from "@lib/session"
+import { useSession } from "@lib/hooks"
 import Link from 'next/link'
 import { useGroupsPageQuery } from '@graphql/generated/react-apollo'
 

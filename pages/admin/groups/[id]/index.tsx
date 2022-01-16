@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { AdminLayout } from 'components/layouts'
 import { getAsString } from 'lib/utils'
 import Link from 'next/link'

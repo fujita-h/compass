@@ -1,5 +1,5 @@
 import { AdminLayout } from '@components/layouts'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { useState } from 'react'
 import Link from 'next/link'
 import { MyModal } from 'components/modals'

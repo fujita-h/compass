@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Router from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { SignupForm } from '@components/forms/auth'
 

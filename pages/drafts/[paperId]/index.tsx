@@ -1,5 +1,5 @@
 import router, { useRouter } from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
 import { DocumentEditorForm, SubmitButtonSetting } from '@components/editors'

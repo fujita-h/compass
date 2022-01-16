@@ -1,6 +1,6 @@
 import Error from 'next/error'
 import { useRouter } from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { FollowsDocument, useCreateFollowMutation, useDeleteFollowMutation, useDocumentsCpQuery, useFollowsQuery, useGetUsersQuery, UserQuery, useUserQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'

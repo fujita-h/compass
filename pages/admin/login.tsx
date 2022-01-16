@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Router from 'next/router'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { AdminLayout } from '@components/layouts'
 import { useSessionQuery } from '@graphql/generated/react-apollo'
 

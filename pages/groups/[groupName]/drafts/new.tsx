@@ -1,4 +1,4 @@
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
 import { Auth, useCreateDraftMutation, useGroupQuery } from '@graphql/generated/react-apollo'

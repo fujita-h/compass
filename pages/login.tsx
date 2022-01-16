@@ -1,6 +1,6 @@
 import { MouseEventHandler, useState } from 'react'
 import { useRouter } from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { LoginForm } from '@components/forms/auth'
 import { LoginPageQuery, useLoginPageQuery } from '@graphql/generated/react-apollo'
