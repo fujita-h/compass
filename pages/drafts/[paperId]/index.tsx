@@ -16,7 +16,6 @@ export default function Page() {
 }
 
 const InnerPage = ({ paperId }: { paperId: string }) => {
-  console.log('test innnerPage render')
   const { data, loading } = useDraftPageQuery({ variables: { paperId } })
 
   const [updateDraft, { data: updateDraftData, loading: updateDraftLoading, error: updateDraftError, client }] = useUpdateDraftMutation({
@@ -28,7 +27,6 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
   })
 
   const handleSubmit = (submitType, data: { title: string, body: string }) => {
-    console.log(submitType, data)
     if (submitType == 'publish') {
       updateDraft({
         variables: {

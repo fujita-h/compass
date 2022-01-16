@@ -33,7 +33,6 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
   })
 
   const handleSubmit = (submitType, data: { title: string, body: string }) => {
-    console.log(submitType, data)
     if (submitType == 'publish') {
       createDraft({
         variables: {

@@ -99,7 +99,6 @@ export const samlStrategy = new MultiSamlStrategy(
     passReqToCallback: true,
     getSamlOptions: async function (req, done) {
       const id = req.query.id as string | undefined
-      console.log('id:', id)
       const idp = await prisma.saml.findUnique({ where: { id } })
       if (!idp) return done(new Error('Idp not found'))
       return done(null, { path: '/api/auth/user/saml/idps/' + idp.id + '/callback', entryPoint: idp.entryPoint, issuer: idp.issuer, cert: idp.cert })

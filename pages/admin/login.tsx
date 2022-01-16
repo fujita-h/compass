@@ -24,7 +24,6 @@ const Login = () => {
         body: JSON.stringify(body),
       })
       if (res.status === 200) {
-        console.log('router_push')
         Router.push('/admin')
       } else {
         throw new Error(await res.text())
