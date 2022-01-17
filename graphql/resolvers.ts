@@ -252,7 +252,7 @@ export const resolvers: Resolvers = {
             updatedAtNumber: { lt: Number(targetCursor) }
           }
         },
-        include: { Paper: { include: { User: true, Group: true } } },
+        include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } },
         orderBy: { Paper: { updatedAtNumber: 'desc' } },
         take: first + 1
       })).map(_item => {
@@ -290,7 +290,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { Paper: { include: { User: true, Group: true } } }
+          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -326,7 +326,7 @@ export const resolvers: Resolvers = {
               updatedAtNumber: { lt: Number(targetCursor) }
             }
           },
-          include: { Paper: { include: { User: true, Group: true } } },
+          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } },
           orderBy: { Paper: { updatedAtNumber: 'desc' } },
           take: first + 1
         })).map(_item => {
@@ -368,7 +368,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { Paper: { include: { User: true, Group: true, Tags: { include: {Tag : true}} } } }
+          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -390,7 +390,7 @@ export const resolvers: Resolvers = {
             groupId: groupId.toUpperCase(),
             isPosted: { equals: 0 }
           },
-          include: { User: true, Group: true }
+          include: { User: true, Group: true, Tags: { include: { Tag: true } } }
         })
       }
       if (auth == 'none') {
@@ -415,7 +415,7 @@ export const resolvers: Resolvers = {
               { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
-          include: { User: true, Group: true }
+          include: { User: true, Group: true, Tags: { include: { Tag: true } } }
         })
       }
       if (auth == 'none') {
@@ -817,48 +817,114 @@ export const resolvers: Resolvers = {
         }
 
         const now = Date.now()
-        const paperData = (documentId: string) => {
-          return {
-            id: ulid(),
-            userId: _context.userSession.id.toUpperCase(),
-            groupId: groupId.toUpperCase(),
-            documentIdLazy: documentId ? documentId.toUpperCase() : documentId,
-            title,
-            body,
-            isPosted,
-            createdAt: new Date(now).toISOString(),
-            createdAtNumber: now,
-            updatedAt: new Date(now).toISOString(),
-            updatedAtNumber: now
-          }
-        }
+
+        // まずは Tags を一括で追加する (重複はskip)
+        await prisma.tag.createMany({ data: tags.map((x) => ({ id: ulid(), text: x })), skipDuplicates: true })
+        const _tags = await prisma.tag.findMany({ where: { text: { in: tags } } })
 
         if (isPosted) {
-          // isPosted === true の場合は、pageを作りつつ、documents も処理する。
-          // documentId は存在する場合としない場合があるので、
-          // 指定されていなかった場合は新たに採番し、upsert で同時に処理する。
+          // isPosted === true の場合は、pageを新規に作りつつ、
+          // document も処理する必要がある。
+          // 引数:documentId は存在する場合としない場合があるので、
+          // 指定されていなかった場合は新たに採番(_documentId)し、
+          // これを upsert で処理することで実現できる。
+          // その後Tagを処理して、結果を得る、一連のTransactionを実行する
 
           const _documentId = documentId ?? ulid()
-          return (await prisma.document.upsert({
-            where: { id: _documentId },
-            create: {
-              id: _documentId,
-              Paper: { create: paperData(_documentId) }
-            },
-            update: {
-              Paper: { create: paperData(_documentId) }
-            },
-            include: { Paper: { include: { User: true, Group: true } } },
-          })).Paper
+          const _paperId = ulid()
+
+          const [upsertDoc, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+            prisma.document.upsert({
+              where: { id: _documentId },
+              create: {
+                id: _documentId,
+                Paper: {
+                  create: {
+                    id: _paperId,
+                    userId: _context.userSession.id.toUpperCase(),
+                    groupId: groupId.toUpperCase(),
+                    documentIdLazy: _documentId.toUpperCase(),
+                    title,
+                    body,
+                    isPosted,
+                    createdAt: new Date(now).toISOString(),
+                    createdAtNumber: now,
+                    updatedAt: new Date(now).toISOString(),
+                    updatedAtNumber: now,
+                  }
+                }
+              },
+              update: {
+                Paper: {
+                  create: {
+                    id: _paperId,
+                    userId: _context.userSession.id.toUpperCase(),
+                    groupId: groupId.toUpperCase(),
+                    documentIdLazy: _documentId.toUpperCase(),
+                    title,
+                    body,
+                    isPosted,
+                    createdAt: new Date(now).toISOString(),
+                    createdAtNumber: now,
+                    updatedAt: new Date(now).toISOString(),
+                    updatedAtNumber: now
+
+                  }
+                }
+              }
+            }),
+            prisma.mapPaperTag.deleteMany({
+              where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
+            }),
+            prisma.mapPaperTag.createMany({
+              data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
+              skipDuplicates: true,
+            }),
+            prisma.paper.findUnique({
+              where: { id: _paperId },
+              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+            })
+          ])
+
+          return result
 
         } else {
           // isPublishd === false の場合は、pageだけcreateすれば良い
-          // documentId が指定されなかった場合でも、そのまま入力する
+          // documentId が指定されなかった場合は undefind を入れる
+          // その後Tagを処理して、結果を得る、一連のTransactionを実行する
 
-          return await prisma.paper.create({
-            data: paperData(documentId),
-            include: { User: true, Group: true }
-          })
+          const _paperId = ulid()
+
+          const [createPaper, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+            prisma.paper.create({
+              data: {
+                id: _paperId,
+                userId: _context.userSession.id.toUpperCase(),
+                groupId: groupId.toUpperCase(),
+                documentIdLazy: documentId ? documentId.toUpperCase() : undefined,
+                title,
+                body,
+                isPosted,
+                createdAt: new Date(now).toISOString(),
+                createdAtNumber: now,
+                updatedAt: new Date(now).toISOString(),
+                updatedAtNumber: now
+              }
+            }),
+            prisma.mapPaperTag.deleteMany({
+              where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
+            }),
+            prisma.mapPaperTag.createMany({
+              data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
+              skipDuplicates: true,
+            }),
+            prisma.paper.findUnique({
+              where: { id: _paperId },
+              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+            })
+          ])
+
+          return result
         }
       }
       if (auth == 'none') {
@@ -896,27 +962,58 @@ export const resolvers: Resolvers = {
 
         const now = Date.now()
 
+        // まずは Tags を一括で追加する (重複はskip)
+        await prisma.tag.createMany({ data: tags.map((x) => ({ id: ulid(), text: x })), skipDuplicates: true })
+        const _tags = await prisma.tag.findMany({ where: { text: { in: tags } } })
+
         if (isPosted) {
+
           const documentId = check.documentIdLazy ?? ulid()
-          const [updatePaper, upsertDoc] = await prisma.$transaction([
+          const [updatePaper, upsertDoc, deleteTagMap, createTagMap, result] = await prisma.$transaction([
             prisma.paper.update({
-              where: { id: paperId },
+              where: { id: paperId.toUpperCase() },
               data: { title, body, documentIdLazy: documentId.toUpperCase(), isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
-              include: { User: true, Group: true }
             }),
             prisma.document.upsert({
               where: { id: documentId.toUpperCase() },
               create: { id: documentId.toUpperCase(), paperId: paperId.toUpperCase() },
               update: { paperId: paperId.toUpperCase() }
+            }),
+            prisma.mapPaperTag.deleteMany({
+              where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
+            }),
+            prisma.mapPaperTag.createMany({
+              data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
+              skipDuplicates: true,
+            }),
+            prisma.paper.findUnique({
+              where: { id: paperId.toUpperCase() },
+              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
             })
           ])
 
-          return updatePaper
+          return result
         } else {
-          return await prisma.paper.update({
-            where: { id: paperId.toUpperCase() }, data: { title, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
-            include: { User: true, Group: true }
-          })
+
+          const [updatePaper, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+            prisma.paper.update({
+              where: { id: paperId.toUpperCase() },
+              data: { title, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
+            }),
+            prisma.mapPaperTag.deleteMany({
+              where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
+            }),
+            prisma.mapPaperTag.createMany({
+              data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
+              skipDuplicates: true,
+            }),
+            prisma.paper.findUnique({
+              where: { id: paperId.toUpperCase() },
+              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+            })
+          ])
+
+          return result
         }
 
 

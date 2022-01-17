@@ -102,7 +102,7 @@ type GroupWithMember {
   displayName: String
   description: String
   type: GroupType!
-  MapUserGroup: [MapUserGroup]
+  MapUserGroup: [MapUserGroup]!
 }
 
 type Paper {
@@ -115,7 +115,7 @@ type Paper {
   isPosted: Int!
   User: User!
   Group: Group!
-  Tags: [MapPaperTag]
+  Tags: [MapPaperTag]!
   createdAt: String!
   updatedAt: String!
 }
