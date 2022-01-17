@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown"
 import gfm from 'remark-gfm'
 import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
-import { BsBookmark, BsBookmarkCheckFill, BsThreeDots } from 'react-icons/bs'
+import { BsBookmark, BsBookmarkCheckFill, BsThreeDots, BsTags } from 'react-icons/bs'
 import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import {
@@ -81,6 +81,10 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
             <h1 className='text-3xl font-bold mt-1 mb-4'>
               {data.document.Paper.title}
             </h1>
+            <div>
+              <BsTags className='inline-block w-5 h-5 text-gray-600 mr-2' />
+              {data.document.Paper.Tags.map((tag) => <span key={`tag-${tag.Tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{tag.Tag.text}</span>)}
+            </div>
           </div>
           <div className='p-2'>
             <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.Paper.body}</ReactMarkdown>
