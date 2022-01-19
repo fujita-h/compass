@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React, { useState } from 'react';
 import { useSessionQuery, useHeaderQuery, Auth } from '@graphql/generated/react-apollo'
-import { FaUserCircle } from 'react-icons/fa'
+import { FaUserCircle, FaRegBell } from 'react-icons/fa'
 import { BiDownArrow } from 'react-icons/bi'
 import { getPageViews } from '@lib/localStorage/pageViews';
 
@@ -32,7 +32,7 @@ export const Header = () => {
     <div className="flex items-center justify-between h-full">
 
       <div className='block'>
-        <div className='flex gap-3'>
+        <div className='flex gap-3 items-baseline'>
           <div className='my-auto'>
             <Link href="/" passHref>
               <a className='hover:text-gray-300'>Compass</a>
@@ -52,6 +52,10 @@ export const Header = () => {
             </div>
           </div>
 
+          <div className='text-sm'><Link href="#" passHref><a className='hover:text-gray-300'>Gruops</a></Link></div>
+
+          <div className='text-sm'><Link href="#" passHref><a className='hover:text-gray-300'>Tags</a></Link></div>
+
         </div>
       </div>
 
@@ -64,6 +68,10 @@ export const Header = () => {
               <>
                 {/* Logged-in Menu */}
                 <div className='flex'>
+
+                  <div className="flex items-center justify-center w-full rounded-md px-2 py-1 text-sm font-medium hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-gray-500">
+                    <FaRegBell className='h-5 w-5'/>
+                  </div>
 
                   {/* User Menu */}
                   <div
