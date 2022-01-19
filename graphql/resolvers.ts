@@ -26,7 +26,8 @@ export const resolvers: Resolvers = {
       const { auth } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.configuration.findFirst()
+        const result = await prisma.configuration.findFirst()
+        return result ?? await prisma.configuration.create({ data: {} })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
