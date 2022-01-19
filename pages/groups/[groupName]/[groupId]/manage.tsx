@@ -36,11 +36,9 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
       <div className='mt-3 border rounded-lg p-3'>
         <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
       </div>
-      {data.group.type === 'private' || data.group.type === 'announce' ?
-        <div className='mt-3 border rounded-lg p-3'>
-          <EditGroupMemberTable auth={'user'} groupId={data.group.id} />
-        </div> : <></>
-      }
+      <div className='mt-3 border rounded-lg p-3'>
+        <EditGroupMemberTable auth={'user'} groupId={data.group.id} />
+      </div>
     </div>
   )
 }
