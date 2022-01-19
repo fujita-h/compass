@@ -88,10 +88,6 @@ export const Header = () => {
                           <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">設定</a>
                         </Link>
                         <span className="block border-b"></span>
-                        <Link href="/admin" passHref>
-                          <a className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900">管理メニュー</a>
-                        </Link>
-                        <span className="block border-b"></span>
                         <a href="/logout" className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">ログアウト</a>
                       </div>
                     </div>
@@ -156,7 +152,7 @@ export const AdminHeader = () => {
   )
 }
 
-const SearchMenu = ({handleCloseSuggest}) => {
+const SearchMenu = ({ handleCloseSuggest }) => {
   const pageViews = getPageViews()
   const pvEntries = Object.entries(pageViews).sort(([key_a, value_a], [key_b, value_b]) => value_b.lastVisitedAt - value_a.lastVisitedAt).slice(0, 10)
 
