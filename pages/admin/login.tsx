@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Router from 'next/router'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { AdminLayout } from '@components/layouts'
 import { useSessionQuery } from '@graphql/generated/react-apollo'
 
@@ -24,7 +24,6 @@ const Login = () => {
         body: JSON.stringify(body),
       })
       if (res.status === 200) {
-        console.log('router_push')
         Router.push('/admin')
       } else {
         throw new Error(await res.text())

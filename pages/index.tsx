@@ -3,14 +3,15 @@ import Link from 'next/link'
 import { useSessionQuery, useMyTimelineCpQuery, useMyJoinedGroupsCpQuery } from '@graphql/generated/react-apollo'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
+import { UserIconNameLinkSmall } from '@components/elements'
+import { BsAppIndicator } from 'react-icons/bs'
 
 export default function Page() {
 
   // Indexページはログインの有無でページを切り替える必要があるので、errorPolicy:all
-  const { data, loading, refetch, } = useSessionQuery({ fetchPolicy: 'cache-and-network', errorPolicy: 'all' })
+  const { data, loading, refetch, } = useSessionQuery({ errorPolicy: 'all' })
   if (loading) return (<Layout />)
 
-  console.log(data)
   // userSession が無ければ、未ログイン
   if (!data.session.userSession) {
     return (
@@ -32,22 +33,22 @@ export default function Page() {
     <Layout>
       <div className='p-2'>
         <div className="flex content-between">
+          <div className="w-80">
+            <div className="p-2">
+              <div className='flex justify-between items-end'>
+                <div><h2>参加グループ</h2></div>
+                <div>
+                  <Link href="/groups/new" passHref><a>
+                    <div className='border rounded-lg px-2 py-1 text-sm text-white bg-green-600'><span>New</span></div>
+                  </a></Link>
+                </div>
+              </div>
+              <MyJoinedGroup />
+            </div>
+          </div>
           <div className="w-full p-2">
             <h1 className="text-2xl border-b-1">タイムライン</h1>
             <Timeline />
-          </div>
-          <div className="w-80">
-            <div className="border rounded-lg p-2">
-              <h2 className="border-b-1">Joined Groups</h2>
-              <MyJoinedGroup />
-            </div>
-            <div className="mt-6">
-              <Link href="/groups/new" passHref><a>
-                <div className='border rounded-lg px-3 py-1 my-2 bg-blue-100'>
-                  新しいグループを作成する
-                </div>
-              </a></Link>
-            </div>
           </div>
         </div>
       </div>
@@ -64,26 +65,17 @@ const Timeline = () => {
   return (
     <div className='flex flex-wrap'>
       {nodes.map((doc) =>
-        <div key={`docs-${doc.id}`} className='w-full lg:w-1/2 2xl:w-1/3 max-w-xl'>
+        <div key={`docs-${doc.id}`} className='w-full lg:w-full 2xl:w-1/2 max-w-4xl'>
           <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
             <a className='hover:text-green-700'>
               <div className='border m-2 p-2 bg-white'>
-                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.id)}`} passHref><a>
+                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.name)}`} passHref>
                   <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
-                    {doc.Paper.Group.displayName}
+                    {doc.Paper.Group.displayName || doc.Paper.Group.name}
                   </div>
-                </a></Link>
+                </Link>
                 <div className='text-black'>
-                  <div className='inline-block'>
-                    <Link href={`/users/${encodeURIComponent(doc.Paper.User.id.toLowerCase())}`} passHref>
-                      <a className='group hover:underline'>
-                        <div className='inline-block mr-1 group-hover:brightness-95'>
-                          <Image loader={userIconLoader} src={doc.Paper.User.id.toLowerCase()} width={16} height={16} alt={doc.Paper.User.username} className='rounded-full' />
-                        </div>
-                        <span>@{doc.Paper.User.username}</span>
-                      </a>
-                    </Link>
-                  </div>
+                  <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
                     が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
                   </div>
@@ -106,21 +98,21 @@ const Timeline = () => {
 }
 
 const MyJoinedGroup = () => {
-  const { data, loading, fetchMore } = useMyJoinedGroupsCpQuery({ variables: { first: 20 }, fetchPolicy: "network-only" })
+  const { data, loading, fetchMore } = useMyJoinedGroupsCpQuery({ variables: { first: 10 }, fetchPolicy: "network-only" })
   if (loading) return (<></>)
   const nodes = data.myJoinedGroupsCP.edges.map((edge) => edge.node)
   const pageInfo = data.myJoinedGroupsCP.pageInfo
 
   return (
-    <div className='pt-2'>
+    <div className='pt-2 text-base'>
       {nodes.map((group) =>
-        <Link href={`/groups/${encodeURIComponent(group.id.toLowerCase())}`} passHref>
-          <a className='hover:bg-orange-200'>
-            <div key={`myGroups-${group.id}`} className='w-full border rounded-md p-2 my-1 hover:bg-orange-200'>
-              <div>{group.displayName || group.name}</div>
-
-            </div>       </a>
-        </Link>
+        <div key={`myGroups-${group.id}`} className='my-1'>
+          <Link href={`/groups/${encodeURIComponent(group.name)}`} passHref>
+            <a className='hover:underline'>
+              <BsAppIndicator className='inline-block mr-1' /><span>{group.displayName || group.name}</span>
+            </a>
+          </Link>
+        </div>
       )}
       {pageInfo.hasNextPage &&
         <div className='text-center w-full'>

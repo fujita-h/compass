@@ -1,0 +1,122 @@
+query Comments($auth: Auth!, $userId: String, $documentId: String) {
+  comments(auth: $auth, userId: $userId, documentId: $documentId) {
+    id
+    userId
+    documentId
+    rawCommentId
+    referenceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+query Comment($auth: Auth!, $id: String!) {
+  comment(auth: $auth, id: $id) {
+    id
+    userId
+    documentId
+    rawCommentId
+    referenceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation CreateComment($auth: Auth!, $userId: String!, $documentId: String!, $referenceCommentIdLazy: String, $body: String!) {
+  createComment(auth: $auth, userId: $userId, documentId: $documentId, referenceCommentIdLazy: $referenceCommentIdLazy, body: $body) {
+    id
+    userId
+    documentId
+    rawCommentId
+    referenceCommentIdLazy
+    createdAt
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation UpdateComment($auth: Auth!, $id: String!, $body: String!) {
+  updateComment(auth: $auth, id: $id, body: $body) {
+    id
+    userId
+    documentId
+    rawCommentId
+    referenceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}
+
+mutation DeleteComment($auth: Auth!, $id: String!) {
+  deleteComment(auth: $auth, id: $id) {
+    id
+    userId
+    documentId
+    rawCommentId
+    referenceCommentIdLazy
+    createdAt
+    User {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    RawComment {
+      id
+      userId
+      documentId
+      commentIdLazy
+      body
+      createdAt
+    }
+  }
+}

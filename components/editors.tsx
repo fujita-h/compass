@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from "react-dropzone"
 import { Markdown } from '@components/markdown'
+import { TagForm } from './forms/tagForm'
 
 export type DocumentData = {
   title: string,
   body: string,
+  tags: string[]
 }
+
 
 const uploadFile = async (files) => {
   const body = new FormData()
@@ -62,11 +65,11 @@ export const DocumentEditorForm = ({ children, initDocData, submitButtonMap, onS
     <div className='mx-1 mt-1 bg-white'>
       <div className="relative">
         <input type="text"
-          className="flex-1 appearance-none border border-gray-300 w-full py-2 px-2 mb-1 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+          className="flex-1 appearance-none border border-gray-300 w-full py-2 px-2 mb-1 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           placeholder="タイトル"
           value={docData.title}
           onChange={(e) => { setDocData({ ...docData, title: e.target.value }) }} />
-        <input type="text" className="flex-1 appearance-none border border-gray-300 w-full py-2 px-2 mb-1 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" placeholder="タグ" />
+        <TagForm initState={docData.tags} setStateFunc={(tags) => { setDocData({ ...docData, tags: tags }) }} />
       </div>
       <div className="flex justify-between" style={{ height: 'calc(100vh - 200px)' }}>
         <div className="w-full border border-gray-400" style={{ display: displayStyle < 0 && 'none' }}>

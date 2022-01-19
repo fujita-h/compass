@@ -7,7 +7,7 @@ import Image from 'next/image'
 
 import {
   Auth,
-  useGetGroupQuery, GetGroupDocument,
+  useGroupQuery, GroupDocument,
   useUpdateGroupMutation,
   useUpdateGroupMemberMutation,
   useGetGroupWithMembersQuery, GetGroupWithMembersDocument, GetGroupWithMembersQuery,
@@ -16,6 +16,7 @@ import {
   useGetUsersQuery,
   useCreateGroupMemberMutation
 } from '@graphql/generated/react-apollo'
+import { InternalRefetchQueriesInclude } from '@apollo/client';
 
 const uploadGroupIcon = async (files, groupId) => {
   const body = new FormData()
@@ -25,9 +26,9 @@ const uploadGroupIcon = async (files, groupId) => {
   return res.json()
 }
 
-export const EditGroupForm = ({ auth, groupId }: { auth: Auth, groupId: string }) => {
+export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
 
-  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'cache-and-network' })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
   useEffect(() => {
     if (!data?.group) return
@@ -41,6 +42,7 @@ export const EditGroupForm = ({ auth, groupId }: { auth: Auth, groupId: string }
   const [updateGroup, { }] = useUpdateGroupMutation({
     //refetchさせる必要があるか。updateに失敗した場合の処理があれば不要なはず
     //refetchQueries: [GetGroupDocument]
+    refetchQueries: refetchQueries
   })
   const handleSubmit = async () => {
 
@@ -145,14 +147,13 @@ export const EditGroupForm = ({ auth, groupId }: { auth: Auth, groupId: string }
       </div>
 
       <div>
-        <label className="text-gray-700">Private</label>
-        <div className='ml-4'>
-          <Toggle id="groupIsPrivateToggle"
-            name="isPrivate"
-            label="グループをプライベート設定にする"
-            checked={Boolean(formState?.isPrivate)}
-            onChange={handleFormBooleanChanged}
-          />
+        <label className="text-gray-700">Type</label>
+        <div className='mt-4'>
+          <select name="type" defaultValue={data.group.type} onChange={handleFormValueChanged} className='border px-2 py-1 rounded-lg'>
+          <option value={'public'}>パブリック</option>
+          <option value={'announce'}>アナウンス</option>
+          <option value={'private'}>プライベート</option>
+          </select>
         </div>
       </div>
 
@@ -229,7 +230,7 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth, groupId: s
 
 export const DangerZoneForm = ({ auth, groupId }: { auth: Auth, groupId: string }) => {
 
-  const { data, loading, refetch } = useGetGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false })
 
@@ -369,7 +370,7 @@ const SearchUserForm = ({ auth, state, setState, groupId, currentMembers }: { au
   const ITEMS_PER_PAGE = 10
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedUsers, setSelectedUsers] = useState({})
-  const { data, loading, error } = useGetUsersQuery({ variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }, fetchPolicy: 'cache-and-network' })
+  const { data, loading, error } = useGetUsersQuery({ variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE } })
   const [createGroupMember, { }] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })
   const handlePaginationChanged = (index) => {
     setPageIndex(index)

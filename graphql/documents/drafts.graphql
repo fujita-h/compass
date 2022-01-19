@@ -6,15 +6,15 @@ query Drafts($auth: Auth!, $groupId: String) {
       id
       name
       displayName
-      isPrivate
+      type
     }
     title
     body
   }
 }
 
-mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: String!, $body: String!, $documentId: String, $isPosted: Int) {
-  createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, body: $body, documentId: $documentId, isPosted: $isPosted) {
+mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: String!, $body: String!, $tags: [String]!,  $documentId: String, $isPosted: Int) {
+  createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, body: $body, documentId: $documentId, tags: $tags, isPosted: $isPosted) {
     id
     documentIdLazy
     userId
@@ -25,8 +25,8 @@ mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: 
   }
 }
 
-mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $body: String!, $isPosted: Int) {
-  updatePaper(auth: $auth, paperId: $paperId, title: $title, body: $body, isPosted: $isPosted) {
+mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $body: String!, $tags: [String]!, $isPosted: Int) {
+  updatePaper(auth: $auth, paperId: $paperId, title: $title, body: $body, tags: $tags, isPosted: $isPosted) {
     id
     documentIdLazy
     userId

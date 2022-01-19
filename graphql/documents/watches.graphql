@@ -1,0 +1,20 @@
+query Watches($auth: Auth!, $userId: String, $groupId: String) {
+  watches(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}
+
+mutation CreateWatch($auth: Auth!, $userId: String!, $groupId: String!) {
+  createWatch(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}
+
+mutation DeleteWatch($auth: Auth!, $userId: String!, $groupId: String!) {
+  deleteWatch(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}

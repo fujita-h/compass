@@ -1,12 +1,12 @@
 import { Layout } from "@components/layouts"
-import { useSession } from "@lib/session"
+import { useSession } from "@lib/hooks"
 import Link from 'next/link'
 import { useGroupsPageQuery } from '@graphql/generated/react-apollo'
 
 export default function Page() {
 
   const session = useSession({ redirectTo: "/login" })
-  const { data, loading } = useGroupsPageQuery({fetchPolicy: 'cache-and-network'})
+  const { data, loading } = useGroupsPageQuery()
 
   if (!session) return (<></>)
   if (loading) return (<></>)
@@ -24,7 +24,7 @@ export default function Page() {
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
         {data.groups.map(group => (<tr key={group.id}>
-          <td className="px-6 py-4 whitespace-nowrap"><Link href={"/groups/" + group.id}>{group.name}</Link></td>
+          <td className="px-6 py-4 whitespace-nowrap"><Link href={"/groups/" + group.name}>{group.name}</Link></td>
           <td className="px-6 py-4 whitespace-nowrap">{group.displayName}</td>
           <td className="px-6 py-4 whitespace-nowrap">
           </td>

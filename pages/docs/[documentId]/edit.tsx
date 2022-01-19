@@ -1,4 +1,4 @@
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
 import { Auth, useCreateDraftMutation, useDocumentPageQuery } from '@graphql/generated/react-apollo'
@@ -18,7 +18,7 @@ export default function Page() {
 
 const InnerPage = ({ userId, documentId }: { userId: string, documentId: string }) => {
 
-  const { data: document, loading: loadingDocument } = useDocumentPageQuery({ variables: { documentId }, fetchPolicy: 'cache-and-network' })
+  const { data: document, loading: loadingDocument } = useDocumentPageQuery({ variables: { documentId } })
 
   const [createDraft, { data, loading, error, client }] = useCreateDraftMutation({
     onCompleted: (data) => {
@@ -32,17 +32,18 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
   })
 
 
-  const handleSubmit = (submitType, data: { title: string, body: string }) => {
-    console.log(submitType, data)
+  const handleSubmit = (submitType, data: DocumentData) => {
+    console.log(data.tags)
     if (submitType == 'publish') {
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: document.document.Paper.User.id,
           groupId: document.document.Paper.Group.id,
           documentId: document.document.id,
           title: data.title,
           body: data.body,
+          tags: data.tags,
           isPosted: 1
         }
       })
@@ -50,11 +51,12 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     } else { // submitType == 'draft' || submitType == null
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId: document.document.Paper.User.id,
           groupId: document.document.Paper.Group.id,
           documentId: document.document.id,
           title: data.title,
+          tags: data.tags,
           body: data.body,
         }
       })
@@ -65,9 +67,13 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
   if (!document) { return <></> }
   if (userId !== document.document.Paper.User.id) { return <div> Permission Denied.</div> }
 
-  const initDocData: DocumentData = document.document.Paper
+  const initDocData: DocumentData =
+  {
+    title: document.document.Paper.title,
+    body: document.document.Paper.body,
+    tags: document.document.Paper.Tags.map((x) => x.Tag.text)
+  }
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: 'ドキュメントを更新' }, { key: 'draft', label: '下書きに保存' }]
-
 
   return (
     <DocumentEditorForm initDocData={initDocData} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />

@@ -1,6 +1,6 @@
 import { MouseEventHandler, useState } from 'react'
 import { useRouter } from 'next/router'
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { LoginForm } from '@components/forms/auth'
 import { LoginPageQuery, useLoginPageQuery } from '@graphql/generated/react-apollo'
@@ -9,7 +9,7 @@ const Login = () => {
   const session = useSession({ redirectTo: '/', redirectIfFound: true })
   const router = useRouter()
 
-  const { data, loading } = useLoginPageQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, loading } = useLoginPageQuery()
 
   const [errorMsg, setErrorMsg] = useState('')
 

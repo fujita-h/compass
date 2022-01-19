@@ -1,5 +1,9 @@
 import { ChangeEventHandler, MouseEventHandler } from 'react'
 import { ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/solid'
+import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
+import Image from 'next/image'
+import Link from 'next/link'
+
 
 export const Toggle = ({ id, name, label, color, checked = false, onChange }: { id: string, name?: string, label?: string, color?: string, checked?: boolean, onChange?: ChangeEventHandler }) => {
 
@@ -79,5 +83,20 @@ export const Pagination = ({ maxCount, pageCount, pageIndex, onPageIndexChangedH
     <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
       {items.map(item => item)}
     </nav>
+  )
+}
+
+export const UserIconNameLinkSmall = ({ userId, username }: { userId: string, username: string }) => {
+  return (
+    <div className='inline-block'>
+      <Link href={`/users/${encodeURIComponent(username.toLowerCase())}`} passHref>
+        <div className='group hover:underline font-bold hover:cursor-pointer'>
+          <div className='inline-block mr-1 group-hover:brightness-90'>
+            <Image loader={userIconLoader} src={userId.toLowerCase()} width={16} height={16} alt={username} className='rounded-full' />
+          </div>
+          <span>@{username}</span>
+        </div>
+      </Link>
+    </div>
   )
 }

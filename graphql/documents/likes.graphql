@@ -1,0 +1,25 @@
+
+query Likes($auth: Auth!, $userId: String, $documentId: String) {
+  likes(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+  }
+}
+
+query CountLikes($auth: Auth!, $documentId: String!) {
+  countLikes(auth: $auth, documentId: $documentId)
+}
+
+mutation CreateLike($auth: Auth!, $userId: String!, $documentId: String!) {
+  createLike(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+  }
+}
+
+mutation DeleteLike($auth: Auth!, $userId: String!, $documentId: String!) {
+  deleteLike(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+  }
+}

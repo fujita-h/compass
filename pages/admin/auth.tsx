@@ -1,22 +1,22 @@
 import { AdminLayout } from '@components/layouts'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { Auth, AdminAuthPageDocument, useAdminAuthPageQuery, useUpdateConfigurationMutation } from '@graphql/generated/react-apollo'
 import { Toggle } from '@components/elements'
 
 export default function Page() {
 
   const session = useAdminSession({ redirectTo: '/admin/login' })
-  const { data, loading } = useAdminAuthPageQuery({fetchPolicy: 'cache-and-network'})
-  const [setConfiguration, {}] = useUpdateConfigurationMutation({refetchQueries:[AdminAuthPageDocument]})
+  const { data, loading } = useAdminAuthPageQuery()
+  const [setConfiguration, { }] = useUpdateConfigurationMutation({ refetchQueries: [AdminAuthPageDocument] })
 
   if (loading) return (<AdminLayout />)
-  if (!session ) return (<AdminLayout />)
+  if (!session) return (<AdminLayout />)
 
   const handleChanged = async (e) => {
     if (e.target.type == 'checkbox') {
-      setConfiguration({variables: { auth: Auth.Admin, [e.target.name]: e.target.checked ? 1 : 0 }})
+      setConfiguration({ variables: { auth: 'admin', [e.target.name]: e.target.checked ? 1 : 0 } })
     } else {
-      setConfiguration({variables: { auth: Auth.Admin, [e.target.name]: e.target.value }})
+      setConfiguration({ variables: { auth: 'admin', [e.target.name]: e.target.value } })
     }
   }
 

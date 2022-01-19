@@ -1,5 +1,5 @@
 import { AdminLayout } from '@components/layouts'
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { useState } from 'react'
 import Link from 'next/link'
 import { MyModal } from 'components/modals'
@@ -10,7 +10,7 @@ export default function Page() {
   const session = useAdminSession({ redirectTo: '/admin/login' })
   const [createModalState, setCreateModalState] = useState({ show: false, groupData: null });
 
-  const { data, loading, refetch } = useAdminGroupsIndexPageQuery({ fetchPolicy: 'cache-and-network' })
+  const { data, loading, refetch } = useAdminGroupsIndexPageQuery()
 
   if (!session) return (<AdminLayout />)
   if (loading) return (<AdminLayout />)
@@ -69,7 +69,7 @@ const CreateGroupModal = ({ state, setState }) => {
     setFormState({ ...formState, [e.target.name]: e.target.value })
   }
   const handleSubmit = async (e) => {
-    createGroup({ variables: { auth: Auth.Admin, name: formState.name } })
+    createGroup({ variables: { auth: 'admin', name: formState.name } })
   }
 
   const closeModal = () => {

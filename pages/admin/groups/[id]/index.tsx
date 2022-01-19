@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useAdminSession } from '@lib/session'
+import { useAdminSession } from '@lib/hooks'
 import { AdminLayout } from 'components/layouts'
 import { getAsString } from 'lib/utils'
 import Link from 'next/link'
@@ -32,7 +32,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2">
               グループ設定
             </p>
-            <EditGroupForm auth={Auth.Admin} groupId={groupId} />
+            <EditGroupForm auth={'admin'} groupId={groupId} />
           </FullCard>
         </div>
 
@@ -41,7 +41,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2">
               メンバー
             </p>
-            <EditGroupMemberTable auth={Auth.Admin} groupId={groupId} />
+            <EditGroupMemberTable auth={'admin'} groupId={groupId} />
           </FullCard>
         </div>
 
@@ -50,7 +50,7 @@ const InnerPage = ({ groupId }: { groupId: string }) => {
             <p className="text-gray-800 text-xl font-medium mb-2 border-b">
               Danger Zone
             </p>
-            <DangerZoneForm auth={Auth.Admin} groupId={groupId} />
+            <DangerZoneForm auth={'admin'} groupId={groupId} />
           </FullCard>
 
         </div>

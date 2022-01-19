@@ -1,5 +1,10 @@
 # compass
 
+# Requirements
+
+- Nodejs >= 14 (Recommend: 16.x)
+- Mysql >= 8.0 
+
 ## 環境変数
 
 |環境変数|設定例|説明|

@@ -4,6 +4,12 @@ enum Auth {
   none,
 }
 
+enum GroupType {
+  public,
+  announce,
+  private,
+}
+
 type PageInfo {
     endCursor: String
     hasNextPage: Boolean
@@ -49,6 +55,8 @@ type User {
   username: String!
   email: String!
   displayName: String
+  Follow: [Follow]
+  Follower: [Follow]
 }
 
 type UserEdge {
@@ -66,7 +74,7 @@ type Group {
   name: String!
   displayName: String
   description: String
-  isPrivate: Int!
+  type: GroupType!
 }
 
 type GroupEdge {
@@ -93,8 +101,8 @@ type GroupWithMember {
   name: String!
   displayName: String
   description: String
-  isPrivate: Int!
-  MapUserGroup: [MapUserGroup]
+  type: GroupType!
+  MapUserGroup: [MapUserGroup]!
 }
 
 type Paper {
@@ -107,6 +115,7 @@ type Paper {
   isPosted: Int!
   User: User!
   Group: Group!
+  Tags: [MapPaperTag]!
   createdAt: String!
   updatedAt: String!
 }
@@ -127,6 +136,65 @@ type DocumentConnection {
   pageInfo: PageInfo
 }
 
+type StockCategory {
+  id: String!
+  userId: String!
+  name: String!
+}
+
+type Stock {
+  userId: String!
+  documentId: String!
+  stockCategoryId: String!
+}
+
+type Like {
+  userId: String!
+  documentId: String!
+}
+
+type Comment {
+  id: String!
+  userId: String!
+  documentId: String!
+  rawCommentId: String!
+  referenceCommentIdLazy: String
+  createdAt: String!
+  User: User!
+  RawComment: RawComment!
+}
+
+type RawComment {
+  id: String!
+  userId: String!
+  documentId: String!
+  commentIdLazy: String
+  body: String!
+  createdAt: String!
+}
+
+type Follow {
+  fromUserId: String!
+  toUserId: String!
+}
+
+type Watch {
+  userId: String!
+  groupId: String!
+}
+
+type Tag {
+  id: String!
+  text: String!
+}
+
+type MapPaperTag {
+  paperId: String!
+  tagId: String!
+  Paper: Paper
+  Tag: Tag
+}
+
 type Query {
   session: Session
 
@@ -134,7 +202,7 @@ type Query {
   samls(auth: Auth!): [Saml!]
 
   groups(auth: Auth!): [Group!]
-  group(auth: Auth!, id: String): GroupWithMember
+  group(auth: Auth!, id: String, name: String): GroupWithMember
 
   joinedGroups(userId: String!): [Group!]
   myJoinedGroups: [Group!]
@@ -143,7 +211,7 @@ type Query {
   users(auth: Auth!, offset: Int, limit: Int): [User]
   usersCP(auth: Auth!, first: Int!, after:String): UserConnection
   countUsers(auth: Auth!): Int!
-  user(auth: Auth!, id: String): User
+  user(auth: Auth!, id: String, uuid: String, username: String, email: String): User
 
   myProfile: User
   myTimelineCP(first: Int!, after:String): DocumentConnection
@@ -155,6 +223,18 @@ type Query {
   drafts(auth: Auth!, groupId: String): [Paper]!
   draft(auth: Auth!, id: String!): Paper
 
+  stockCategories(auth: Auth!, userId: String): [StockCategory]!
+  stocks(auth: Auth!, userId: String, documentId: String): [Stock]!
+  countStocks(auth: Auth!, documentId: String!): Int!
+
+  likes(auth: Auth!, userId: String, documentId: String): [Like]!
+  countLikes(auth: Auth!, documentId: String!): Int!
+
+  comments(auth: Auth!, userId: String, documentId: String): [Comment]!
+  comment(auth: Auth!, id: String!): Comment
+
+  follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
+  watches(auth: Auth!, userId: String, groupId: String): [Watch]!
 }
 
 type Mutation {
@@ -164,16 +244,37 @@ type Mutation {
     groupEnableCreateGroupForUsers: Int 
   ): Configuration!
 
-  createGroup(auth: Auth!, name: String!, displayName: String, description: String, isPrivate: Int): Group
-  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, isPrivate: Int): Group
+  createGroup(auth: Auth!, name: String!, displayName: String, description: String, type: GroupType): Group
+  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, type: GroupType): Group
   deleteGroup(auth: Auth!, id:String!): Group
 
   createMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   updateMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   deleteMapUserGroup(auth: Auth!, userId: String!, groupId: String!): MapUserGroup
   
-  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, documentId: String, isPosted: Int): Paper
-  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, isPosted: Int): Paper
+  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, tags: [String]!, documentId: String, isPosted: Int): Paper
+  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, tags: [String]!, isPosted: Int): Paper
 
   updateMyProfile(auth: Auth!, username: String, displayName: String): User
+
+  createStockCategory(auth: Auth!, userId: String!, name: String!): StockCategory
+  updateStockCategory(auth: Auth!, id: String!, name: String!): StockCategory
+  deleteStockCategory(auth: Auth!, id: String!): StockCategory
+
+  createStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
+  deleteStock(auth: Auth!, userId: String!, documentId: String!, stockCategoryId: String!): Stock
+
+  createLike(auth: Auth!, userId: String!, documentId: String!): Like
+  deleteLike(auth: Auth!, userId: String!, documentId: String!): Like
+
+  createComment(auth: Auth!, userId: String!, documentId: String!, referenceCommentIdLazy: String, body: String!): Comment
+  updateComment(auth: Auth!, id: String!, body: String!): Comment
+  deleteComment(auth: Auth!, id: String!): Comment
+
+  createFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
+  deleteFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
+
+  createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+  deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+
 }

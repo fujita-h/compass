@@ -37,7 +37,7 @@ query adminGroupPage($id: String!) {
     name
     displayName
     description
-    isPrivate
+    type
     MapUserGroup {
       userId
       isAdmin
@@ -74,6 +74,12 @@ query documentPage($documentId: String!) {
         name
         displayName
       }
+      Tags {
+        Tag {
+          id
+          text
+        }
+      }
       title
       body
       createdAt
@@ -89,21 +95,30 @@ query draftPage($paperId: String!) {
     groupId
     title
     body
+    Tags {
+      Tag {
+        id
+        text
+      }
+    }
     isPosted
   }
 }
-query groupIndexPage($groupId: String!) {
+query groupIndexPage($groupName: String!) {
   session {
     userSession {
-      id
+      ...userSessionFragment
+    }
+    adminSession {
+      ...adminSessionFragment
     }
   }
-  group(auth: user, id: $groupId) {
+  group(auth: user, name: $groupName) {
     id
     name
     displayName
     description
-    isPrivate
+    type
     MapUserGroup {
       isAdmin
       User {
@@ -112,27 +127,6 @@ query groupIndexPage($groupId: String!) {
         displayName
       }
     }
-  }
-  documents(auth: user, groupId: $groupId) {
-    id
-    Paper {
-      documentIdLazy
-      userId
-      groupId
-      title
-    }
-  }
-  drafts(auth: user, groupId: $groupId) {
-    id
-    documentIdLazy
-    Group {
-      id
-      name
-      displayName
-      isPrivate
-    }
-    title
-    body
   }
 }
 query groupsPage {

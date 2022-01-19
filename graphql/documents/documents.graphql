@@ -6,9 +6,6 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
         Paper {
           id
           title
-          isPosted
-          createdAt
-          updatedAt
           User {
             id
             username
@@ -18,8 +15,12 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
             id
             name
             displayName
-            isPrivate
+            type
           }
+          documentIdLazy
+          isPosted
+          createdAt
+          updatedAt
         }
       }
       cursor

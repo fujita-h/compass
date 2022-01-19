@@ -1,23 +1,27 @@
-import { useSession } from '@lib/session'
+import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
-import { Auth, useCreateDraftMutation } from '@graphql/generated/react-apollo'
+import { Auth, useCreateDraftMutation, useGroupQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import router, { useRouter } from 'next/router'
+import { useMemo } from 'react'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
   const router = useRouter()
-  const groupId = getAsString(router.query?.groupId)
+  const groupName = getAsString(router.query?.groupName)
 
   if (!session?.id) return (<></>)
-  if (!groupId) return (<></>)
-  return (<InnerPage userId={session.id} groupId={groupId} />)
+  if (!groupName) return (<></>)
+  return (<InnerPage userId={session.id} groupName={groupName} />)
 }
 
-const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => {
+const InnerPage = ({ userId, groupName }: { userId: string, groupName: string }) => {
 
-  const [createDraft, { data, loading, error, client }] = useCreateDraftMutation({
+  const { data, loading } = useGroupQuery({ variables: { auth: 'user', name: groupName } })
+  const groupId = useMemo(() => data?.group?.id, [data])
+
+  const [createDraft, { data: createDraftResult }] = useCreateDraftMutation({
     onCompleted: (data) => {
       if (data?.createPaper?.documentIdLazy && data?.createPaper?.isPosted) {
         router.push('/docs/' + data.createPaper.documentIdLazy)
@@ -28,15 +32,15 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     onError: (error) => { console.error(error) }
   })
 
-  const handleSubmit = (submitType, data: { title: string, body: string }) => {
-    console.log(submitType, data)
+  const handleSubmit = (submitType, data: DocumentData) => {
     if (submitType == 'publish') {
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId, groupId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
           isPosted: 1
         }
       })
@@ -44,10 +48,11 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     } else { // submitType == 'draft' || submitType == null
       createDraft({
         variables: {
-          auth: Auth.User,
+          auth: 'user',
           userId, groupId,
           title: data.title,
           body: data.body,
+          tags: data.tags,
         }
       })
     }
@@ -55,11 +60,12 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
 
   const initDocData: DocumentData = {
     title: '',
-    body: ''
+    body: '',
+    tags: [],
   }
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
-
+  if (loading || !data) return (<Layout></Layout>)
 
   return (
     <Layout>
