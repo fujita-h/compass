@@ -195,6 +195,60 @@ type MapPaperTag {
   Tag: Tag
 }
 
+
+type EsShards {
+  total: Int
+  successful: Int
+  skipped: Int
+  failed: Int
+}
+
+type EsTotal {
+  value: Int
+  relation: String
+}
+
+type EsSearchDocument {
+  userId: String!
+  userName: String!
+  groupId: String!
+  groupName: String!
+  title: String!
+  body: String!
+}
+
+type EsSearchDocumentResult{
+  _id: String
+  _score: Float
+  _source: EsSearchDocument
+}
+
+type EsSerarchDocumentsHits {
+  max_score: Float
+  total: EsTotal
+  hits:[EsSearchDocumentResult]
+}
+
+type EsSearchDocmentsResponse {
+  took: Int
+  timed_out: Boolean
+  _shards: EsShards
+  hits: EsSerarchDocumentsHits
+}
+
+type EsCountResponse {
+  count: Int
+  _shards: EsShards
+}
+
+type EsSearchResponses {
+  Documents: EsSearchDocmentsResponse
+}
+
+type EsCountResponses {
+  Documents: EsCountResponse
+}
+
 type Query {
   session: Session
 
@@ -235,6 +289,9 @@ type Query {
 
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
   watches(auth: Auth!, userId: String, groupId: String): [Watch]!
+
+  esSearch(auth: Auth!, query: String!, index: String!, from: Int, size: Int): EsSearchResponses
+  esCount(auth: Auth!, query: String, index: String): EsCountResponses
 }
 
 type Mutation {

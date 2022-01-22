@@ -1,6 +1,7 @@
 import { Auth, PageInfo, Resolvers, UserConnection, UserEdge, DocumentConnection, DocumentEdge, GroupConnection, GroupEdge } from '@graphql/generated/resolvers'
 import { ApolloError, AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-micro'
 import { prisma } from '@lib/prisma/prismaClient'
+import { esClient } from '@lib/elasticsearch/esClient'
 import { UserSession, AdminSession } from '@lib/session'
 import { ulid } from 'ulid'
 import { Prisma } from '.prisma/client'
@@ -614,6 +615,64 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    esSearch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, query, index, from, size } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const groups = await prisma.mapUserGroup.findMany({
+          where: {
+            OR: [
+              { Group: { type: 'public' } },
+              { Group: { type: 'announce' } },
+              {
+                Group: { type: 'private' },
+                userId: _context.userSession.id.toUpperCase()
+              },
+            ]
+          },
+          select: { groupId: true }
+        })
+        const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.searchDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId), from, size }) : undefined
+        return { Documents: documentsResult }
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    esCount: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, query, index } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const groups = await prisma.mapUserGroup.findMany({
+          where: {
+            OR: [
+              { Group: { type: 'public' } },
+              { Group: { type: 'announce' } },
+              {
+                Group: { type: 'private' },
+                userId: _context.userSession.id.toUpperCase()
+              },
+            ]
+          },
+          select: { groupId: true }
+        })
+        const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) }) : undefined
+        return { Documents: documentsResult }
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
@@ -887,6 +946,21 @@ export const resolvers: Resolvers = {
             })
           ])
 
+          try {
+            await esClient.upsertDocument({
+              id: documentId,
+              userId: result.User.id,
+              userName: result.User.username,
+              groupId: result.Group.id,
+              groupName: result.Group.name,
+              groupType: result.Group.type,
+              title: result.title,
+              body: result.body,
+            })
+          } catch (error) {
+            console.error(error)
+          }
+
           return result
 
         } else {
@@ -992,6 +1066,21 @@ export const resolvers: Resolvers = {
               include: { User: true, Group: true, Tags: { include: { Tag: true } } }
             })
           ])
+
+          try {
+            await esClient.upsertDocument({
+              id: documentId,
+              userId: result.User.id,
+              userName: result.User.username,
+              groupId: result.Group.id,
+              groupName: result.Group.name,
+              groupType: result.Group.type,
+              title: result.title,
+              body: result.body,
+            })
+          } catch (error) {
+            console.error(error)
+          }
 
           return result
         } else {
