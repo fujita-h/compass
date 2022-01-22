@@ -17,6 +17,7 @@ services:
         build:
             context: ./elasticsearch
             dockerfile: Dockerfile
+        hostname: es01
         environment:
             - discovery.type=single-node
             - bootstrap.memory_lock=true
@@ -30,6 +31,15 @@ services:
             - 9200:9200
         volumes:
             - es-data:/usr/share/elasticsearch/data
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.16.3
+        environment:
+            - ELASTICSEARCH_HOSTS=http://es01:9200
+        mem_limit: 1g
+        depends_on:
+            - elasticsearch
+        ports:
+            - 5601:5601
     saml_general_idp:
         build:
             context: ./saml-general-idp
