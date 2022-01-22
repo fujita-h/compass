@@ -209,10 +209,15 @@ type EsTotal {
 }
 
 type EsSearchDocument {
+  paperId: String!
   userId: String!
   userName: String!
+  userDisplayName: String
   groupId: String!
   groupName: String!
+  groupDisplayName: String
+  createdAt: String!
+  updatedAt: String!
   title: String!
   body: String!
 }

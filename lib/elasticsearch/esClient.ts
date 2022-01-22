@@ -51,11 +51,18 @@ interface CountResponse {
 }
 
 interface Document {
+  paperId: string
   userId: string
   userName: string
+  userDisplayName: string
   groupId: string
   groupName: string
+  groupDisplayName: string
   groupType: string
+  createdAt: string
+  createdAtNumber: number
+  updatedAt: string
+  updatedAtNumber: number
   title: string
   body: string
 }
@@ -116,17 +123,15 @@ class ElasticsearchClient {
     return result.body
   }
 
-  upsertDocument({ id, userId, userName, groupId, groupName, groupType, title, body }: { id: string, userId: string, userName: string, groupId: string, groupName: string, groupType: string, title: string, body: string }) {
+  upsertDocument({ id, document }: { id: string, document: Document }) {
     return this.client.index({
       index: 'documents',
       id,
-      body: { userId, userName, groupId, groupName, groupType, title, body },
+      body: { ...document },
       timeout: '5s'
     })
   }
 }
-
-
 
 
 declare global {

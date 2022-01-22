@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { Header, AdminHeader } from './headers'
 
-export const Layout = ({ children, htmlTitle }: { children?: any, htmlTitle?: string }) => {
+export const Layout = ({ children, htmlTitle, searchText }: { children?: any, htmlTitle?: string, searchText?: string }) => {
   return (
     <>
       <Head>
@@ -12,7 +12,7 @@ export const Layout = ({ children, htmlTitle }: { children?: any, htmlTitle?: st
       </Head>
       <div className='bg-gray-100 min-h-screen'>
         <header>
-          <Header />
+          <Header searchText={searchText} />
         </header>
         <main>
           <div className="max-w-full">{children}</div>

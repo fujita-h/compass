@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import React, { useState } from 'react';
 import { useSessionQuery, useHeaderQuery, Auth } from '@graphql/generated/react-apollo'
+import { BsSearch } from 'react-icons/bs'
 import { FaUserCircle, FaRegBell } from 'react-icons/fa'
 import { BiDownArrow } from 'react-icons/bi'
 import { getPageViews } from '@lib/localStorage/pageViews';
@@ -17,11 +18,12 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (<>
   </nav>
 </>)
 
-export const Header = () => {
+export const Header = ({ searchText }: { searchText?: string }) => {
 
   const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
+  const [currentSearchText, setCurrentSearchText] = useState(searchText)
 
   const handleCloseSuggest = (e) => { setSearchSuggestOpen(false) }
 
@@ -41,12 +43,20 @@ export const Header = () => {
 
           <div className='mr-2 items-center h-7'
             onFocus={() => { setSearchSuggestOpen(true) }}
-            onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSearchSuggestOpen(false) } }}          >
-            <input type="text" placeholder='検索..'
-              className={`box-border w-52 h-full border-2 rounded-lg pl-2 pr-3 text-sm text-gray-700 duration-200 focus:rounded-b-none focus:outline-none focus:shadow-outline  focus:w-100`} />
+            onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSearchSuggestOpen(false) } }}>
+            <form method='GET' action='/search'>
+              <input type="text" placeholder='検索..' autoComplete='off' value={currentSearchText} onChange={(e) => setCurrentSearchText(e.target.value)} name='q'
+                className={`box-border w-52 h-full border-2 rounded-lg pl-2 pr-3 pt-1 pb-0.5 text-sm text-gray-700 duration-200 focus:rounded-b-none focus:outline-none focus:shadow-outline  focus:w-100`} />
+            </form>
             <div hidden={!searchSuggestOpen}
               className="z-40 origin-top-right absolute mt-0 w-100 rounded-b-lg shadow-lg bg-white ring-1 ring-black ring-opacity-10">
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu" >
+                {searchSuggestOpen && currentSearchText ?
+                  <div>
+                    <Link href={`/search?q=${encodeURIComponent(currentSearchText)}`} passHref>
+                      <a className='block px-4 py-1 border-b text-gray-700 hover:bg-gray-100 hover:text-gray-900 last:border-none text-base' onClick={handleCloseSuggest}><BsSearch className='inline-block mr-2' /><span>{currentSearchText}</span></a>
+                    </Link>
+                  </div> : <></>}
                 {searchSuggestOpen ? <SearchMenu handleCloseSuggest={handleCloseSuggest} /> : <></>}
               </div>
             </div>
@@ -70,7 +80,7 @@ export const Header = () => {
                 <div className='flex'>
 
                   <div className="flex items-center justify-center w-full rounded-md px-2 py-1 text-sm font-medium hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-gray-500">
-                    <FaRegBell className='h-5 w-5'/>
+                    <FaRegBell className='h-5 w-5' />
                   </div>
 
                   {/* User Menu */}

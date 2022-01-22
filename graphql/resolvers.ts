@@ -949,13 +949,22 @@ export const resolvers: Resolvers = {
           try {
             await esClient.upsertDocument({
               id: documentId,
-              userId: result.User.id,
-              userName: result.User.username,
-              groupId: result.Group.id,
-              groupName: result.Group.name,
-              groupType: result.Group.type,
-              title: result.title,
-              body: result.body,
+              document: {
+                paperId: result.id,
+                userId: result.User.id,
+                userName: result.User.username,
+                userDisplayName: result.User.displayName,
+                groupId: result.Group.id,
+                groupName: result.Group.name,
+                groupDisplayName: result.Group.displayName,
+                groupType: result.Group.type,
+                createdAt: result.createdAt,
+                createdAtNumber: Number(result.createdAtNumber),
+                updatedAt: result.updatedAt,
+                updatedAtNumber: Number(result.updatedAtNumber),
+                title: result.title,
+                body: result.body,
+              }
             })
           } catch (error) {
             console.error(error)
@@ -1070,13 +1079,22 @@ export const resolvers: Resolvers = {
           try {
             await esClient.upsertDocument({
               id: documentId,
-              userId: result.User.id,
-              userName: result.User.username,
-              groupId: result.Group.id,
-              groupName: result.Group.name,
-              groupType: result.Group.type,
-              title: result.title,
-              body: result.body,
+              document: {
+                paperId: result.id,
+                userId: result.User.id,
+                userName: result.User.username,
+                userDisplayName: result.User.displayName,
+                groupId: result.Group.id,
+                groupName: result.Group.name,
+                groupDisplayName: result.Group.displayName,
+                groupType: result.Group.type,
+                createdAt: result.createdAt,
+                createdAtNumber: Number(result.createdAtNumber),
+                updatedAt: result.updatedAt,
+                updatedAtNumber: Number(result.updatedAtNumber),
+                title: result.title,
+                body: result.body,
+              }
             })
           } catch (error) {
             console.error(error)

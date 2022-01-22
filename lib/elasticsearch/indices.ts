@@ -104,10 +104,16 @@ export const documents = {
     },
     mappings: {
       properties: {
+        paperId: {
+          type: "keyword",
+        },
         userId: {
           type: "keyword",
         },
         userName: {
+          type: "keyword"
+        },
+        userDisplayName: {
           type: "keyword"
         },
         groupId: {
@@ -116,8 +122,23 @@ export const documents = {
         groupName: {
           type: "keyword"
         },
+        groupDisplayName: {
+          type: "keyword"
+        },
         groupType: {
           type: "keyword"
+        },
+        createdAt: {
+          type: "keyword"
+        },
+        createdAtNumber: {
+          type: "unsigned_long"
+        },
+        updatedAt: {
+          type: "keyword"
+        },
+        updatedAtNumber: {
+          type: "unsigned_long"
         },
         title: {
           type: "text",
