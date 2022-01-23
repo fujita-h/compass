@@ -77,7 +77,8 @@ const Timeline = () => {
                 <div className='text-black'>
                   <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
                   <div className='inline-block ml-2'>
-                    が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
+                    <span>が{new Date(doc.createdAt).toLocaleString()} に投稿</span>
+                    {doc.createdAt !== doc.Paper.updatedAt ? <span className='ml-2 text-sm'>{new Date(doc.Paper.updatedAt).toLocaleString()} に更新</span> : <></>}
                   </div>
                 </div>
                 <div className='text-lg font-bold'>{doc.Paper.title || 'UNTITLED'}</div>

@@ -898,6 +898,8 @@ export const resolvers: Resolvers = {
               where: { id: _documentId },
               create: {
                 id: _documentId,
+                createdAt: new Date(now).toISOString(),
+                createdAtNumber: now,
                 Paper: {
                   create: {
                     id: _paperId,
@@ -928,7 +930,6 @@ export const resolvers: Resolvers = {
                     createdAtNumber: now,
                     updatedAt: new Date(now).toISOString(),
                     updatedAtNumber: now
-
                   }
                 }
               }
@@ -958,8 +959,8 @@ export const resolvers: Resolvers = {
                 groupName: result.Group.name,
                 groupDisplayName: result.Group.displayName,
                 groupType: result.Group.type,
-                createdAt: result.createdAt,
-                createdAtNumber: Number(result.createdAtNumber),
+                createdAt: upsertDoc.createdAt,
+                createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
@@ -1060,7 +1061,7 @@ export const resolvers: Resolvers = {
             }),
             prisma.document.upsert({
               where: { id: documentId.toUpperCase() },
-              create: { id: documentId.toUpperCase(), paperId: paperId.toUpperCase() },
+              create: { id: documentId.toUpperCase(), paperId: paperId.toUpperCase(), createdAt: new Date(now).toISOString(), createdAtNumber: now },
               update: { paperId: paperId.toUpperCase() }
             }),
             prisma.mapPaperTag.deleteMany({
@@ -1088,8 +1089,8 @@ export const resolvers: Resolvers = {
                 groupName: result.Group.name,
                 groupDisplayName: result.Group.displayName,
                 groupType: result.Group.type,
-                createdAt: result.createdAt,
-                createdAtNumber: Number(result.createdAtNumber),
+                createdAt: upsertDoc.createdAt,
+                createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,

@@ -21,6 +21,7 @@ query MyTimelineCP($first: Int!, $after: String) {
           createdAt
           updatedAt
         }
+        createdAt
       }
       cursor
     }

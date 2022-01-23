@@ -71,7 +71,7 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
                 <div>
                   <UserIconNameLinkSmall userId={data.document.Paper.User.id} username={data.document.Paper.User.username} />
                 </div>
-                <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
+                <div>投稿日: {new Date(data.document.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
               </div>
               <div>
                 {sessionUserId == data.document.Paper.User.id &&

@@ -22,6 +22,7 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
           createdAt
           updatedAt
         }
+        createdAt
       }
       cursor
     }

@@ -84,14 +84,16 @@ model Tag {
 }
 
 model Document {
-  id         String       @id @db.VarChar(26)
-  paperId    String       @db.VarChar(26)
-  isShared   Int          @default(0) @db.UnsignedTinyInt
-  Paper      Paper        @relation(fields: [paperId], references: [id])
-  Comment    Comment[]
-  Like       Like[]
-  RawComment RawComment[]
-  Stock      Stock[]
+  id              String       @id @db.VarChar(26)
+  paperId         String       @db.VarChar(26)
+  isShared        Int          @default(0) @db.UnsignedTinyInt
+  createdAt       String       @db.VarChar(50)
+  createdAtNumber BigInt       @default(0) @db.UnsignedBigInt
+  Paper           Paper        @relation(fields: [paperId], references: [id])
+  Comment         Comment[]
+  Like            Like[]
+  RawComment      RawComment[]
+  Stock           Stock[]
 
   @@index([paperId], map: "paperId")
 }

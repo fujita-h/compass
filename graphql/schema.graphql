@@ -124,6 +124,7 @@ type Document {
   id: String!
   paperId: String!
   Paper: Paper!
+  createdAt: String!
 }
 
 type DocumentEdge {
