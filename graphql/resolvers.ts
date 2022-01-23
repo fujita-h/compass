@@ -949,7 +949,7 @@ export const resolvers: Resolvers = {
 
           try {
             await esClient.upsertDocument({
-              id: documentId,
+              id: _documentId,
               document: {
                 paperId: result.id,
                 userId: result.User.id,
