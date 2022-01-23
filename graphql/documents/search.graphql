@@ -35,4 +35,24 @@ query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size
       }
     }
   }
+  esCount(auth: $auth, query: $query) {
+    Documents {
+      count
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+    }
+    Groups {
+      count
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+    }
+  }
 }

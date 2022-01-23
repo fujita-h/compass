@@ -32,8 +32,8 @@ const InnerPage = ({ query }: { query: string }) => {
     <div className="max-w-7xl mt-4 mx-auto flex bg-white">
       <div className="flex-none w-80 p-2">
         <div className="border rounded-lg">
-          <a href="#" className="block p-2 border-b">Documents</a>
-          <a href="#" className="block p-2 border-b">Groups</a>
+          <a href="#" className="p-2 border-b flex justify-between"><span>Documents</span><span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Documents.count}</span></a>
+          <a href="#" className="p-2 border-b flex justify-between"><span>Groups</span><span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Groups.count}</span></a>
           <a href="#" className="block p-2 border-b">Users</a>
         </div>
       </div>

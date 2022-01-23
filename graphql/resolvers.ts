@@ -645,7 +645,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     esCount: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, query, index } = args
+      const { auth, query } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -665,8 +665,9 @@ export const resolvers: Resolvers = {
           },
           select: { groupId: true }
         })
-        const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) }) : undefined
-        return { Documents: documentsResult }
+        const documentsResult = await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) }) 
+        const groupsResult = await esClient.countGroups({ query: query })
+        return { Documents: documentsResult, Groups: groupsResult }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
