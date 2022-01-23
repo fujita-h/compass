@@ -964,6 +964,7 @@ export const resolvers: Resolvers = {
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
+                tags: tags,
                 body: result.body,
               }
             })
@@ -1094,6 +1095,7 @@ export const resolvers: Resolvers = {
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
+                tags: tags,
                 body: result.body,
               }
             })

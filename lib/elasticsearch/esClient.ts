@@ -64,6 +64,7 @@ interface Document {
   updatedAt: string
   updatedAtNumber: number
   title: string
+  tags: string[]
   body: string
 }
 

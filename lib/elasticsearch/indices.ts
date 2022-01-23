@@ -152,6 +152,21 @@ export const documents = {
             }
           }
         },
+        tags: {
+          type: "keyword",
+          fields: {
+            text: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
+            ngram: {
+              type: "text",
+              search_analyzer: "ja_ngram_search_analyzer",
+              analyzer: "ja_ngram_index_analyzer"
+            }
+          }
+        },
         body: {
           type: "text",
           search_analyzer: "ja_kuromoji_search_analyzer",
