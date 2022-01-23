@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch'
 import { EsSearchDocmentsResponse } from '@graphql/generated/resolvers'
-import { documents } from './indices'
+import { documents, groups } from './indices'
 
 
 interface ShardsResponse {
@@ -68,6 +68,13 @@ interface Document {
   body: string
 }
 
+interface Group {
+  name: string
+  displayName: string
+  description: string
+  type: string
+}
+
 class ElasticsearchClient {
   client: Client
 
@@ -77,10 +84,13 @@ class ElasticsearchClient {
   }
 
   initIndices() {
-    this.client.indices
-      .exists({ index: 'documents' })
+    this.client.indices.exists({ index: 'documents' })
       .then((response) => {
         if (!response.body) { this.client.indices.create(documents) }
+      })
+    this.client.indices.exists({ index: 'groups' })
+      .then((response) => {
+        if (!response.body) { this.client.indices.create(groups) }
       })
   }
 
@@ -124,12 +134,63 @@ class ElasticsearchClient {
     return result.body
   }
 
+  async searchGroups({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchDocmentsResponse> {
+    const result = await this.client.search<SearchResponse<Document>>({
+      index: 'groups',
+      body: {
+        from,
+        size,
+        query: {
+          bool: {
+            must: [
+              { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
+            ]
+          }
+        }
+      }
+    })
+    return result.body
+  }
+
+  async countGroups({ query }: { query: string }) {
+    const result = await this.client.count<CountResponse>({
+      index: 'groups',
+      body: {
+        query: {
+          bool: {
+            must: [
+              { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
+            ]
+          }
+        }
+      }
+    })
+    return result.body
+
+  }
+
   upsertDocument({ id, document }: { id: string, document: Document }) {
     return this.client.index({
       index: 'documents',
       id,
       body: { ...document },
       timeout: '5s'
+    })
+  }
+
+  upsertGroup({ id, group }: { id: string, group: Group }) {
+    return this.client.index({
+      index: 'groups',
+      id,
+      body: { ...group },
+      timeout: '5s'
+    })
+  }
+
+  deleteGroup({ id }: { id: string }) {
+    return this.client.delete({
+      index: 'groups',
+      id: id
     })
   }
 }

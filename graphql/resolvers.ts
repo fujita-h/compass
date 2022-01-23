@@ -697,27 +697,50 @@ export const resolvers: Resolvers = {
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
-        return await prisma.group.create({ data: { id: ulid(), name, displayName, description, type } })
+        const result = await prisma.group.create({ data: { id: ulid(), name, displayName, description, type } })
+
+        try {
+          await esClient.upsertGroup({
+            id: result.id,
+            group: {
+              name: result.name,
+              displayName: result.displayName,
+              description: result.description,
+              type: result.type
+            }
+          })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
-        return await prisma.group.create(
-          {
-            data: {
-              id: ulid(),
-              name,
-              displayName,
-              description,
-              type,
-              MapUserGroup: {
-                create: {
-                  userId: _context.userSession.id,
-                  isAdmin: 1
-                }
-              }
+
+        const result = await prisma.group.create({
+          data: {
+            id: ulid(), name, displayName, description, type,
+            MapUserGroup: { create: { userId: _context.userSession.id, isAdmin: 1 } }
+          }
+        })
+
+        try {
+          await esClient.upsertGroup({
+            id: result.id,
+            group: {
+              name: result.name,
+              displayName: result.displayName,
+              description: result.description,
+              type: result.type
             }
           })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -728,7 +751,23 @@ export const resolvers: Resolvers = {
       const { auth, id, name, displayName, description, type } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.group.update({ data: { name, displayName, description, type }, where: { id } })
+        const result = await prisma.group.update({ data: { name, displayName, description, type }, where: { id } })
+
+        try {
+          await esClient.upsertGroup({
+            id: result.id,
+            group: {
+              name: result.name,
+              displayName: result.displayName,
+              description: result.description,
+              type: result.type
+            }
+          })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
@@ -736,10 +775,26 @@ export const resolvers: Resolvers = {
         if (!check) throw new UserInputError('NotFound')
         const checkAdmin = check.MapUserGroup.find(x => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
-        return await prisma.group.update({
+        const result = await prisma.group.update({
           data: { name, displayName, description, type },
           where: { id }
         })
+
+        try {
+          await esClient.upsertGroup({
+            id: result.id,
+            group: {
+              name: result.name,
+              displayName: result.displayName,
+              description: result.description,
+              type: result.type
+            }
+          })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -753,7 +808,13 @@ export const resolvers: Resolvers = {
         /*
         ** deleteGroupした際、いろいろなものがカスケードで削除されるか確認すること
         */
-        return await prisma.group.delete({ where: { id } })
+        const result = await prisma.group.delete({ where: { id } })
+        try {
+          await esClient.deleteGroup({ id })
+        } catch (error) {
+          console.error(error)
+        }
+        return result
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
