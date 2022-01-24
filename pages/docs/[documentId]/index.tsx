@@ -164,7 +164,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     createStockCategory({ variables: { auth: 'user', userId: userId, name: newCategoryName } })
   }
 
-  if (loading) return (<></>)
+  //if (loading) return (<></>)
   if (!data) return (<></>)
 
   return (
