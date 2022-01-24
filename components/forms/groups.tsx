@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Toggle, Pagination } from '@components/elements';
 import { MyModal } from '@components/modals'
@@ -89,8 +89,9 @@ export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, g
     reader.readAsDataURL(file)
   }
 
+  const rand = useMemo(() => Date.now().toString(),[data])
   const iconLoader = ({ src, width, quality }) => {
-    return `/api/files/groupicons/${src}?rand=${Date.now().toString()}`
+    return `/api/files/groupicons/${src}?rand=${rand}`
   }
 
   if (loading) return (<></>)
