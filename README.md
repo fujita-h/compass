@@ -10,6 +10,7 @@
 |環境変数|設定例|説明|
 |---|---|---|
 | DATABASE_URL | mysql://`username`:`password`@`hostname`:`port`/`database` | DB接続文字列 |
+| ELASTICSEARCH_URL | http://`username`:`password`@`hostname`:`port` | ElasticsearchのURL |
 | TOKEN_SECRET | this-is-a-secret-value-with-at-least-32-characters | セッショントークンのシークレットキー (32文字以上) |
 | ADMIN_SECRET | secret | 管理ページへのアクセスパスワード |
 
