@@ -15,10 +15,10 @@ query GetGroupWithMembers($auth: Auth!, $id: String) {
     displayName
     description
     type
-    MapUserGroup {
+    user_group_map {
       userId
       isAdmin
-      User {
+      user {
         uuid
         username
         email

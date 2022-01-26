@@ -61,7 +61,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
   {
     title: data.draft.title,
     body: data.draft.body,
-    tags: data.draft.Tags.map((x) => x.Tag.text)
+    tags: data.draft.paper_tag_map.map((x) => x.tag.text)
   }
 
   return (

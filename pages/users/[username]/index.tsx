@@ -100,12 +100,12 @@ const UserDocuments = ({ userId }: { userId: string }) => {
             <a className='hover:text-blue-500'>
               <div key={doc.id} className='border m-2 p-2 bg-white'>
                 <div className='text-black'>
-                  <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
                   <div className='inline-block ml-2'>
-                    が{new Date(doc.Paper.updatedAt).toLocaleString()} に投稿
+                    が{new Date(doc.paper.updatedAt).toLocaleString()} に投稿
                   </div>
                 </div>
-                <div className='text-lg font-bold'>{doc.Paper.title || 'UNTITLED'}</div>
+                <div className='text-lg font-bold'>{doc.paper.title || 'UNTITLED'}</div>
               </div></a>
           </Link>
         </div>

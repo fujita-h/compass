@@ -43,14 +43,14 @@ const getAttachmentFile = async (id: string) => {
 }
 
 const getUserIconFile = async (id: string) => {
-  const data = await prisma.userIcon.findUnique({ where: { userId: id } })
+  const data = await prisma.user_icon.findUnique({ where: { userId: id } })
   return data ?
     ({ mimeType: data.mimeType, blob: data.blob }) :
     ({ mimeType: "image/svg+xml", blob: denticon(id).render().getDump() })
 }
 
 const getGroupIconFile = async (id: string) => {
-  const data = await prisma.groupIcon.findUnique({ where: { groupId: id } })
+  const data = await prisma.group_icon.findUnique({ where: { groupId: id } })
   return data ?
     ({ mimeType: data.mimeType, blob: data.blob }) :
     ({ mimeType: "image/svg+xml", blob: denticon(id).render().getDump() })

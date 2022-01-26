@@ -38,10 +38,10 @@ query adminGroupPage($id: String!) {
     displayName
     description
     type
-    MapUserGroup {
+    user_group_map {
       userId
       isAdmin
-      User {
+      user {
         username
         displayName
       }
@@ -61,21 +61,21 @@ query adminIndexPage {
 query documentPage($documentId: String!) {
   document(auth: user, id: $documentId) {
     id
-    Paper {
+    paper {
       documentIdLazy
-      User {
+      user {
         id
         username
         email
         displayName
       }
-      Group {
+      group {
         id
         name
         displayName
       }
-      Tags {
-        Tag {
+      paper_tag_map {
+        tag {
           id
           text
         }
@@ -96,8 +96,8 @@ query draftPage($paperId: String!) {
     groupId
     title
     body
-    Tags {
-      Tag {
+    paper_tag_map {
+      tag {
         id
         text
       }
@@ -120,9 +120,9 @@ query groupIndexPage($groupName: String!) {
     displayName
     description
     type
-    MapUserGroup {
+    user_group_map {
       isAdmin
-      User {
+      user {
         id
         username
         displayName

@@ -6,14 +6,14 @@ query Comments($auth: Auth!, $userId: String, $documentId: String) {
     rawCommentId
     referenceCommentIdLazy
     createdAt
-    User {
+    user {
       id
       uuid
       username
       email
       displayName
     }
-    RawComment {
+    comment_raw {
       id
       userId
       documentId
@@ -32,14 +32,14 @@ query Comment($auth: Auth!, $id: String!) {
     rawCommentId
     referenceCommentIdLazy
     createdAt
-    User {
+    user {
       id
       uuid
       username
       email
       displayName
     }
-    RawComment {
+    comment_raw {
       id
       userId
       documentId
@@ -58,7 +58,7 @@ mutation CreateComment($auth: Auth!, $userId: String!, $documentId: String!, $re
     rawCommentId
     referenceCommentIdLazy
     createdAt
-    RawComment {
+    comment_raw {
       id
       userId
       documentId
@@ -77,14 +77,14 @@ mutation UpdateComment($auth: Auth!, $id: String!, $body: String!) {
     rawCommentId
     referenceCommentIdLazy
     createdAt
-    User {
+    user {
       id
       uuid
       username
       email
       displayName
     }
-    RawComment {
+    comment_raw {
       id
       userId
       documentId
@@ -103,14 +103,14 @@ mutation DeleteComment($auth: Auth!, $id: String!) {
     rawCommentId
     referenceCommentIdLazy
     createdAt
-    User {
+    user {
       id
       uuid
       username
       email
       displayName
     }
-    RawComment {
+    comment_raw {
       id
       userId
       documentId

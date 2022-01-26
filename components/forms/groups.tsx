@@ -202,13 +202,13 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth, groupId: s
         <tr>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">username</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-end">{group?.MapUserGroup.length} 人のメンバー</th>
+          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-end">{group?.user_group_map.length} 人のメンバー</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {group?.MapUserGroup.map((user) => (
+        {group?.user_group_map.map((user) => (
           <tr key={user.userId}>
-            <td className="px-6 py-2 whitespace-nowrap">{user.User.username}</td>
+            <td className="px-6 py-2 whitespace-nowrap">{user.user.username}</td>
             <td className="px-6 py-2 whitespace-nowrap">
               <input type="checkbox"
                 data-userid={user.userId}
@@ -254,7 +254,7 @@ const AddUserModal = ({ auth, state, setState, group }: { auth: Auth, state, set
 
   return (
     <MyModal show={state.show} close={() => setState({ ...state, show: false })} title="メンバーの追加">
-      <SearchUserForm auth={auth} state={state} setState={setState} groupId={group.id} currentMembers={group?.MapUserGroup} />
+      <SearchUserForm auth={auth} state={state} setState={setState} groupId={group.id} currentMembers={group?.user_group_map} />
     </MyModal>
   )
 

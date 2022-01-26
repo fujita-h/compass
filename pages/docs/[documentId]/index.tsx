@@ -47,9 +47,9 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
   const H2 = useCallback(({ node, ...props }) => <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h2>, [])
 
   useEffect(() => {
-    if (!data?.document?.Paper?.Group?.name) return
-    updatePageViews('group', data?.document?.Paper?.Group?.name)
-  }, [data?.document?.Paper?.Group?.name])
+    if (!data?.document?.paper?.group?.name) return
+    updatePageViews('group', data?.document?.paper?.group?.name)
+  }, [data?.document?.paper?.group?.name])
 
   if (loading) return (<></>)
   if (!data.document) {
@@ -65,29 +65,29 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
           <div className='mt-3 p-2'>
             <div className='flex place-content-between'>
               <div>
-                <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.name)}`} passHref><a>
-                  <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
+                <Link href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`} passHref><a>
+                  <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.paper.group.displayName || data.document.paper.group.name}</div>
                 </a></Link>
                 <div>
-                  <UserIconNameLinkSmall userId={data.document.Paper.User.id} username={data.document.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={data.document.paper.user.id} username={data.document.paper.user.username} />
                 </div>
-                <div>投稿日: {new Date(data.document.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
+                <div>投稿日: {new Date(data.document.createdAt).toLocaleString()} 更新日: {new Date(data.document.paper.updatedAt).toLocaleString()}</div>
               </div>
               <div>
-                {sessionUserId == data.document.Paper.User.id &&
+                {sessionUserId == data.document.paper.user.id &&
                   <div><Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a><div className='border rounded-md m-1 p-2 bg-orange-100 text-center'><GrEdit className='w-6 h-6 block mx-auto' /><span>Edit</span></div></a></Link></div>}
               </div>
             </div>
             <h1 className='text-3xl font-bold mt-1 mb-4'>
-              {data.document.Paper.title}
+              {data.document.paper.title}
             </h1>
             <div>
               <BsTags className='inline-block w-5 h-5 text-gray-600 mr-2' />
-              {data.document.Paper.Tags.map((tag) => <span key={`tag-${tag.Tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{tag.Tag.text}</span>)}
+              {data.document.paper.paper_tag_map.map((x) => <span key={`tag-${x.tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{x.tag.text}</span>)}
             </div>
           </div>
           <div className='p-2'>
-            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.Paper.body}</ReactMarkdown>
+            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.paper.body}</ReactMarkdown>
           </div>
         </div>
         <div className='mt-8 mb-8 p-4 bg-white'>
@@ -111,7 +111,7 @@ const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPage
         <LikeBadge userId={userId} documentId={documentPageQuery.document.id} />
       </div>
       <div className='mt-2'>
-        <ReactiveToC>{documentPageQuery.document.Paper.body}</ReactiveToC>
+        <ReactiveToC>{documentPageQuery.document.paper.body}</ReactiveToC>
       </div>
     </div>
 
@@ -301,8 +301,8 @@ const CommentsView = ({ userId, documentId }: { userId: string, documentId: stri
           const refColoredBorder = comment.id.toUpperCase() === refCommentId.toUpperCase() ? 'border-red-300 border-2' : ''
           return (
             <div key={`document-comment-${comment.id}`} className={`border m-1 p-2 ${feaColoredBorder} ${refColoredBorder}`} data-commentid={comment.id} onClick={handleResetfeature}>
-              <CommentView commentId={comment.id} userId={comment.User.id} username={comment.User.username}
-                createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt} body={comment.RawComment.body}
+              <CommentView commentId={comment.id} userId={comment.user.id} username={comment.user.username}
+                createdAt={comment.createdAt} rawCreatedAt={comment.comment_raw.createdAt} body={comment.comment_raw.body}
                 refCommentId={comment.referenceCommentIdLazy} setRefCommentId={setRefCommentId} setFeatureCommentId={setFeatureCommentId} />
             </div>
           )
@@ -559,13 +559,13 @@ const CommentSummary = ({ commentId }) => {
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeStringify)
-    .processSync(data.comment.RawComment.body)
+    .processSync(data.comment.comment_raw.body)
   const html = String(file)
 
   return (
     <div className='line-clamp-1'>
       <div className='inline-block mr-2'>
-        <UserIconNameLinkSmall userId={data.comment.User.id} username={data.comment.User.username} />
+        <UserIconNameLinkSmall userId={data.comment.user.id} username={data.comment.user.username} />
       </div>
       <span className='text-sm from-neutral-700'>{html.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '').slice(0, 300)}</span>
     </div>)

@@ -38,8 +38,8 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
       createDraft({
         variables: {
           auth: 'user',
-          userId: document.document.Paper.User.id,
-          groupId: document.document.Paper.Group.id,
+          userId: document.document.paper.user.id,
+          groupId: document.document.paper.group.id,
           documentId: document.document.id,
           title: data.title,
           body: data.body,
@@ -52,8 +52,8 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
       createDraft({
         variables: {
           auth: 'user',
-          userId: document.document.Paper.User.id,
-          groupId: document.document.Paper.Group.id,
+          userId: document.document.paper.user.id,
+          groupId: document.document.paper.group.id,
           documentId: document.document.id,
           title: data.title,
           tags: data.tags,
@@ -65,13 +65,13 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
 
   if (loadingDocument) { return <></> }
   if (!document) { return <></> }
-  if (userId !== document.document.Paper.User.id) { return <div> Permission Denied.</div> }
+  if (userId !== document.document.paper.user.id) { return <div> Permission Denied.</div> }
 
   const initDocData: DocumentData =
   {
-    title: document.document.Paper.title,
-    body: document.document.Paper.body,
-    tags: document.document.Paper.Tags.map((x) => x.Tag.text)
+    title: document.document.paper.title,
+    body: document.document.paper.body,
+    tags: document.document.paper.paper_tag_map.map((x) => x.tag.text)
   }
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: 'ドキュメントを更新' }, { key: 'draft', label: '下書きに保存' }]
 

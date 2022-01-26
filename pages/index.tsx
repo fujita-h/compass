@@ -69,19 +69,19 @@ const Timeline = () => {
           <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
             <a className='hover:text-green-700'>
               <div className='border m-2 p-2 bg-white'>
-                <Link href={`/groups/${encodeURIComponent(doc.Paper.Group.name)}`} passHref>
+                <Link href={`/groups/${encodeURIComponent(doc.paper.group.name)}`} passHref>
                   <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
-                    {doc.Paper.Group.displayName || doc.Paper.Group.name}
+                    {doc.paper.group.displayName || doc.paper.group.name}
                   </div>
                 </Link>
                 <div className='text-black'>
-                  <UserIconNameLinkSmall userId={doc.Paper.User.id} username={doc.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
                   <div className='inline-block ml-2'>
                     <span>が{new Date(doc.createdAt).toLocaleString()} に投稿</span>
-                    {doc.createdAt !== doc.Paper.updatedAt ? <span className='ml-2 text-sm'>{new Date(doc.Paper.updatedAt).toLocaleString()} に更新</span> : <></>}
+                    {doc.createdAt !== doc.paper.updatedAt ? <span className='ml-2 text-sm'>{new Date(doc.paper.updatedAt).toLocaleString()} に更新</span> : <></>}
                   </div>
                 </div>
-                <div className='text-lg font-bold'>{doc.Paper.title || 'UNTITLED'}</div>
+                <div className='text-lg font-bold'>{doc.paper.title || 'UNTITLED'}</div>
               </div></a>
           </Link>
         </div>

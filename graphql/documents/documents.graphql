@@ -3,15 +3,15 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
     edges {
       node {
         id
-        Paper {
+        paper {
           id
           title
-          User {
+          user {
             id
             username
             displayName
           }
-          Group {
+          group {
             id
             name
             displayName

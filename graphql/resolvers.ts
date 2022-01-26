@@ -43,18 +43,18 @@ export const resolvers: Resolvers = {
       const { auth } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.saml.findMany()
+        return await prisma.saml_idp.findMany()
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        return (await prisma.saml.findMany())
+        return (await prisma.saml_idp.findMany())
           .map(x => {
             x.cert = ''
             return x
           })
       }
       if (auth == 'none') {
-        return (await prisma.saml.findMany())
+        return (await prisma.saml_idp.findMany())
           .map(x => {
             x.cert = ''
             return x
@@ -87,7 +87,7 @@ export const resolvers: Resolvers = {
             id: id ? id.toUpperCase() : undefined,
             name: name ?? undefined,
           },
-          include: { MapUserGroup: { include: { User: true } } }
+          include: { user_group_map: { include: { user: true } } }
         })
       }
       if (auth == 'user') {
@@ -98,7 +98,7 @@ export const resolvers: Resolvers = {
             id: id ? id.toUpperCase() : undefined,
             name: name ?? undefined,
           },
-          include: { MapUserGroup: { include: { User: true } } }
+          include: { user_group_map: { include: { user: true } } }
         })
       }
       if (auth == 'none') {
@@ -108,30 +108,30 @@ export const resolvers: Resolvers = {
     },
     joinedGroups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-      return (await prisma.mapUserGroup.findMany({ where: { userId: args.userId }, include: { Group: true } })).map(x => x.Group)
+      return (await prisma.user_group_map.findMany({ where: { userId: args.userId }, include: { group: true } })).map(x => x.group)
     },
     myJoinedGroups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-      return (await prisma.mapUserGroup.findMany({ where: { userId: _context.userSession.id }, include: { Group: true } })).map(x => x.Group)
+      return (await prisma.user_group_map.findMany({ where: { userId: _context.userSession.id }, include: { group: true } })).map(x => x.group)
     },
     myJoinedGroupsCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { first, after } = args
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
       const targetCursor: string = after ? (Buffer.from(after, 'base64').toString()) : Number.MAX_SAFE_INTEGER.toString()
-      const _edges: GroupEdge[] = (await prisma.mapUserGroup.findMany({
+      const _edges: GroupEdge[] = (await prisma.user_group_map.findMany({
         where: {
           userId: _context.userSession.id,
-          Group: {
+          group: {
             name: { gt: targetCursor }
           }
         },
-        include: { Group: true },
-        orderBy: { Group: { name: 'asc' } },
+        include: { group: true },
+        orderBy: { group: { name: 'asc' } },
         take: first + 1
       })).map(_item => {
         return {
-          node: _item.Group,
-          cursor: Buffer.from(_item.Group.name.toString(), 'ascii').toString('base64')
+          node: _item.group,
+          cursor: Buffer.from(_item.group.name.toString(), 'ascii').toString('base64')
         }
       })
       const hasNextPage: boolean = _edges.length > first
@@ -222,7 +222,7 @@ export const resolvers: Resolvers = {
             username: username ?? undefined,
             email: email ?? undefined,
           },
-          include: { Follow: true, Follower: true }
+          include: { follow: true, followed: true }
         })
       }
       if (auth == 'none') {
@@ -240,27 +240,27 @@ export const resolvers: Resolvers = {
       const targetCursor: string = after ? (Buffer.from(after, 'base64').toString()) : Number.MAX_SAFE_INTEGER.toString()
       const followerResult = await prisma.user.findUnique({
         where: { id: _context.userSession.id },
-        include: { Follower: true },
+        include: { followed: true },
       })
-      const follower = (followerResult && followerResult.Follower) ? followerResult.Follower.map(x => x.fromUserId) : []
+      const follower = (followerResult && followerResult.followed) ? followerResult.followed.map(x => x.fromUserId) : []
 
       const _edges: DocumentEdge[] = (await prisma.document.findMany({
         where: {
-          Paper: {
+          paper: {
             OR: [
-              { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
-              { User: { id: { in: follower } } }
+              { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
+              { user: { id: { in: follower } } }
             ],
             updatedAtNumber: { lt: Number(targetCursor) }
           }
         },
-        include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } },
-        orderBy: { Paper: { updatedAtNumber: 'desc' } },
+        include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } },
+        orderBy: { paper: { updatedAtNumber: 'desc' } },
         take: first + 1
       })).map(_item => {
         return {
           node: _item,
-          cursor: Buffer.from(_item.Paper.updatedAtNumber.toString(), 'ascii').toString('base64')
+          cursor: Buffer.from(_item.paper.updatedAtNumber.toString(), 'ascii').toString('base64')
         }
       })
       const hasNextPage: boolean = _edges.length > first
@@ -282,17 +282,17 @@ export const resolvers: Resolvers = {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.document.findMany({
           where: {
-            Paper: {
+            paper: {
               userId,
               groupId,
               OR: [
-                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
-                { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
+                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
             }
           },
-          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } }
+          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -317,24 +317,24 @@ export const resolvers: Resolvers = {
         const targetCursor: string = after ? (Buffer.from(after, 'base64').toString()) : Number.MAX_SAFE_INTEGER.toString()
         const _edges: DocumentEdge[] = (await prisma.document.findMany({
           where: {
-            Paper: {
+            paper: {
               userId: userId ? userId.toUpperCase() : undefined,
               groupId: groupId ? groupId.toUpperCase() : undefined,
               OR: [
-                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
-                { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
+                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
               updatedAtNumber: { lt: Number(targetCursor) }
             }
           },
-          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } },
-          orderBy: { Paper: { updatedAtNumber: 'desc' } },
+          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } },
+          orderBy: { paper: { updatedAtNumber: 'desc' } },
           take: first + 1
         })).map(_item => {
           return {
             node: _item,
-            cursor: Buffer.from(_item.Paper.updatedAtNumber.toString(), 'ascii').toString('base64')
+            cursor: Buffer.from(_item.paper.updatedAtNumber.toString(), 'ascii').toString('base64')
           }
         })
         const hasNextPage: boolean = _edges.length > first
@@ -362,15 +362,15 @@ export const resolvers: Resolvers = {
         return await prisma.document.findFirst({
           where: {
             id,
-            Paper: {
+            paper: {
               OR: [
-                { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
-                { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id } } } } },
+                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
             }
           },
-          include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } }
+          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -392,7 +392,7 @@ export const resolvers: Resolvers = {
             groupId: groupId.toUpperCase(),
             isPosted: { equals: 0 }
           },
-          include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+          include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
         })
       }
       if (auth == 'none') {
@@ -413,11 +413,11 @@ export const resolvers: Resolvers = {
             id: id.toUpperCase(),
             userId: _context.userSession.id.toUpperCase(),
             OR: [
-              { Group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
-              { Group: { MapUserGroup: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
+              { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+              { group: { user_group_map: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
-          include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+          include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
         })
       }
       if (auth == 'none') {
@@ -435,7 +435,7 @@ export const resolvers: Resolvers = {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stockCategory.findMany({ where: { userId: userId.toUpperCase() } })
+        return await prisma.stock_category.findMany({ where: { userId: userId.toUpperCase() } })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -540,7 +540,7 @@ export const resolvers: Resolvers = {
             userId: userId ? userId.toUpperCase() : undefined,
             documentId: documentId ? documentId.toUpperCase() : undefined,
           },
-          include: { RawComment: true, User: true },
+          include: { comment_raw: true, user: true },
           orderBy: { createdAtNumber: 'asc' }
         })
       }
@@ -559,10 +559,10 @@ export const resolvers: Resolvers = {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const result = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
-          include: { RawComment: true, User: true, Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } } },
+          include: { comment_raw: true, user: true, document: { include: { paper: { include: { group: { include: { user_group_map: true } } } } } } },
         })
-        if (result.Document.Paper.Group.type === 'private') {
-          if (!result.Document.Paper.Group.MapUserGroup.find(x => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+        if (result.document.paper.group.type === 'private') {
+          if (!result.document.paper.group.user_group_map.find(x => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbbiden')
           }
         }
@@ -623,13 +623,13 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const groups = await prisma.mapUserGroup.findMany({
+        const groups = await prisma.user_group_map.findMany({
           where: {
             OR: [
-              { Group: { type: 'public' } },
-              { Group: { type: 'announce' } },
+              { group: { type: 'public' } },
+              { group: { type: 'announce' } },
               {
-                Group: { type: 'private' },
+                group: { type: 'private' },
                 userId: _context.userSession.id.toUpperCase()
               },
             ]
@@ -652,13 +652,13 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const groups = await prisma.mapUserGroup.findMany({
+        const groups = await prisma.user_group_map.findMany({
           where: {
             OR: [
-              { Group: { type: 'public' } },
-              { Group: { type: 'announce' } },
+              { group: { type: 'public' } },
+              { group: { type: 'announce' } },
               {
-                Group: { type: 'private' },
+                group: { type: 'private' },
                 userId: _context.userSession.id.toUpperCase()
               },
             ]
@@ -723,7 +723,7 @@ export const resolvers: Resolvers = {
         const result = await prisma.group.create({
           data: {
             id: ulid(), name, displayName, description, type,
-            MapUserGroup: { create: { userId: _context.userSession.id, isAdmin: 1 } }
+            user_group_map: { create: { userId: _context.userSession.id, isAdmin: 1 } }
           }
         })
 
@@ -772,9 +772,9 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const check = await prisma.group.findUnique({ where: { id }, include: { MapUserGroup: true } })
+        const check = await prisma.group.findUnique({ where: { id }, include: { user_group_map: true } })
         if (!check) throw new UserInputError('NotFound')
-        const checkAdmin = check.MapUserGroup.find(x => x.userId == _context.userSession.id)?.isAdmin || false
+        const checkAdmin = check.user_group_map.find(x => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
         const result = await prisma.group.update({
           data: { name, displayName, description, type },
@@ -830,21 +830,21 @@ export const resolvers: Resolvers = {
       const { auth, userId, groupId, isAdmin } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.mapUserGroup.create({ data: { userId, groupId, isAdmin } })
+        return await prisma.user_group_map.create({ data: { userId, groupId, isAdmin } })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const check = await prisma.mapUserGroup.findUnique({
+        const check = await prisma.user_group_map.findUnique({
           where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
-          include: { Group: true }
+          include: { group: true }
         })
         if (!check) throw new ApolloError('Forbbiden')
-        if (check.Group.type === 'private' || check.Group.type === 'announce') {
+        if (check.group.type === 'private' || check.group.type === 'announce') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-          return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
+          return await prisma.user_group_map.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
         } else {
           if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
-          return await prisma.mapUserGroup.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
+          return await prisma.user_group_map.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
         }
       }
       if (auth == 'none') {
@@ -856,14 +856,14 @@ export const resolvers: Resolvers = {
       const { auth, userId, groupId, isAdmin } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.mapUserGroup.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
+        return await prisma.user_group_map.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const check = await prisma.mapUserGroup.findUnique({ where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } } })
+        const check = await prisma.user_group_map.findUnique({ where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } } })
         if (!check) throw new ForbiddenError('Forbbiden')
         if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-        return await prisma.mapUserGroup.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
+        return await prisma.user_group_map.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -874,21 +874,21 @@ export const resolvers: Resolvers = {
       const { auth, groupId, userId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
+        return await prisma.user_group_map.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        const check = await prisma.mapUserGroup.findUnique({
+        const check = await prisma.user_group_map.findUnique({
           where: { userId_groupId: { userId: _context.userSession.id.toUpperCase(), groupId: groupId.toUpperCase() } },
-          include: { Group: true }
+          include: { group: true }
         })
         if (!check) throw new ForbiddenError('Forbbiden')
-        if (check.Group.type === 'private' || check.Group.type === 'announce') {
+        if (check.group.type === 'private' || check.group.type === 'announce') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-          return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
+          return await prisma.user_group_map.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
         } else {
           if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
-          return await prisma.mapUserGroup.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
+          return await prisma.user_group_map.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
         }
       }
       if (auth == 'none') {
@@ -923,17 +923,17 @@ export const resolvers: Resolvers = {
         if (groupId) {
           const check = await prisma.group.findUnique({
             where: { id: groupId },
-            include: { MapUserGroup: { where: { userId: { equals: _context.userSession.id } } } }
+            include: { user_group_map: { where: { userId: { equals: _context.userSession.id } } } }
           })
           if (!check) { throw new ApolloError('Group not found.') }
-          if ((check.type === 'private' || check.type === 'announce') && !check.MapUserGroup.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
+          if ((check.type === 'private' || check.type === 'announce') && !check.user_group_map.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
         }
 
         // args.documentId がある場合は、チェックをを実施する必要がある (documentIdの乗っ取り防止)
         if (documentId) {
           // 指定された documentId がすでにあるかを確認し、あった場合は、その document の作成者が本人かどうか確認
-          const check = await prisma.document.findUnique({ where: { id: documentId }, include: { Paper: true } })
-          if (check && check.Paper.userId !== _context.userSession.id) {
+          const check = await prisma.document.findUnique({ where: { id: documentId }, include: { paper: true } })
+          if (check && check.paper.userId !== _context.userSession.id) {
             throw new ForbiddenError('Forbidden')
           }
         }
@@ -962,7 +962,7 @@ export const resolvers: Resolvers = {
                 id: _documentId,
                 createdAt: new Date(now).toISOString(),
                 createdAtNumber: now,
-                Paper: {
+                paper: {
                   create: {
                     id: _paperId,
                     userId: _context.userSession.id.toUpperCase(),
@@ -979,7 +979,7 @@ export const resolvers: Resolvers = {
                 }
               },
               update: {
-                Paper: {
+                paper: {
                   create: {
                     id: _paperId,
                     userId: _context.userSession.id.toUpperCase(),
@@ -996,16 +996,16 @@ export const resolvers: Resolvers = {
                 }
               }
             }),
-            prisma.mapPaperTag.deleteMany({
+            prisma.paper_tag_map.deleteMany({
               where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
             }),
-            prisma.mapPaperTag.createMany({
+            prisma.paper_tag_map.createMany({
               data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
               skipDuplicates: true,
             }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
             })
           ])
 
@@ -1014,13 +1014,13 @@ export const resolvers: Resolvers = {
               id: _documentId,
               document: {
                 paperId: result.id,
-                userId: result.User.id,
-                userName: result.User.username,
-                userDisplayName: result.User.displayName,
-                groupId: result.Group.id,
-                groupName: result.Group.name,
-                groupDisplayName: result.Group.displayName,
-                groupType: result.Group.type,
+                userId: result.user.id,
+                userName: result.user.username,
+                userDisplayName: result.user.displayName,
+                groupId: result.group.id,
+                groupName: result.group.name,
+                groupDisplayName: result.group.displayName,
+                groupType: result.group.type,
                 createdAt: upsertDoc.createdAt,
                 createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
@@ -1059,16 +1059,16 @@ export const resolvers: Resolvers = {
                 updatedAtNumber: now
               }
             }),
-            prisma.mapPaperTag.deleteMany({
+            prisma.paper_tag_map.deleteMany({
               where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
             }),
-            prisma.mapPaperTag.createMany({
+            prisma.paper_tag_map.createMany({
               data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
               skipDuplicates: true,
             }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
             })
           ])
 
@@ -1099,13 +1099,13 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
 
-        const check = await prisma.paper.findUnique({ where: { id: paperId }, include: { Group: { include: { MapUserGroup: { include: { User: { select: { id: true } } } } } } } })
+        const check = await prisma.paper.findUnique({ where: { id: paperId }, include: { group: { include: { user_group_map: { include: { user: { select: { id: true } } } } } } } })
         if (!check) throw new ApolloError('NotFound')
         if (check.isPosted) throw new ApolloError('PageAlreadyPublished') // published がすでにマークされたものは変更不可
         if (check.userId !== _context.userSession.id) throw new ForbiddenError('Forbidden') // 自分のpaperでない場合は変更不可
-        if (check.Group.type === 'private' || check.Group.type === 'announce') {
+        if (check.group.type === 'private' || check.group.type === 'announce') {
           // 記事のグループがprivate/announceだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は変更不可
-          if (!(check.Group.MapUserGroup.map((x) => x.User.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
+          if (!(check.group.user_group_map.map((x) => x.user.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
         }
 
         const now = Date.now()
@@ -1127,16 +1127,16 @@ export const resolvers: Resolvers = {
               create: { id: documentId.toUpperCase(), paperId: paperId.toUpperCase(), createdAt: new Date(now).toISOString(), createdAtNumber: now },
               update: { paperId: paperId.toUpperCase() }
             }),
-            prisma.mapPaperTag.deleteMany({
+            prisma.paper_tag_map.deleteMany({
               where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
             }),
-            prisma.mapPaperTag.createMany({
+            prisma.paper_tag_map.createMany({
               data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
               skipDuplicates: true,
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
             })
           ])
 
@@ -1145,13 +1145,13 @@ export const resolvers: Resolvers = {
               id: documentId,
               document: {
                 paperId: result.id,
-                userId: result.User.id,
-                userName: result.User.username,
-                userDisplayName: result.User.displayName,
-                groupId: result.Group.id,
-                groupName: result.Group.name,
-                groupDisplayName: result.Group.displayName,
-                groupType: result.Group.type,
+                userId: result.user.id,
+                userName: result.user.username,
+                userDisplayName: result.user.displayName,
+                groupId: result.group.id,
+                groupName: result.group.name,
+                groupDisplayName: result.group.displayName,
+                groupType: result.group.type,
                 createdAt: upsertDoc.createdAt,
                 createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
@@ -1173,16 +1173,16 @@ export const resolvers: Resolvers = {
               where: { id: paperId.toUpperCase() },
               data: { title, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
             }),
-            prisma.mapPaperTag.deleteMany({
+            prisma.paper_tag_map.deleteMany({
               where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
             }),
-            prisma.mapPaperTag.createMany({
+            prisma.paper_tag_map.createMany({
               data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
               skipDuplicates: true,
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { User: true, Group: true, Tags: { include: { Tag: true } } }
+              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
             })
           ])
 
@@ -1227,7 +1227,7 @@ export const resolvers: Resolvers = {
         if (!userId) throw new UserInputError('UserInputError')
         if (!name) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stockCategory.create({
+        return await prisma.stock_category.create({
           data: {
             id: ulid(),
             userId: userId.toUpperCase(),
@@ -1250,10 +1250,10 @@ export const resolvers: Resolvers = {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('UserInputError')
         if (!name) throw new UserInputError('UserInputError')
-        const check = await prisma.stockCategory.findUnique({ where: { id: id } })
+        const check = await prisma.stock_category.findUnique({ where: { id: id } })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stockCategory.update({
+        return await prisma.stock_category.update({
           where: { id: id.toUpperCase() },
           data: { name: name }
         })
@@ -1272,10 +1272,10 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!id) throw new UserInputError('UserInputError')
-        const check = await prisma.stockCategory.findUnique({ where: { id: id } })
+        const check = await prisma.stock_category.findUnique({ where: { id: id } })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stockCategory.delete({ where: { id: id.toUpperCase() } })
+        return await prisma.stock_category.delete({ where: { id: id.toUpperCase() } })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -1394,12 +1394,12 @@ export const resolvers: Resolvers = {
         const check = await prisma.document.findUnique({
           where: { id: documentId.toUpperCase() },
           include: {
-            Paper: { include: { Group: { include: { MapUserGroup: true } } } }
+            paper: { include: { group: { include: { user_group_map: true } } } }
           }
         })
         if (!check) throw new ApolloError('NotFound')
-        if (check.Paper.Group.type === 'private') {
-          if (!check.Paper.Group.MapUserGroup.find((m) => m.userId.toUpperCase() == userId.toUpperCase())) {
+        if (check.paper.group.type === 'private') {
+          if (!check.paper.group.user_group_map.find((m) => m.userId.toUpperCase() == userId.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
         }
@@ -1408,12 +1408,12 @@ export const resolvers: Resolvers = {
         return prisma.comment.create({
           data: {
             id: commentId,
-            User: { connect: { id: userId.toUpperCase() } },
-            Document: { connect: { id: documentId.toUpperCase() } },
+            user: { connect: { id: userId.toUpperCase() } },
+            document: { connect: { id: documentId.toUpperCase() } },
             referenceCommentIdLazy: referenceCommentIdLazy ? referenceCommentIdLazy.toUpperCase() : undefined,
             createdAt: new Date(now).toISOString(),
             createdAtNumber: now,
-            RawComment: {
+            comment_raw: {
               create: {
                 id: ulid(),
                 userId: userId.toUpperCase(),
@@ -1425,7 +1425,7 @@ export const resolvers: Resolvers = {
               }
             }
           },
-          include: { RawComment: true, User: true }
+          include: { comment_raw: true, user: true }
         })
       }
       if (auth == 'none') {
@@ -1444,14 +1444,14 @@ export const resolvers: Resolvers = {
         const check = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
           include: {
-            RawComment: true,
-            Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } }
+            comment_raw: true,
+            document: { include: { paper: { include: { group: { include: { user_group_map: true } } } } } }
           }
         })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        if (check.Document.Paper.Group.type === 'private') {
-          if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+        if (check.document.paper.group.type === 'private') {
+          if (!check.document.paper.group.user_group_map.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
         }
@@ -1459,19 +1459,19 @@ export const resolvers: Resolvers = {
         return await prisma.comment.update({
           where: { id: id.toUpperCase() },
           data: {
-            RawComment: {
+            comment_raw: {
               create: {
                 id: ulid(),
-                userId: check.RawComment.userId.toUpperCase(),
-                documentId: check.RawComment.documentId.toUpperCase(),
-                commentIdLazy: check.RawComment.commentIdLazy,
+                userId: check.comment_raw.userId.toUpperCase(),
+                documentId: check.comment_raw.documentId.toUpperCase(),
+                commentIdLazy: check.comment_raw.commentIdLazy,
                 body: body,
                 createdAt: new Date(now).toISOString(),
                 createdAtNumber: now,
               }
             }
           },
-          include: { RawComment: true, User: true }
+          include: { comment_raw: true, user: true }
         })
       }
       if (auth == 'none') {
@@ -1490,20 +1490,20 @@ export const resolvers: Resolvers = {
         const check = await prisma.comment.findUnique({
           where: { id: id.toUpperCase() },
           include: {
-            RawComment: true,
-            Document: { include: { Paper: { include: { Group: { include: { MapUserGroup: true } } } } } }
+            comment_raw: true,
+            document: { include: { paper: { include: { group: { include: { user_group_map: true } } } } } }
           }
         })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        if (check.Document.Paper.Group.type === 'private') {
-          if (!check.Document.Paper.Group.MapUserGroup.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
+        if (check.document.paper.group.type === 'private') {
+          if (!check.document.paper.group.user_group_map.find((x) => x.userId.toUpperCase() === _context.userSession.id.toUpperCase())) {
             throw new ForbiddenError('Forbidden')
           }
         }
         return await prisma.comment.delete({
           where: { id: id.toUpperCase() },
-          include: { RawComment: true, User: true }
+          include: { comment_raw: true, user: true }
         })
       }
       if (auth == 'none') {

@@ -9,30 +9,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!adminSession?.admin) return res.status(401).end()
 
   const docs = await prisma.document.findMany({
-    include: { Paper: { include: { User: true, Group: true, Tags: { include: { Tag: true } } } } }
+    include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
   })
 
   for (let i = 0; i < docs.length; i++) {
     const doc = docs[i]
-    const tags = doc.Paper.Tags.map((tag) => tag.Tag.text)
+    const tags = doc.paper.paper_tag_map.map((x) => x.tag.text)
     await esClient.upsertDocument({
       id: doc.id,
       document: {
-        paperId: doc.Paper.id,
-        userId: doc.Paper.User.id,
-        userName: doc.Paper.User.username,
-        userDisplayName: doc.Paper.User.displayName,
-        groupId: doc.Paper.Group.id,
-        groupName: doc.Paper.Group.name,
-        groupDisplayName: doc.Paper.Group.displayName,
-        groupType: doc.Paper.Group.type,
+        paperId: doc.paper.id,
+        userId: doc.paper.user.id,
+        userName: doc.paper.user.username,
+        userDisplayName: doc.paper.user.displayName,
+        groupId: doc.paper.group.id,
+        groupName: doc.paper.group.name,
+        groupDisplayName: doc.paper.group.displayName,
+        groupType: doc.paper.group.type,
         createdAt: doc.createdAt,
         createdAtNumber: Number(doc.createdAtNumber),
-        updatedAt: doc.Paper.updatedAt,
-        updatedAtNumber: Number(doc.Paper.updatedAtNumber),
-        title: doc.Paper.title,
+        updatedAt: doc.paper.updatedAt,
+        updatedAtNumber: Number(doc.paper.updatedAtNumber),
+        title: doc.paper.title,
         tags: tags,
-        body: doc.Paper.body
+        body: doc.paper.body
       }
     })
   }

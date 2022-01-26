@@ -24,7 +24,7 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
 
   if (loading) return (<></>)
   if (!data.group) return (<></>)
-  if (!data.group.MapUserGroup
+  if (!data.group.user_group_map
     .filter((user) => user.isAdmin)
     .some((user) => user.userId.toUpperCase() === userId.toUpperCase())) {
     return (<div className='text-red-600'>Forbbiden</div>)

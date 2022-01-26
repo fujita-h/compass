@@ -55,13 +55,13 @@ type User {
   username: String!
   email: String!
   displayName: String
-  Follow: [Follow]
-  Follower: [Follow]
+  follow: [Follow]
+  followed: [Follow]
 }
 
 type UserEdge {
-    node: User
-    cursor: String
+  node: User
+  cursor: String
 }
 
 type UserConnection {
@@ -78,8 +78,8 @@ type Group {
 }
 
 type GroupEdge {
-    node: Group
-    cursor: String
+  node: Group
+  cursor: String
 }
 
 type GroupConnection {
@@ -92,8 +92,8 @@ type MapUserGroup {
   userId: String!
   groupId: String!
   isAdmin: Int!
-  User: User
-  Group: Group
+  user: User
+  group: Group
 }
 
 type GroupWithMember {
@@ -102,7 +102,7 @@ type GroupWithMember {
   displayName: String
   description: String
   type: GroupType!
-  MapUserGroup: [MapUserGroup]!
+  user_group_map: [MapUserGroup]!
 }
 
 type Paper {
@@ -113,9 +113,9 @@ type Paper {
   title: String!
   body: String!
   isPosted: Int!
-  User: User!
-  Group: Group!
-  Tags: [MapPaperTag]!
+  user: User!
+  group: Group!
+  paper_tag_map: [MapPaperTag]!
   createdAt: String!
   updatedAt: String!
 }
@@ -123,7 +123,7 @@ type Paper {
 type Document {
   id: String!
   paperId: String!
-  Paper: Paper!
+  paper: Paper!
   createdAt: String!
 }
 
@@ -161,8 +161,8 @@ type Comment {
   rawCommentId: String!
   referenceCommentIdLazy: String
   createdAt: String!
-  User: User!
-  RawComment: RawComment!
+  user: User!
+  comment_raw: RawComment!
 }
 
 type RawComment {
@@ -192,8 +192,8 @@ type Tag {
 type MapPaperTag {
   paperId: String!
   tagId: String!
-  Paper: Paper
-  Tag: Tag
+  paper: Paper
+  tag: Tag
 }
 
 
