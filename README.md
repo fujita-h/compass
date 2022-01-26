@@ -4,6 +4,7 @@
 
 - Nodejs >= 14 (Recommend: 16.x)
 - Mysql >= 8.0 
+  - Recommend collation: `utf8mb4_general_ci` 
 
 ## 環境変数
 
