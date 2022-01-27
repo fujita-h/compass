@@ -5,6 +5,7 @@ import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
 import { UserIconNameLinkSmall } from '@components/elements'
 import { BsAppIndicator } from 'react-icons/bs'
+import { RiCompasses2Line } from 'react-icons/ri'
 
 export default function Page() {
 
@@ -18,11 +19,14 @@ export default function Page() {
       <Layout>
         <div className="mt-12 flex justify-center">
           <div>
-            <Link href="/login" passHref><a>
-              <div className="text-xl text-center bg-blue-200 rounded-lg px-6 py-3">
-                Login to Start
-              </div></a>
-            </Link>
+            <div><RiCompasses2Line className='w-20 h-20 inline-block' /><span className='text-3xl font-bold align-middle'>Compass</span></div>
+            <div className='mt-6'>
+              <Link href="/login" passHref><a>
+                <div className="text-xl text-center bg-blue-100 rounded-lg px-4 py-2">
+                  <span>Login to Start</span>
+                </div></a>
+              </Link>
+            </div>
           </div>
         </div>
       </Layout>
@@ -31,25 +35,23 @@ export default function Page() {
 
   return (
     <Layout>
-      <div className='p-2'>
-        <div className="flex content-between">
-          <div className="w-80">
-            <div className="p-2">
-              <div className='flex justify-between items-end'>
-                <div><h2>参加グループ</h2></div>
-                <div>
-                  <Link href="/groups/new" passHref><a>
-                    <div className='border rounded-lg px-2 py-1 text-sm text-white bg-green-600'><span>New</span></div>
-                  </a></Link>
-                </div>
+      <div style={{ minHeight: 'calc(100vh - 48px)' }} className="flex content-between">
+        <div className="w-80 bg-white p-2">
+          <div className="p-2">
+            <div className='flex justify-between items-end'>
+              <div><h2>参加グループ</h2></div>
+              <div>
+                <Link href="/groups/new" passHref><a>
+                  <div className='border rounded-lg px-2 py-1 text-sm text-white bg-green-600'><span>New</span></div>
+                </a></Link>
               </div>
-              <MyJoinedGroup />
             </div>
+            <MyJoinedGroup />
           </div>
-          <div className="w-full p-2">
-            <h1 className="text-2xl border-b-1">タイムライン</h1>
-            <Timeline />
-          </div>
+        </div>
+        <div className="w-full p-4">
+          <h1 className="text-2xl border-b-1">タイムライン</h1>
+          <Timeline />
         </div>
       </div>
     </Layout>
@@ -110,7 +112,7 @@ const MyJoinedGroup = () => {
         <div key={`myGroups-${group.id}`} className='my-1'>
           <Link href={`/groups/${encodeURIComponent(group.name)}`} passHref>
             <a className='hover:underline'>
-              <BsAppIndicator className='inline-block mr-1' /><span>{group.displayName || group.name}</span>
+              <span>{group.displayName || group.name}</span>
             </a>
           </Link>
         </div>
