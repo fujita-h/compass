@@ -3,6 +3,7 @@ import { relayStylePagination } from "@apollo/client/utilities"
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import '../styles/global.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 const client = new ApolloClient({
   uri: "/api/graphql",

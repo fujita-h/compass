@@ -3,7 +3,6 @@ import { prisma } from './prisma/prismaClient'
 import { ulid } from 'ulid'
 import { MultiSamlStrategy } from 'passport-saml'
 import { Strategy } from 'passport-local'
-import { type } from 'os'
 
 const saltRounds = 12
 const REGEX_USERNAME_RULE = /^[a-z][a-z0-9-_]{2,}$/
