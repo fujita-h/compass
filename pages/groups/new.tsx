@@ -21,10 +21,14 @@ export default function Page() {
   const showCreatePrivateGroupModal = (e) => { setCreateGroupModalState({ show: true, type: 'private' }) }
 
   return (<Layout>
-    <div className='w-full'>
-      <h1 className='text-2xl font-bold'>Create New Group</h1>
-      <div>新しいグループを作成します。</div>
-      
+    <div className='max-w-6xl mx-auto mt-5 p-5 bg-white'>
+      <div>
+        <h1 className='text-2xl'>Create New Group</h1>
+        <span className='text-base'>新しいグループを作成します。</span>
+      </div>
+      <div className='mt-4 border rounded-md p-3 bg-white text-sm'>
+        <span>グループは、ある特定の目的を達成するために情報を共有する人々の集まりです。作成するドキュメントは必ずいずれかのグループに属している必要があります。</span>
+      </div>
       <div className='flex content-between mt-5'>
         <div className='flex flex-col w-full mr-5 border rounded-lg p-3'>
           <div className='flex-grow'>
@@ -76,7 +80,7 @@ export default function Page() {
             </button>
           </div>
         </div>
-        
+
       </div>
     </div>
     <CreateGroupModal state={createGroupModalState} setState={setCreateGroupModalState} />
