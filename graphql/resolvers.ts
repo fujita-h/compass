@@ -286,7 +286,7 @@ export const resolvers: Resolvers = {
               userId,
               groupId,
               OR: [
-                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -321,7 +321,7 @@ export const resolvers: Resolvers = {
               userId: userId ? userId.toUpperCase() : undefined,
               groupId: groupId ? groupId.toUpperCase() : undefined,
               OR: [
-                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -364,7 +364,7 @@ export const resolvers: Resolvers = {
             id,
             paper: {
               OR: [
-                { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+                { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { canReadAll: { gt: 0 } },
               ],
@@ -413,7 +413,7 @@ export const resolvers: Resolvers = {
             id: id.toUpperCase(),
             userId: _context.userSession.id.toUpperCase(),
             OR: [
-              { group: { OR: [{ type: 'public' }, { type: 'announce' }] } },
+              { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
               { group: { user_group_map: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
@@ -627,7 +627,7 @@ export const resolvers: Resolvers = {
           where: {
             OR: [
               { group: { type: 'public' } },
-              { group: { type: 'announce' } },
+              { group: { type: 'normal' } },
               {
                 group: { type: 'private' },
                 userId: _context.userSession.id.toUpperCase()
@@ -656,7 +656,7 @@ export const resolvers: Resolvers = {
           where: {
             OR: [
               { group: { type: 'public' } },
-              { group: { type: 'announce' } },
+              { group: { type: 'normal' } },
               {
                 group: { type: 'private' },
                 userId: _context.userSession.id.toUpperCase()
@@ -839,7 +839,7 @@ export const resolvers: Resolvers = {
           include: { group: true }
         })
         if (!check) throw new ApolloError('Forbbiden')
-        if (check.group.type === 'private' || check.group.type === 'announce') {
+        if (check.group.type === 'private' || check.group.type === 'normal') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
           return await prisma.user_group_map.create({ data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin } })
         } else {
@@ -883,7 +883,7 @@ export const resolvers: Resolvers = {
           include: { group: true }
         })
         if (!check) throw new ForbiddenError('Forbbiden')
-        if (check.group.type === 'private' || check.group.type === 'announce') {
+        if (check.group.type === 'private' || check.group.type === 'normal') {
           if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
           return await prisma.user_group_map.delete({ where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } } })
         } else {
@@ -926,7 +926,7 @@ export const resolvers: Resolvers = {
             include: { user_group_map: { where: { userId: { equals: _context.userSession.id } } } }
           })
           if (!check) { throw new ApolloError('Group not found.') }
-          if ((check.type === 'private' || check.type === 'announce') && !check.user_group_map.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
+          if ((check.type === 'private' || check.type === 'normal') && !check.user_group_map.some(x => x.userId == _context.userSession.id)) { throw new ForbiddenError('Forbidden') }
         }
 
         // args.documentId がある場合は、チェックをを実施する必要がある (documentIdの乗っ取り防止)
@@ -1103,8 +1103,8 @@ export const resolvers: Resolvers = {
         if (!check) throw new ApolloError('NotFound')
         if (check.isPosted) throw new ApolloError('PageAlreadyPublished') // published がすでにマークされたものは変更不可
         if (check.userId !== _context.userSession.id) throw new ForbiddenError('Forbidden') // 自分のpaperでない場合は変更不可
-        if (check.group.type === 'private' || check.group.type === 'announce') {
-          // 記事のグループがprivate/announceだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は変更不可
+        if (check.group.type === 'private' || check.group.type === 'normal') {
+          // 記事のグループがprivate/normalだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は変更不可
           if (!(check.group.user_group_map.map((x) => x.user.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
         }
 

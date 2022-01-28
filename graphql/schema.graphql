@@ -6,7 +6,7 @@ enum Auth {
 
 enum GroupType {
   public,
-  announce,
+  normal,
   private,
 }
 

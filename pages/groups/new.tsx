@@ -17,7 +17,7 @@ export default function Page() {
 
   const [createGroupModalState, setCreateGroupModalState] = useState(initModalState);
   const showCreatePublicGroupModal = (e) => { setCreateGroupModalState({ show: true, type: 'public' }) }
-  const showCreateAnnounceGroupModal = (e) => { setCreateGroupModalState({ show: true, type: 'announce' }) }
+  const showCreateNormalGroupModal = (e) => { setCreateGroupModalState({ show: true, type: 'normal' }) }
   const showCreatePrivateGroupModal = (e) => { setCreateGroupModalState({ show: true, type: 'private' }) }
 
   return (<Layout>
@@ -29,7 +29,7 @@ export default function Page() {
         <div className='flex flex-col w-full mr-5 border rounded-lg p-3'>
           <div className='flex-grow'>
             <h2 className='text-xl border-b-1'>パブリックグループ</h2>
-            <div>パブリックグループは全ての登録ユーザーが投稿・閲覧できるグループです。</div>
+            <div>パブリックグループは全てのユーザーが投稿・閲覧できるグループです。</div>
           </div>
           <div className='flex-none mt-3'>
             <button type="button"
@@ -45,8 +45,8 @@ export default function Page() {
 
         <div className='flex flex-col w-full mr-5 border rounded-lg p-3'>
           <div className='flex-grow'>
-            <h2 className='text-xl border-b-1'>パブリックグループ</h2>
-            <div>アナウンスグループは特定のメンバーが投稿でき、全ての登録ユーザーが閲覧できるグループです。</div>
+            <h2 className='text-xl border-b-1'>標準グループ</h2>
+            <div>標準グループは、メンバーが投稿でき、全ての登録ユーザーが閲覧できるグループです。メンバーはグループ管理者によって管理されます。</div>
           </div>
           <div className='flex-none mt-3'>
             <button type="button"
@@ -54,8 +54,8 @@ export default function Page() {
              bg-amber-600 hover:bg-amber-700 focus:ring-amber-500 focus:ring-offset-amber-200 focus:outline-none focus:ring-2 focus:ring-offset-2
             transition ease-in duration-200 
             text-white text-center text-base font-semibold"
-              onClick={showCreateAnnounceGroupModal}>
-              <span>アナウンスグループの新規作成</span>
+              onClick={showCreateNormalGroupModal}>
+              <span>標準グループの新規作成</span>
             </button>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function Page() {
         <div className='flex flex-col w-full ml-5 border rounded-lg p-3'>
           <div className='flex-grow'>
             <h2 className='text-xl border-b-1'>プライベートグループ</h2>
-            <div>プライベートグループは、特定のメンバー内のみで投稿・閲覧が出来るグループです。メンバー以外からは内容を確認することは出来ません。メンバーはグループ管理者によって管理されます。</div>
+            <div>プライベートグループは、メンバー内のみで投稿・閲覧が出来るグループです。メンバー以外からは内容を確認することは出来ません。メンバーはグループ管理者によって管理されます。</div>
           </div>
           <div className='flex-none mt-3'>
             <button type="button"
@@ -113,7 +113,7 @@ const CreateGroupModal = ({ state, setState }: { state: CreateGroupModalStateTyp
       <div className="mt-2">
         <p className="text-sm text-gray-500">
           {state.type === 'public' ? '作成するパブリックグループの名称を入力してください。そのほかの設定は作成後に設定できます。' :
-            state.type === 'announce' ? '作成するアナウンスグループの名称を入力してください。そのほかの設定は作成後に設定できます。' :
+            state.type === 'normal' ? '作成する標準グループの名称を入力してください。そのほかの設定は作成後に設定できます。' :
               state.type === 'private' ? '作成するプライベートグループの名称を入力してください。そのほかの設定は作成後に設定できます。' :
                 ''}
         </p>
@@ -130,11 +130,11 @@ const CreateGroupModal = ({ state, setState }: { state: CreateGroupModalStateTyp
           onClick={handleSubmit}
           className={
             state.type === 'public' ? "inline-flex justify-center py-2 px-4 bg-teal-600 hover:bg-teal-700 focus:ring-teal-500  focus:ring-offset-teal-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg" :
-              state.type === 'announce' ? "inline-flex justify-center py-2 px-4 bg-amber-600 hover:bg-amber-700 focus:ring-amber-500  focus:ring-offset-amber-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg" :
+              state.type === 'normal' ? "inline-flex justify-center py-2 px-4 bg-amber-600 hover:bg-amber-700 focus:ring-amber-500  focus:ring-offset-amber-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg" :
                 state.type === 'private' ? "inline-flex justify-center py-2 px-4 bg-rose-600 hover:bg-rose-700 focus:ring-rose-500  focus:ring-offset-rose-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg" :
                   ""}>
           <span>{state.type === 'public' ? 'パブリックグループの作成' :
-            state.type === 'announce' ? 'アナウンスグループの作成' :
+            state.type === 'normal' ? '標準グループの作成' :
               state.type === 'private' ? 'プライベートグループの作成' :
                 ''}</span>
         </button>

@@ -151,9 +151,9 @@ export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, g
         <label className="text-gray-700">Type</label>
         <div className='mt-4'>
           <select name="type" defaultValue={data.group.type} onChange={handleFormValueChanged} className='border px-2 py-1 rounded-lg'>
-          <option value={'public'}>パブリック</option>
-          <option value={'announce'}>アナウンス</option>
-          <option value={'private'}>プライベート</option>
+          <option value={'public'}>パブリックグループ</option>
+          <option value={'normal'}>標準グループ</option>
+          <option value={'private'}>プライベートグループ</option>
           </select>
         </div>
       </div>

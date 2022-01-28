@@ -274,7 +274,7 @@ enum configurations_ensureSingleRow {
 
 enum group_type {
   public
-  announce
+  normal
   private
 }
 
