@@ -62,10 +62,8 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^2.4.0",
     "@graphql-codegen/typescript": "^2.4.2",
-    "@graphql-codegen/typescript-graphql-request": "^4.3.3",
     "@graphql-codegen/typescript-operations": "^2.2.2",
     "@graphql-codegen/typescript-react-apollo": "^3.2.4",
-    "@graphql-codegen/typescript-react-query": "^3.4.0",
     "@graphql-codegen/typescript-resolvers": "^2.4.3",
     "@types/bcrypt": "^5.0.0",
     "@types/crypto-js": "^4.1.0",
