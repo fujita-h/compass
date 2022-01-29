@@ -33,6 +33,37 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
   }
 }
 
+query Document($documentId: String!) {
+  document(auth: user, id: $documentId) {
+    id
+    paper {
+      documentIdLazy
+      user {
+        id
+        username
+        email
+        displayName
+      }
+      group {
+        id
+        name
+        displayName
+      }
+      paper_tag_map {
+        tag {
+          id
+          text
+        }
+      }
+      title
+      body
+      createdAt
+      updatedAt
+    }
+    createdAt
+  }
+}
+
 mutation DeleteDocument($auth: Auth!, $id: String!) {
   deleteDocument(auth: $auth, id: $id) {
     id

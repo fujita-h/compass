@@ -14,7 +14,7 @@ import { RiDeleteBin6Line } from 'react-icons/ri'
 import {
   Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
   useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation,
-  useDeleteCommentMutation, useDeleteDocumentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery,
+  useDeleteCommentMutation, useDeleteDocumentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentQuery, useLikesQuery,
   useStockCategoriesAndStocksQuery, useUpdateCommentMutation
 } from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
@@ -42,7 +42,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, sessionUserId: string, documentId: string }) => {
-  const { data, loading } = useDocumentPageQuery({ variables: { documentId } })
+  const { data, loading } = useDocumentQuery({ variables: { documentId } })
 
   const H1 = useCallback(({ node, ...props }) => <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h1>, [])
   const H2 = useCallback(({ node, ...props }) => <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h2>, [])
