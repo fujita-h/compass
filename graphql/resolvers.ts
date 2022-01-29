@@ -788,7 +788,8 @@ export const resolvers: Resolvers = {
               name: result.name,
               displayName: result.displayName,
               description: result.description,
-              type: result.type
+              type: undefined,
+              //type: result.type, //restrict update type by group admin
             }
           })
         } catch (error) {

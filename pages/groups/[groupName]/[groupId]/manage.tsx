@@ -34,7 +34,7 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     <div className='max-w-7xl mt-4 mx-auto p-4 bg-white'>
       <div>Group Management Page</div>
       <div className='mt-3 border rounded-lg p-3'>
-        <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
+        <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} restrictTypeChange={true} />
       </div>
       <div className='mt-3 border rounded-lg p-3'>
         <EditGroupMemberTable auth={'user'} groupId={data.group.id} />

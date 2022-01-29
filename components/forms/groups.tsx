@@ -26,7 +26,7 @@ const uploadGroupIcon = async (files, groupId) => {
   return res.json()
 }
 
-export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
+export const EditGroupForm = ({ auth, groupId, refetchQueries, restrictTypeChange = false }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude, restrictTypeChange?: boolean }) => {
 
   const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
@@ -147,10 +147,10 @@ export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, g
           className="flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" />
       </div>
 
-      <div>
-        <label className="text-gray-700">Type</label>
-        <div className='mt-4'>
-          <select name="type" defaultValue={data.group.type} onChange={handleFormValueChanged} className='border px-2 py-1 rounded-lg'>
+      <div className='mt-2'>
+        <label className="text-gray-700">グループ種別</label>
+        <div className='ml-4'>
+          <select name="type" defaultValue={data.group.type} disabled={restrictTypeChange} onChange={handleFormValueChanged} className='border border-gray-300 px-2 py-1 rounded-lg'>
           <option value={'public'}>パブリックグループ</option>
           <option value={'normal'}>標準グループ</option>
           <option value={'private'}>プライベートグループ</option>
