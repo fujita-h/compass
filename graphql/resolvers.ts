@@ -665,7 +665,7 @@ export const resolvers: Resolvers = {
           },
           select: { groupId: true }
         })
-        const documentsResult = await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) }) 
+        const documentsResult = await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) })
         const groupsResult = await esClient.countGroups({ query: query })
         return { Documents: documentsResult, Groups: groupsResult }
       }
@@ -1196,6 +1196,26 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    deleteDocument: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        const check = await prisma.document.findUnique({ where: { id: id.toUpperCase() }, include: { paper: true } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.paper.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+
+        return prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, paper_tag_map: true, user: true } } } })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     updateMyProfile: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, username, displayName } = args
       if (auth == 'admin') {
@@ -1417,7 +1437,6 @@ export const resolvers: Resolvers = {
               create: {
                 id: ulid(),
                 userId: userId.toUpperCase(),
-                documentId: documentId.toUpperCase(),
                 commentIdLazy: commentId,
                 body: body,
                 createdAt: new Date(now).toISOString(),
@@ -1463,7 +1482,6 @@ export const resolvers: Resolvers = {
               create: {
                 id: ulid(),
                 userId: check.comment_raw.userId.toUpperCase(),
-                documentId: check.comment_raw.documentId.toUpperCase(),
                 commentIdLazy: check.comment_raw.commentIdLazy,
                 body: body,
                 createdAt: new Date(now).toISOString(),

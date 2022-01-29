@@ -82,17 +82,14 @@ model comment {
 model comment_raw {
   id              String    @id @db.VarChar(26)
   userId          String    @db.VarChar(26)
-  documentId      String    @db.VarChar(26)
   commentIdLazy   String?   @db.VarChar(26)
   body            String    @db.Text
   createdAt       String    @db.VarChar(50)
   createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
-  document        document  @relation(fields: [documentId], references: [id])
   user            user      @relation(fields: [userId], references: [id])
   comment         comment[]
 
   @@index([commentIdLazy])
-  @@index([documentId])
   @@index([userId])
 }
 
@@ -104,14 +101,13 @@ model configuration {
 }
 
 model document {
-  id              String        @id @db.VarChar(26)
-  paperId         String        @db.VarChar(26)
-  isShared        Int           @default(0) @db.UnsignedTinyInt
-  createdAt       String        @db.VarChar(50)
-  createdAtNumber BigInt        @default(0) @db.UnsignedBigInt
-  paper           paper         @relation(fields: [paperId], references: [id])
+  id              String    @id @db.VarChar(26)
+  paperId         String    @db.VarChar(26)
+  isShared        Int       @default(0) @db.UnsignedTinyInt
+  createdAt       String    @db.VarChar(50)
+  createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
+  paper           paper     @relation(fields: [paperId], references: [id])
   comment         comment[]
-  comment_raw     comment_raw[]
   like            like[]
   stock           stock[]
 
@@ -131,7 +127,7 @@ model group {
   name           String           @unique @db.VarChar(127)
   displayName    String?          @db.VarChar(127)
   description    String?          @db.VarChar(255)
-  type           group_type       @default(public)
+  type           group_type       @default(normal)
   group_icon     group_icon?
   paper          paper[]
   user_group_map user_group_map[]

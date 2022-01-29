@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
@@ -10,10 +10,11 @@ import { GrEdit } from 'react-icons/gr'
 import { BsBookmark, BsBookmarkCheckFill, BsThreeDots, BsTags } from 'react-icons/bs'
 import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
+import { RiDeleteBin6Line } from 'react-icons/ri'
 import {
   Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
   useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation,
-  useDeleteCommentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery,
+  useDeleteCommentMutation, useDeleteDocumentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery,
   useStockCategoriesAndStocksQuery, useUpdateCommentMutation
 } from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
@@ -37,10 +38,10 @@ export default function Page() {
 
   if (!session?.id) return (<Layout></Layout>)
   if (!documentId) return (<Layout></Layout>)
-  return (<Layout><InnerPage sessionUserId={session.id} documentId={documentId} /></Layout>)
+  return (<Layout><InnerPage router={router} sessionUserId={session.id} documentId={documentId} /></Layout>)
 }
 
-const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, documentId: string }) => {
+const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, sessionUserId: string, documentId: string }) => {
   const { data, loading } = useDocumentPageQuery({ variables: { documentId } })
 
   const H1 = useCallback(({ node, ...props }) => <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h1>, [])
@@ -51,11 +52,27 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
     updatePageViews('group', data?.document?.paper?.group?.name)
   }, [data?.document?.paper?.group?.name])
 
+  const [subMenuOpen, setSubMenuOpen] = useState(false)
+  const [deleteModalState, setDeleteModalState] = useState(false)
+
+  const [deleteDocument, { }] = useDeleteDocumentMutation({
+    onCompleted: (data) => {
+      const groupName = data.deleteDocument?.paper?.group?.name
+      router.push(`/groups/${encodeURIComponent(groupName)}`)
+    }
+  })
+
+
   if (loading) return (<></>)
   if (!data.document) {
     return (
       <div className="text-red-500">{documentId} Not Found.</div>
     )
+  }
+
+  const handleDeleteDocument = (e) => {
+    deleteDocument({ variables: { auth: 'user', id: data.document.id } })
+    setDeleteModalState(false)
   }
 
   return (
@@ -74,8 +91,41 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
                 <div>投稿日: {new Date(data.document.createdAt).toLocaleString()} 更新日: {new Date(data.document.paper.updatedAt).toLocaleString()}</div>
               </div>
               <div>
-                {sessionUserId == data.document.paper.user.id &&
-                  <div><Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a><div className='border rounded-md m-1 p-2 bg-orange-100 text-center'><GrEdit className='w-6 h-6 block mx-auto' /><span>Edit</span></div></a></Link></div>}
+                {sessionUserId == data.document.paper.user.id ?
+                  <div>
+                    <div className='relative inline-block hover:cursor-pointer'
+                      onClick={(e) => e.currentTarget.focus}
+                      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSubMenuOpen(false) } }}
+                      tabIndex={0}>
+                      {/* menu button */}
+                      <div className='w-8 h-8 p-1 border rounded-md hover:bg-gray-100'
+                        onClick={() => setSubMenuOpen(!subMenuOpen)}>
+                        <BsThreeDots className='w-full h-full' />
+                      </div>
+                      {/* menu list */}
+                      <div hidden={!subMenuOpen}
+                        className='z-40 origin-top-right absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10'>
+                        <div onClick={() => { setSubMenuOpen(false) }}>
+                          <Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a>
+                            <span className='block px-4 py-2 hover:bg-gray-100'><GrEdit className='inline-block mr-2' /><span className='align-middle'>編集</span></span>
+                          </a></Link>
+                          <span className="block border-b"></span>
+                          <span className='block px-4 py-2 hover:bg-gray-100' onClick={() => { setDeleteModalState(true) }}><RiDeleteBin6Line className='inline-block mr-2' /><span className='align-middle'>削除</span></span>
+                        </div>
+                      </div>
+                    </div>
+                    <MyModal show={deleteModalState} close={() => { setDeleteModalState(false) }} title="ドキュメントの削除">
+                      <div>
+                        コメントを削除しますか？
+                      </div>
+                      <div className='flex justify-between mt-3'>
+                        <button className='border px-2 py-1 bg-gray-200' onClick={() => { setDeleteModalState(false) }}>キャンセル</button>
+                        <button className='border px-2 py-1 bg-red-200' onClick={handleDeleteDocument}>削除する</button>
+                      </div>
+                    </MyModal>
+
+                  </div>
+                  : <></>}
               </div>
             </div>
             <h1 className='text-3xl font-bold mt-1 mb-4'>

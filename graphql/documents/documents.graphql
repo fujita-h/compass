@@ -32,3 +32,16 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
     }
   }
 }
+
+mutation DeleteDocument($auth: Auth!, $id: String!) {
+  deleteDocument(auth: $auth, id: $id) {
+    id
+    paper {
+      id
+      group {
+        id
+        name
+      }
+    }
+  }
+}

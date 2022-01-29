@@ -16,7 +16,6 @@ query Comments($auth: Auth!, $userId: String, $documentId: String) {
     comment_raw {
       id
       userId
-      documentId
       commentIdLazy
       body
       createdAt
@@ -42,7 +41,6 @@ query Comment($auth: Auth!, $id: String!) {
     comment_raw {
       id
       userId
-      documentId
       commentIdLazy
       body
       createdAt
@@ -61,7 +59,6 @@ mutation CreateComment($auth: Auth!, $userId: String!, $documentId: String!, $re
     comment_raw {
       id
       userId
-      documentId
       commentIdLazy
       body
       createdAt
@@ -87,7 +84,6 @@ mutation UpdateComment($auth: Auth!, $id: String!, $body: String!) {
     comment_raw {
       id
       userId
-      documentId
       commentIdLazy
       body
       createdAt
@@ -113,7 +109,6 @@ mutation DeleteComment($auth: Auth!, $id: String!) {
     comment_raw {
       id
       userId
-      documentId
       commentIdLazy
       body
       createdAt

@@ -168,7 +168,6 @@ type Comment {
 type RawComment {
   id: String!
   userId: String!
-  documentId: String!
   commentIdLazy: String
   body: String!
   createdAt: String!
@@ -318,6 +317,8 @@ type Mutation {
   
   createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, tags: [String]!, documentId: String, isPosted: Int): Paper
   updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, tags: [String]!, isPosted: Int): Paper
+  
+  deleteDocument(auth: Auth!, id: String!): Document
 
   updateMyProfile(auth: Auth!, username: String, displayName: String): User
 
