@@ -1220,7 +1220,15 @@ export const resolvers: Resolvers = {
         if (!check) throw new ApolloError('NotFound')
         if (check.paper.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
 
-        return prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, paper_tag_map: true, user: true } } } })
+        const result = await prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, paper_tag_map: true, user: true } } } })
+
+        try {
+          await esClient.deleteDocument({ id: result.id })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

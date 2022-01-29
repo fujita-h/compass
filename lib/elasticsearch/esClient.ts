@@ -187,6 +187,13 @@ class ElasticsearchClient {
     })
   }
 
+  deleteDocument({ id }: { id: string }) {
+    return this.client.delete({
+      index: 'documents',
+      id
+    })
+  }
+  
   deleteGroup({ id }: { id: string }) {
     return this.client.delete({
       index: 'groups',
