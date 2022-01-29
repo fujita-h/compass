@@ -389,7 +389,7 @@ export const resolvers: Resolvers = {
         return await prisma.paper.findMany({
           where: {
             userId: _context.userSession.id,
-            groupId: groupId.toUpperCase(),
+            groupId: groupId ? groupId.toUpperCase() : undefined,
             isPosted: { equals: 0 }
           },
           include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
