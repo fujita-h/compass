@@ -12,7 +12,7 @@ import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import {
-  Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
+  Auth, CommentsDocument, DocumentQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
   useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation,
   useDeleteCommentMutation, useDeleteDocumentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentQuery, useLikesQuery,
   useStockCategoriesAndStocksQuery, useUpdateCommentMutation
@@ -146,22 +146,22 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, 
         </div>
       </div>
       <div className='flex-none w-60 ml-4'>
-        <RightPane userId={sessionUserId} documentPageQuery={data} />
+        <RightPane userId={sessionUserId} documentQuery={data} />
       </div>
 
     </div>
   )
 }
 
-const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPageQuery: DocumentPageQuery }) => {
+const RightPane = ({ userId, documentQuery }: { userId: string, documentQuery: DocumentQuery }) => {
   return (
     <div className='sticky top-16'>
       <div className='m-2 flex gap-1'>
-        <StockBadge userId={userId} documentId={documentPageQuery.document.id} />
-        <LikeBadge userId={userId} documentId={documentPageQuery.document.id} />
+        <StockBadge userId={userId} documentId={documentQuery.document.id} />
+        <LikeBadge userId={userId} documentId={documentQuery.document.id} />
       </div>
       <div className='mt-2'>
-        <ReactiveToC>{documentPageQuery.document.paper.body}</ReactiveToC>
+        <ReactiveToC>{documentQuery.document.paper.body}</ReactiveToC>
       </div>
     </div>
 
