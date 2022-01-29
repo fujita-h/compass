@@ -58,7 +58,7 @@ query adminIndexPage {
     }
   }
 }
-query documentPage($documentId: String!) {
+query documentEditPage($documentId: String!) {
   document(auth: user, id: $documentId) {
     id
     paper {
@@ -87,7 +87,12 @@ query documentPage($documentId: String!) {
     }
     createdAt
   }
+  drafts(auth: user, documentId: $documentId) {
+    id
+    title
+  }
 }
+
 query draftPage($paperId: String!) {
   draft(auth: user, id: $paperId) {
     id

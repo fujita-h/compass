@@ -1,9 +1,10 @@
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
-import { Auth, useCreateDraftMutation, useDocumentPageQuery } from '@graphql/generated/react-apollo'
+import { Auth, useCreateDraftMutation, useDocumentEditPageQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import router, { useRouter } from 'next/router'
+import Link from 'next/link'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -18,7 +19,7 @@ export default function Page() {
 
 const InnerPage = ({ userId, documentId }: { userId: string, documentId: string }) => {
 
-  const { data: document, loading: loadingDocument } = useDocumentPageQuery({ variables: { documentId } })
+  const { data: document, loading: loadingDocument } = useDocumentEditPageQuery({ variables: { documentId } })
 
   const [createDraft, { data, loading, error, client }] = useCreateDraftMutation({
     onCompleted: (data) => {
@@ -65,6 +66,18 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
 
   if (loadingDocument) { return <></> }
   if (!document) { return <></> }
+
+  if (document.drafts && document.drafts.length > 0) {
+    return (<div className='max-w-7xl mx-auto mt-5'>
+      <div className='text-xl border-b-1 border-gray-300'>同じドキュメントの下書きがあるため、このドキュメントを編集できません。以下の下書きから編集を再開して下さい。</div>
+      <div className='mt-4 ml-4 text-lg'>
+        {document.drafts.map((draft) =>
+          <div key={`draft-ref-${draft.id}`}><Link href={`/drafts/${encodeURIComponent(draft.id.toLowerCase())}`} passHref><a>{draft.title}</a></Link></div>
+        )}
+      </div>
+    </div>)
+  }
+
   if (userId !== document.document.paper.user.id) { return <div> Permission Denied.</div> }
 
   const initDocData: DocumentData =
