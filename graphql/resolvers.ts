@@ -1042,6 +1042,15 @@ export const resolvers: Resolvers = {
           // documentId が指定されなかった場合は undefind を入れる
           // その後Tagを処理して、結果を得る、一連のTransactionを実行する
 
+
+          // すでに同じdocumentIdに対応するdraftが存在する場合は、拒否する
+          if (documentId) {
+            const check = await prisma.paper.findMany({ where: { userId: _context.userSession.id.toUpperCase(), documentIdLazy: documentId.toUpperCase(), isPosted: 0 } })
+            if (check && check.length > 0) {
+              throw new ApolloError('A draft corresponding to this DocumentID already exists.', 'dup-doc-draft')
+            }
+          }
+
           const _paperId = ulid()
 
           const [createPaper, deleteTagMap, createTagMap, result] = await prisma.$transaction([
