@@ -379,7 +379,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     drafts: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, groupId } = args
+      const { auth, groupId, documentId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -390,6 +390,7 @@ export const resolvers: Resolvers = {
           where: {
             userId: _context.userSession.id,
             groupId: groupId ? groupId.toUpperCase() : undefined,
+            documentIdLazy: documentId ? documentId.toUpperCase() : undefined,
             isPosted: { equals: 0 }
           },
           include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }

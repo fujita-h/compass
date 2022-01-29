@@ -280,7 +280,7 @@ type Query {
   documentsCP(auth: Auth!, userId: String, groupId: String, first: Int!, after:String): DocumentConnection
   document(auth: Auth!, id: String!): Document
 
-  drafts(auth: Auth!, groupId: String): [Paper]!
+  drafts(auth: Auth!, groupId: String, documentId: String): [Paper]!
   draft(auth: Auth!, id: String!): Paper
 
   stockCategories(auth: Auth!, userId: String): [StockCategory]!
