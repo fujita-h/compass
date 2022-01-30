@@ -19,7 +19,7 @@ const client = new ApolloClient({
       },
       Document: {
         fields: {
-          Paper: {
+          paper: {
             merge: true
           }
         }
