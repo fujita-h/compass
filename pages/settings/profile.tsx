@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react';
 import Image from 'next/image'
 import { UserSettingLayout } from '@components/layouts'
 import { FullCard } from '@components/elements'
@@ -68,8 +68,9 @@ export default function Page() {
     reader.readAsDataURL(file)
   }
 
+  const rand = useMemo(() => Date.now().toString(),[data])
   const iconLoader = ({ src, width, quality }) => {
-    return `/api/files/usericons/${src}?rand=${Date.now().toString()}`
+    return `/api/files/usericons/${src}?rand=${rand}`
   }
 
   if (loading) return (<UserSettingLayout></UserSettingLayout>)

@@ -85,7 +85,7 @@ const storeAttachment = ({ userId, file, blob }: { userId: string, file: formida
 }
 
 const storeUserIcon = ({ userId, file, blob }: { userId: string, file: formidable.File, blob: Buffer }) => {
-  return prisma.userIcon.upsert({
+  return prisma.user_icon.upsert({
     where: { userId },
     create: {
       id: ulid(),
@@ -107,7 +107,7 @@ const storeUserIcon = ({ userId, file, blob }: { userId: string, file: formidabl
 }
 
 const storeGroupIcon = ({ groupId, file, blob }: { groupId: string, file: formidable.File, blob: Buffer }) => {
-  return prisma.groupIcon.upsert({
+  return prisma.group_icon.upsert({
     where: { groupId },
     create: {
       id: ulid(),

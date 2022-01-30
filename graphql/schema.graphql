@@ -6,7 +6,7 @@ enum Auth {
 
 enum GroupType {
   public,
-  announce,
+  normal,
   private,
 }
 
@@ -55,13 +55,13 @@ type User {
   username: String!
   email: String!
   displayName: String
-  Follow: [Follow]
-  Follower: [Follow]
+  follow: [Follow]
+  followed: [Follow]
 }
 
 type UserEdge {
-    node: User
-    cursor: String
+  node: User
+  cursor: String
 }
 
 type UserConnection {
@@ -78,8 +78,8 @@ type Group {
 }
 
 type GroupEdge {
-    node: Group
-    cursor: String
+  node: Group
+  cursor: String
 }
 
 type GroupConnection {
@@ -92,8 +92,8 @@ type MapUserGroup {
   userId: String!
   groupId: String!
   isAdmin: Int!
-  User: User
-  Group: Group
+  user: User
+  group: Group
 }
 
 type GroupWithMember {
@@ -102,7 +102,7 @@ type GroupWithMember {
   displayName: String
   description: String
   type: GroupType!
-  MapUserGroup: [MapUserGroup]!
+  user_group_map: [MapUserGroup]!
 }
 
 type Paper {
@@ -113,9 +113,9 @@ type Paper {
   title: String!
   body: String!
   isPosted: Int!
-  User: User!
-  Group: Group!
-  Tags: [MapPaperTag]!
+  user: User!
+  group: Group!
+  paper_tag_map: [MapPaperTag]!
   createdAt: String!
   updatedAt: String!
 }
@@ -123,7 +123,8 @@ type Paper {
 type Document {
   id: String!
   paperId: String!
-  Paper: Paper!
+  paper: Paper!
+  createdAt: String!
 }
 
 type DocumentEdge {
@@ -160,14 +161,13 @@ type Comment {
   rawCommentId: String!
   referenceCommentIdLazy: String
   createdAt: String!
-  User: User!
-  RawComment: RawComment!
+  user: User!
+  comment_raw: RawComment!
 }
 
 type RawComment {
   id: String!
   userId: String!
-  documentId: String!
   commentIdLazy: String
   body: String!
   createdAt: String!
@@ -191,8 +191,68 @@ type Tag {
 type MapPaperTag {
   paperId: String!
   tagId: String!
-  Paper: Paper
-  Tag: Tag
+  paper: Paper
+  tag: Tag
+}
+
+
+type EsShards {
+  total: Int
+  successful: Int
+  skipped: Int
+  failed: Int
+}
+
+type EsTotal {
+  value: Int
+  relation: String
+}
+
+type EsSearchDocument {
+  paperId: String!
+  userId: String!
+  userName: String!
+  userDisplayName: String
+  groupId: String!
+  groupName: String!
+  groupDisplayName: String
+  createdAt: String!
+  updatedAt: String!
+  title: String!
+  body: String!
+}
+
+type EsSearchDocumentResult{
+  _id: String
+  _score: Float
+  _source: EsSearchDocument
+}
+
+type EsSerarchDocumentsHits {
+  max_score: Float
+  total: EsTotal
+  hits:[EsSearchDocumentResult]
+}
+
+type EsSearchDocmentsResponse {
+  took: Int
+  timed_out: Boolean
+  _shards: EsShards
+  hits: EsSerarchDocumentsHits
+}
+
+type EsCountResponse {
+  count: Int
+  _shards: EsShards
+}
+
+type EsSearchResponses {
+  Documents: EsSearchDocmentsResponse
+}
+
+type EsCountResponses {
+  Documents: EsCountResponse
+  Groups: EsCountResponse
 }
 
 type Query {
@@ -220,7 +280,7 @@ type Query {
   documentsCP(auth: Auth!, userId: String, groupId: String, first: Int!, after:String): DocumentConnection
   document(auth: Auth!, id: String!): Document
 
-  drafts(auth: Auth!, groupId: String): [Paper]!
+  drafts(auth: Auth!, groupId: String, documentId: String): [Paper]!
   draft(auth: Auth!, id: String!): Paper
 
   stockCategories(auth: Auth!, userId: String): [StockCategory]!
@@ -235,6 +295,9 @@ type Query {
 
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
   watches(auth: Auth!, userId: String, groupId: String): [Watch]!
+
+  esSearch(auth: Auth!, query: String!, index: String!, from: Int, size: Int): EsSearchResponses
+  esCount(auth: Auth!, query: String): EsCountResponses
 }
 
 type Mutation {
@@ -254,6 +317,8 @@ type Mutation {
   
   createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, tags: [String]!, documentId: String, isPosted: Int): Paper
   updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, tags: [String]!, isPosted: Int): Paper
+  
+  deleteDocument(auth: Auth!, id: String!): Document
 
   updateMyProfile(auth: Auth!, username: String, displayName: String): User
 

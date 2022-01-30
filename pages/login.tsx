@@ -4,6 +4,7 @@ import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { LoginForm } from '@components/forms/auth'
 import { LoginPageQuery, useLoginPageQuery } from '@graphql/generated/react-apollo'
+import { ToastContainer, toast } from 'react-toastify';
 
 const Login = () => {
   const session = useSession({ redirectTo: '/', redirectIfFound: true })
@@ -11,16 +12,22 @@ const Login = () => {
 
   const { data, loading } = useLoginPageQuery()
 
-  const [errorMsg, setErrorMsg] = useState('')
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (errorMsg) setErrorMsg('')
-
     const body = {
-      username: e.currentTarget.email.value,
-      password: e.currentTarget.password.value,
+      username: e.target.email.value,
+      password: e.target.password.value,
+    }
+
+    if (!body.username) {
+      toast.error('ユーザー名が入力されていません')
+      return
+    }
+    if (!body.password) {
+      toast.error('パスワードが入力されていません')
+      return
     }
 
     try {
@@ -36,7 +43,6 @@ const Login = () => {
       }
     } catch (error) {
       console.error('An unexpected error happened occurred:', error)
-      setErrorMsg(error.message)
     }
   }
 
@@ -53,14 +59,15 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto flex">
+      <ToastContainer pauseOnFocusLoss={false} pauseOnHover={false} autoClose={5000} />
+      <div className="max-w-4xl mx-auto my-20 flex justify-center bg-white">
         <div className="w-96 mx-3">
-          <LoginForm errorMessage={errorMsg} onSubmit={handleSubmit} />
+          <LoginForm onSubmit={handleSubmit} />
         </div>
-        <div className="w-96 mx-3">
-          <SamlLoginButtons idps={data?.samls} onClick={handleSaml} />
-        </div>
-
+        {data?.samls?.length ?
+          <div className="w-96 mx-3">
+            <SamlLoginButtons idps={data?.samls} onClick={handleSaml} />
+          </div> : <></>}
       </div>
     </Layout>
   )

@@ -1,30 +1,21 @@
 import { useSession } from '@lib/hooks'
-import { Layout } from '@components/layouts'
+import { NextRouter, useRouter } from 'next/router'
+import { useUserQuery } from '@graphql/generated/react-apollo'
 
-const Profile = () => {
+export default function Page() {
   const session = useSession({ redirectTo: '/login' })
+  const router = useRouter()
+
   if (!session) return (<></>)
+  if (!router.isReady) return (<></>)
 
-
-
-  return (
-    <Layout>
-      <h1>Profile</h1>
-      {session && (
-        <>
-          <p>Your session:</p>
-          <pre>{JSON.stringify(session, null, 2)}</pre>
-        </>
-      )}
-
-      <style jsx>{`
-        pre {
-          white-space: pre-wrap;
-          word-wrap: break-word;
-        }
-      `}</style>
-    </Layout>
-  )
+  return <InnerPage userId={session.id} router={router} />
 }
 
-export default Profile
+const InnerPage = ({ userId, router }: { userId: string, router: NextRouter }) => {
+  const { data, loading } = useUserQuery({ variables: { auth: 'user', id: userId } })
+  if (loading) return (<></>)
+  if (!data) return (<></>)
+  router.replace(`/users/${data.user.username}`)
+  return (<></>)
+}

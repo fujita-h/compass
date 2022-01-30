@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
@@ -10,10 +10,11 @@ import { GrEdit } from 'react-icons/gr'
 import { BsBookmark, BsBookmarkCheckFill, BsThreeDots, BsTags } from 'react-icons/bs'
 import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
+import { RiDeleteBin6Line } from 'react-icons/ri'
 import {
-  Auth, CommentsDocument, DocumentPageQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
+  Auth, CommentsDocument, DocumentQuery, LikesDocument, StockCategoriesAndStocksDocument, useCommentQuery,
   useCommentsQuery, useCreateCommentMutation, useCreateLikeMutation, useCreateStockCategoryMutation, useCreateStockMutation,
-  useDeleteCommentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentPageQuery, useLikesQuery,
+  useDeleteCommentMutation, useDeleteDocumentMutation, useDeleteLikeMutation, useDeleteStockMutation, useDocumentQuery, useLikesQuery,
   useStockCategoriesAndStocksQuery, useUpdateCommentMutation
 } from "@graphql/generated/react-apollo"
 import { MyModal } from '@components/modals'
@@ -37,25 +38,41 @@ export default function Page() {
 
   if (!session?.id) return (<Layout></Layout>)
   if (!documentId) return (<Layout></Layout>)
-  return (<Layout><InnerPage sessionUserId={session.id} documentId={documentId} /></Layout>)
+  return (<Layout><InnerPage router={router} sessionUserId={session.id} documentId={documentId} /></Layout>)
 }
 
-const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, documentId: string }) => {
-  const { data, loading } = useDocumentPageQuery({ variables: { documentId } })
+const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, sessionUserId: string, documentId: string }) => {
+  const { data, loading } = useDocumentQuery({ variables: { documentId } })
 
   const H1 = useCallback(({ node, ...props }) => <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h1>, [])
   const H2 = useCallback(({ node, ...props }) => <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>{props.children}</h2>, [])
 
   useEffect(() => {
-    if (!data?.document?.Paper?.Group?.name) return
-    updatePageViews('group', data?.document?.Paper?.Group?.name)
-  }, [data?.document?.Paper?.Group?.name])
+    if (!data?.document?.paper?.group?.name) return
+    updatePageViews('group', data?.document?.paper?.group?.name)
+  }, [data?.document?.paper?.group?.name])
+
+  const [subMenuOpen, setSubMenuOpen] = useState(false)
+  const [deleteModalState, setDeleteModalState] = useState(false)
+
+  const [deleteDocument, { }] = useDeleteDocumentMutation({
+    onCompleted: (data) => {
+      const groupName = data.deleteDocument?.paper?.group?.name
+      router.push(`/groups/${encodeURIComponent(groupName)}`)
+    }
+  })
+
 
   if (loading) return (<></>)
   if (!data.document) {
     return (
       <div className="text-red-500">{documentId} Not Found.</div>
     )
+  }
+
+  const handleDeleteDocument = (e) => {
+    deleteDocument({ variables: { auth: 'user', id: data.document.id } })
+    setDeleteModalState(false)
   }
 
   return (
@@ -65,29 +82,62 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
           <div className='mt-3 p-2'>
             <div className='flex place-content-between'>
               <div>
-                <Link href={`/groups/${encodeURIComponent(data.document.Paper.Group.name)}`} passHref><a>
-                  <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.Paper.Group.displayName || data.document.Paper.Group.name}</div>
+                <Link href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`} passHref><a>
+                  <div className='mb-2 px-3 inline-block bg-red-200'>{data.document.paper.group.displayName || data.document.paper.group.name}</div>
                 </a></Link>
                 <div>
-                  <UserIconNameLinkSmall userId={data.document.Paper.User.id} username={data.document.Paper.User.username} />
+                  <UserIconNameLinkSmall userId={data.document.paper.user.id} username={data.document.paper.user.username} />
                 </div>
-                <div>投稿日: {new Date(data.document.Paper.createdAt).toLocaleString()} 更新日: {new Date(data.document.Paper.updatedAt).toLocaleString()}</div>
+                <div>投稿日: {new Date(data.document.createdAt).toLocaleString()} 更新日: {new Date(data.document.paper.updatedAt).toLocaleString()}</div>
               </div>
               <div>
-                {sessionUserId == data.document.Paper.User.id &&
-                  <div><Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a><div className='border rounded-md m-1 p-2 bg-orange-100 text-center'><GrEdit className='w-6 h-6 block mx-auto' /><span>Edit</span></div></a></Link></div>}
+                {sessionUserId == data.document.paper.user.id ?
+                  <div>
+                    <div className='relative inline-block hover:cursor-pointer'
+                      onClick={(e) => e.currentTarget.focus}
+                      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) { setSubMenuOpen(false) } }}
+                      tabIndex={0}>
+                      {/* menu button */}
+                      <div className='w-8 h-8 p-1 border rounded-md hover:bg-gray-100'
+                        onClick={() => setSubMenuOpen(!subMenuOpen)}>
+                        <BsThreeDots className='w-full h-full' />
+                      </div>
+                      {/* menu list */}
+                      <div hidden={!subMenuOpen}
+                        className='z-40 origin-top-right absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-10'>
+                        <div onClick={() => { setSubMenuOpen(false) }}>
+                          <Link href={`/docs/${encodeURIComponent(documentId.toLowerCase())}/edit`} passHref><a>
+                            <span className='block px-4 py-2 hover:bg-gray-100'><GrEdit className='inline-block mr-2' /><span className='align-middle'>編集</span></span>
+                          </a></Link>
+                          <span className="block border-b"></span>
+                          <span className='block px-4 py-2 hover:bg-gray-100' onClick={() => { setDeleteModalState(true) }}><RiDeleteBin6Line className='inline-block mr-2' /><span className='align-middle'>削除</span></span>
+                        </div>
+                      </div>
+                    </div>
+                    <MyModal show={deleteModalState} close={() => { setDeleteModalState(false) }} title="ドキュメントの削除">
+                      <div>
+                        コメントを削除しますか？
+                      </div>
+                      <div className='flex justify-between mt-3'>
+                        <button className='border px-2 py-1 bg-gray-200' onClick={() => { setDeleteModalState(false) }}>キャンセル</button>
+                        <button className='border px-2 py-1 bg-red-200' onClick={handleDeleteDocument}>削除する</button>
+                      </div>
+                    </MyModal>
+
+                  </div>
+                  : <></>}
               </div>
             </div>
             <h1 className='text-3xl font-bold mt-1 mb-4'>
-              {data.document.Paper.title}
+              {data.document.paper.title}
             </h1>
             <div>
               <BsTags className='inline-block w-5 h-5 text-gray-600 mr-2' />
-              {data.document.Paper.Tags.map((tag) => <span key={`tag-${tag.Tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{tag.Tag.text}</span>)}
+              {data.document.paper.paper_tag_map.map((x) => <span key={`tag-${x.tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{x.tag.text}</span>)}
             </div>
           </div>
           <div className='p-2'>
-            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.Paper.body}</ReactMarkdown>
+            <ReactMarkdown className='markdown' remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>{data.document.paper.body}</ReactMarkdown>
           </div>
         </div>
         <div className='mt-8 mb-8 p-4 bg-white'>
@@ -96,22 +146,22 @@ const InnerPage = ({ sessionUserId, documentId }: { sessionUserId: string, docum
         </div>
       </div>
       <div className='flex-none w-60 ml-4'>
-        <RightPane userId={sessionUserId} documentPageQuery={data} />
+        <RightPane userId={sessionUserId} documentQuery={data} />
       </div>
 
     </div>
   )
 }
 
-const RightPane = ({ userId, documentPageQuery }: { userId: string, documentPageQuery: DocumentPageQuery }) => {
+const RightPane = ({ userId, documentQuery }: { userId: string, documentQuery: DocumentQuery }) => {
   return (
     <div className='sticky top-16'>
       <div className='m-2 flex gap-1'>
-        <StockBadge userId={userId} documentId={documentPageQuery.document.id} />
-        <LikeBadge userId={userId} documentId={documentPageQuery.document.id} />
+        <StockBadge userId={userId} documentId={documentQuery.document.id} />
+        <LikeBadge userId={userId} documentId={documentQuery.document.id} />
       </div>
       <div className='mt-2'>
-        <ReactiveToC>{documentPageQuery.document.Paper.body}</ReactiveToC>
+        <ReactiveToC>{documentQuery.document.paper.body}</ReactiveToC>
       </div>
     </div>
 
@@ -164,7 +214,7 @@ const StockBadge = ({ userId, documentId }: { userId: string, documentId: string
     createStockCategory({ variables: { auth: 'user', userId: userId, name: newCategoryName } })
   }
 
-  if (loading) return (<></>)
+  //if (loading) return (<></>)
   if (!data) return (<></>)
 
   return (
@@ -301,8 +351,8 @@ const CommentsView = ({ userId, documentId }: { userId: string, documentId: stri
           const refColoredBorder = comment.id.toUpperCase() === refCommentId.toUpperCase() ? 'border-red-300 border-2' : ''
           return (
             <div key={`document-comment-${comment.id}`} className={`border m-1 p-2 ${feaColoredBorder} ${refColoredBorder}`} data-commentid={comment.id} onClick={handleResetfeature}>
-              <CommentView commentId={comment.id} userId={comment.User.id} username={comment.User.username}
-                createdAt={comment.createdAt} rawCreatedAt={comment.RawComment.createdAt} body={comment.RawComment.body}
+              <CommentView commentId={comment.id} userId={comment.user.id} username={comment.user.username}
+                createdAt={comment.createdAt} rawCreatedAt={comment.comment_raw.createdAt} body={comment.comment_raw.body}
                 refCommentId={comment.referenceCommentIdLazy} setRefCommentId={setRefCommentId} setFeatureCommentId={setFeatureCommentId} />
             </div>
           )
@@ -559,13 +609,13 @@ const CommentSummary = ({ commentId }) => {
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeStringify)
-    .processSync(data.comment.RawComment.body)
+    .processSync(data.comment.comment_raw.body)
   const html = String(file)
 
   return (
     <div className='line-clamp-1'>
       <div className='inline-block mr-2'>
-        <UserIconNameLinkSmall userId={data.comment.User.id} username={data.comment.User.username} />
+        <UserIconNameLinkSmall userId={data.comment.user.id} username={data.comment.user.username} />
       </div>
       <span className='text-sm from-neutral-700'>{html.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '').slice(0, 300)}</span>
     </div>)

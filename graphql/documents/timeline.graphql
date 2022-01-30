@@ -3,15 +3,15 @@ query MyTimelineCP($first: Int!, $after: String) {
     edges {
       node {
         id
-        Paper {
+        paper {
           id
           title
-          User {
+          user {
             id
             username
             displayName
           }
-          Group {
+          group {
             id
             name
             displayName
@@ -21,6 +21,7 @@ query MyTimelineCP($first: Int!, $after: String) {
           createdAt
           updatedAt
         }
+        createdAt
       }
       cursor
     }

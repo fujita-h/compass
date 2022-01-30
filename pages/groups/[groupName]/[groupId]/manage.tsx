@@ -24,7 +24,7 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
 
   if (loading) return (<></>)
   if (!data.group) return (<></>)
-  if (!data.group.MapUserGroup
+  if (!data.group.user_group_map
     .filter((user) => user.isAdmin)
     .some((user) => user.userId.toUpperCase() === userId.toUpperCase())) {
     return (<div className='text-red-600'>Forbbiden</div>)
@@ -34,7 +34,7 @@ const InnerPage = ({ userId, groupId }: { userId: string, groupId: string }) => 
     <div className='max-w-7xl mt-4 mx-auto p-4 bg-white'>
       <div>Group Management Page</div>
       <div className='mt-3 border rounded-lg p-3'>
-        <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} />
+        <EditGroupForm auth={'user'} groupId={data.group.id} refetchQueries={[GetGroupWithMembersDocument]} restrictTypeChange={true} />
       </div>
       <div className='mt-3 border rounded-lg p-3'>
         <EditGroupMemberTable auth={'user'} groupId={data.group.id} />

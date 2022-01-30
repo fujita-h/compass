@@ -16,8 +16,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ paperId }: { paperId: string }) => {
-  const { data, loading } = useDraftPageQuery({ variables: { paperId } })
-
+  const { data, loading } = useDraftPageQuery({ variables: { paperId }, fetchPolicy: 'network-only' })
   const [updateDraft, { data: updateDraftData, loading: updateDraftLoading, error: updateDraftError, client }] = useUpdateDraftMutation({
     onCompleted: (data) => {
       if (data?.updatePaper?.documentIdLazy && data?.updatePaper?.isPosted) {
@@ -49,24 +48,23 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
         }
       })
     }
-
   }
 
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: data?.draft?.documentIdLazy ? 'ドキュメントを更新' : '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
-  if (loading) return (<Layout></Layout>)
-  if (!data.draft) return (<div>404</div>)
+  if (loading) {
+    return (<Layout>
+      <DocumentEditorForm initDocData={{ title: '', body: '', tags: [] }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} loading={true} />
+    </Layout>)
+  }
 
-  const initDocData: DocumentData =
-  {
-    title: data.draft.title,
-    body: data.draft.body,
-    tags: data.draft.Tags.map((x) => x.Tag.text)
+  if (!data.draft) {
+    return (<Layout><div>Not Found</div></Layout>)
   }
 
   return (
     <Layout>
-      <DocumentEditorForm initDocData={initDocData} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+      <DocumentEditorForm initDocData={{ title: data.draft.title, body: data.draft.body, tags: data.draft.paper_tag_map.map((x) => x.tag.text) }} submitButtonMap={submitButtonMap} autoSaveDelay={3} onSubmit={handleSubmit} />
     </Layout>
   )
 }

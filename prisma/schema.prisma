@@ -7,277 +7,275 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              String          @id @db.VarChar(26)
-  uuid            String          @unique @db.VarChar(50)
-  username        String          @unique @db.VarChar(50)
-  email           String          @unique @db.VarChar(255)
-  displayName     String?         @db.VarChar(255)
-  hash            String?         @db.VarChar(127)
-  createdAt       String          @db.VarChar(50)
-  createdAtNumber BigInt          @default(0) @db.UnsignedBigInt
-  Attachment      Attachment[]
-  Comment         Comment[]
-  Follow          Follow[]        @relation("Follow_fromUserIdToUser")
-  Follower        Follow[]        @relation("Follow_toUserIdToUser")
-  Like            Like[]
-  MapUserGroup    MapUserGroup[]
-  Notification    Notification[]
-  Paper           Paper[]
-  RawComment      RawComment[]
-  Stock           Stock[]
-  StockCategory   StockCategory[]
-  UserIcon        UserIcon?
-  Watch           Watch[]
+model follow {
+  fromUserId String @db.VarChar(26)
+  toUserId   String @db.VarChar(26)
+  from       user   @relation("follow_fromUserIdTousers", fields: [fromUserId], references: [id], onDelete: Cascade)
+  to         user   @relation("follow_toUserIdTousers", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@index([fromUserId])
+  @@index([toUserId])
 }
 
-model Configuration {
-  ensureSingleRow                          Configuration_ensureSingleRow @unique(map: "Configuration_ensure_single_row_key") @default(single)
-  authEnableEmailVerificationForLocalUsers Int                           @default(0) @db.UnsignedTinyInt
-  authEnableSamlLogin                      Int                           @default(0) @db.UnsignedTinyInt
-  groupEnableCreateGroupForUsers           Int                           @default(0) @db.UnsignedTinyInt
+model like {
+  userId     String   @db.VarChar(26)
+  documentId String   @db.VarChar(26)
+  document   document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+  @@index([documentId])
+  @@index([userId])
 }
 
-model Saml {
-  id                          String           @id @db.VarChar(26)
-  name                        String           @unique @db.VarChar(50)
-  displayName                 String           @db.VarChar(255)
-  entryPoint                  String           @db.VarChar(255)
-  issuer                      String           @db.VarChar(255)
-  cert                        String           @db.Text
-  userMapping                 Saml_userMapping @default(email)
-  attributeMappingForUuid     String?          @db.VarChar(255)
-  attributeMappingForUsername String?          @db.VarChar(255)
-  attributeMappingForEmail    String?          @db.VarChar(255)
+model paper_tag_map {
+  paperId String @db.VarChar(26)
+  tagId   String @db.VarChar(26)
+  paper   paper  @relation(fields: [paperId], references: [id])
+  tag     tag    @relation(fields: [tagId], references: [id])
+
+  @@id([paperId, tagId])
+  @@index([paperId])
+  @@index([tagId])
 }
 
-model Group {
-  id           String         @id @db.VarChar(26)
-  name         String         @unique @db.VarChar(127)
-  displayName  String?        @db.VarChar(127)
-  description  String?        @db.VarChar(255)
-  type         Group_type     @default(public)
-  GroupIcon    GroupIcon?
-  MapUserGroup MapUserGroup[]
-  Paper        Paper[]
-  Watch        Watch[]
-
-  @@index([type], map: "type")
-}
-
-model MapUserGroup {
+model watch {
   userId  String @db.VarChar(26)
   groupId String @db.VarChar(26)
-  isAdmin Int    @default(0) @db.UnsignedTinyInt
-  Group   Group  @relation(fields: [groupId], references: [id])
-  User    User   @relation(fields: [userId], references: [id])
+  group   group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, groupId])
-  @@index([groupId], map: "groupId")
-  @@index([userId], map: "userId")
+  @@index([groupId])
+  @@index([userId])
 }
 
-model Tag {
-  id     String        @id @db.VarChar(26)
-  text   String        @unique @db.VarChar(63)
-  Papers MapPaperTag[]
-}
-
-model Document {
-  id         String       @id @db.VarChar(26)
-  paperId    String       @db.VarChar(26)
-  isShared   Int          @default(0) @db.UnsignedTinyInt
-  Paper      Paper        @relation(fields: [paperId], references: [id])
-  Comment    Comment[]
-  Like       Like[]
-  RawComment RawComment[]
-  Stock      Stock[]
-
-  @@index([paperId], map: "paperId")
-}
-
-model UserIcon {
-  id       String @id @db.VarChar(26)
-  userId   String @unique(map: "userId") @db.VarChar(26)
-  mimeType String @db.VarChar(63)
-  blob     Bytes? @db.Blob
-  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Attachment {
+model attachment {
   id       String @id @db.VarChar(26)
   userId   String @db.VarChar(26)
   fileName String @db.VarChar(255)
   mimeType String @db.VarChar(63)
   blob     Bytes? @db.MediumBlob
-  User     User   @relation(fields: [userId], references: [id], onDelete: NoAction)
+  user     user   @relation(fields: [userId], references: [id], onDelete: NoAction)
 
-  @@index([userId], map: "userId")
+  @@index([userId])
 }
 
-model GroupIcon {
+model comment {
+  id                     String      @id @db.VarChar(26)
+  userId                 String      @db.VarChar(26)
+  documentId             String      @db.VarChar(26)
+  rawCommentId           String      @db.VarChar(26)
+  referenceCommentIdLazy String?     @db.VarChar(26)
+  createdAt              String      @db.VarChar(50)
+  createdAtNumber        BigInt      @default(0) @db.UnsignedBigInt
+  document               document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  comment_raw            comment_raw @relation(fields: [rawCommentId], references: [id])
+  user                   user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([rawCommentId])
+  @@index([userId])
+}
+
+model comment_raw {
+  id              String    @id @db.VarChar(26)
+  userId          String    @db.VarChar(26)
+  commentIdLazy   String?   @db.VarChar(26)
+  body            String    @db.Text
+  createdAt       String    @db.VarChar(50)
+  createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
+  user            user      @relation(fields: [userId], references: [id])
+  comment         comment[]
+
+  @@index([commentIdLazy])
+  @@index([userId])
+}
+
+model configuration {
+  ensureSingleRow                          configurations_ensureSingleRow @unique @default(single)
+  authEnableEmailVerificationForLocalUsers Int                            @default(0) @db.UnsignedTinyInt
+  authEnableSamlLogin                      Int                            @default(0) @db.UnsignedTinyInt
+  groupEnableCreateGroupForUsers           Int                            @default(0) @db.UnsignedTinyInt
+}
+
+model document {
+  id              String    @id @db.VarChar(26)
+  paperId         String    @db.VarChar(26)
+  isShared        Int       @default(0) @db.UnsignedTinyInt
+  createdAt       String    @db.VarChar(50)
+  createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
+  paper           paper     @relation(fields: [paperId], references: [id])
+  comment         comment[]
+  like            like[]
+  stock           stock[]
+
+  @@index([paperId])
+}
+
+model group_icon {
   id       String @id @db.VarChar(26)
-  groupId  String @unique(map: "groupId") @db.VarChar(26)
+  groupId  String @unique @db.VarChar(26)
   mimeType String @db.VarChar(63)
   blob     Bytes? @db.Blob
-  Group    Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group    group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
-model Paper {
-  id                String        @id @db.VarChar(26)
-  userId            String        @db.VarChar(26)
-  groupId           String        @db.VarChar(26)
-  documentIdLazy    String?       @db.VarChar(26)
-  parentPaperIdLazy String?       @db.VarChar(26)
-  title             String        @db.VarChar(255)
-  body              String        @db.LongText
-  isPosted          Int           @default(0) @db.UnsignedTinyInt
-  canReadAll        Int           @default(0) @db.UnsignedTinyInt
-  createdAt         String        @db.VarChar(50)
-  createdAtNumber   BigInt        @default(0) @db.UnsignedBigInt
-  updatedAt         String        @db.VarChar(50)
-  updatedAtNumber   BigInt        @default(0) @db.UnsignedBigInt
-  Group             Group         @relation(fields: [groupId], references: [id])
-  User              User          @relation(fields: [userId], references: [id])
-  Document          Document[]
-  Tags              MapPaperTag[]
+model group {
+  id             String           @id @db.VarChar(26)
+  name           String           @unique @db.VarChar(127)
+  displayName    String?          @db.VarChar(127)
+  description    String?          @db.VarChar(255)
+  type           group_type       @default(normal)
+  group_icon     group_icon?
+  paper          paper[]
+  user_group_map user_group_map[]
+  watch          watch[]
 
-  @@index([canReadAll], map: "canReadAll")
-  @@index([createdAtNumber], map: "createdAtNumber")
-  @@index([documentIdLazy], map: "documentId")
-  @@index([groupId], map: "groupId")
-  @@index([isPosted], map: "isPosted")
-  @@index([parentPaperIdLazy], map: "parentPaperIdLazy")
-  @@index([updatedAtNumber], map: "updatedAtNumber")
-  @@index([userId], map: "userId")
+  @@index([type])
 }
 
-model MapPaperTag {
-  paperId String @db.VarChar(26)
-  tagId   String @db.VarChar(26)
-  Paper   Paper  @relation(fields: [paperId], references: [id])
-  Tag     Tag    @relation(fields: [tagId], references: [id])
-
-  @@id([paperId, tagId])
-  @@index([paperId], map: "paperId")
-  @@index([tagId], map: "tagId")
-}
-
-model Stock {
-  userId          String        @db.VarChar(26)
-  documentId      String        @db.VarChar(26)
-  stockCategoryId String        @db.VarChar(26)
-  Document        Document      @relation(fields: [documentId], references: [id], onDelete: Cascade, map: "FK_Stock_Document")
-  StockCategory   StockCategory @relation(fields: [stockCategoryId], references: [id])
-  User            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([documentId, userId, stockCategoryId])
-  @@index([documentId], map: "documentId")
-  @@index([stockCategoryId], map: "stockCategoryId")
-  @@index([userId], map: "userId")
-}
-
-model StockCategory {
-  id     String  @id @db.VarChar(26)
-  userId String  @db.VarChar(26)
-  name   String  @db.VarChar(127)
-  User   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Stock  Stock[]
-
-  @@index([userId], map: "userId")
-}
-
-model Notification {
+model notification {
   id              String @id @db.VarChar(26)
   userId          String @db.VarChar(26)
   body            String @db.Text
   isRead          Int    @default(0) @db.TinyInt
   createdAt       String @db.VarChar(50)
   createdAtNumber BigInt @default(0) @db.UnsignedBigInt
-  User            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "userId")
+  @@index([userId])
 }
 
-model Like {
-  userId     String   @db.VarChar(26)
-  documentId String   @db.VarChar(26)
-  Document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model paper {
+  id                String          @id @db.VarChar(26)
+  userId            String          @db.VarChar(26)
+  groupId           String          @db.VarChar(26)
+  documentIdLazy    String?         @db.VarChar(26)
+  parentPaperIdLazy String?         @db.VarChar(26)
+  title             String          @db.VarChar(255)
+  body              String          @db.LongText
+  isPosted          Int             @default(0) @db.UnsignedTinyInt
+  canReadAll        Int             @default(0) @db.UnsignedTinyInt
+  createdAt         String          @db.VarChar(50)
+  createdAtNumber   BigInt          @default(0) @db.UnsignedBigInt
+  updatedAt         String          @db.VarChar(50)
+  updatedAtNumber   BigInt          @default(0) @db.UnsignedBigInt
+  group             group           @relation(fields: [groupId], references: [id])
+  user              user            @relation(fields: [userId], references: [id])
+  document          document[]
+  paper_tag_map     paper_tag_map[]
 
-  @@id([userId, documentId])
-  @@index([documentId], map: "documentId")
-  @@index([userId], map: "userId")
+  @@index([canReadAll])
+  @@index([createdAtNumber])
+  @@index([documentIdLazy])
+  @@index([groupId])
+  @@index([isPosted])
+  @@index([parentPaperIdLazy])
+  @@index([updatedAtNumber])
+  @@index([userId])
 }
 
-model RawComment {
-  id              String    @id @db.VarChar(26)
-  userId          String    @db.VarChar(26)
-  documentId      String    @db.VarChar(26)
-  commentIdLazy   String?   @db.VarChar(26)
-  body            String    @db.Text
-  createdAt       String    @db.VarChar(50)
-  createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
-  Document        Document  @relation(fields: [documentId], references: [id])
-  User            User      @relation(fields: [userId], references: [id])
-  Comment         Comment[]
-
-  @@index([documentId], map: "documentId")
-  @@index([commentIdLazy], map: "parentCommentIdLazy")
-  @@index([userId], map: "userId")
+model saml_idp {
+  id                          String               @id @db.VarChar(26)
+  name                        String               @unique @db.VarChar(50)
+  displayName                 String               @db.VarChar(255)
+  entryPoint                  String               @db.VarChar(255)
+  issuer                      String               @db.VarChar(255)
+  cert                        String               @db.Text
+  userMapping                 saml_idp_userMapping @default(email)
+  attributeMappingForUuid     String?              @db.VarChar(255)
+  attributeMappingForUsername String?              @db.VarChar(255)
+  attributeMappingForEmail    String?              @db.VarChar(255)
 }
 
-model Comment {
-  id                     String     @id @db.VarChar(26)
-  userId                 String     @db.VarChar(26)
-  documentId             String     @db.VarChar(26)
-  rawCommentId           String     @db.VarChar(26)
-  referenceCommentIdLazy String?    @db.VarChar(26)
-  createdAt              String     @db.VarChar(50)
-  createdAtNumber        BigInt     @default(0) @db.UnsignedBigInt
-  Document               Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  RawComment             RawComment @relation(fields: [rawCommentId], references: [id])
-  User                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+model stock_category {
+  id     String  @id @db.VarChar(26)
+  userId String  @db.VarChar(26)
+  name   String  @db.VarChar(127)
+  user   user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock  stock[]
 
-  @@index([documentId], map: "documentId")
-  @@index([rawCommentId], map: "rawCommentId")
-  @@index([userId], map: "userId")
+  @@index([userId])
 }
 
-model Follow {
-  fromUserId String @db.VarChar(26)
-  toUserId   String @db.VarChar(26)
-  From       User   @relation("Follow_fromUserIdToUser", fields: [fromUserId], references: [id], onDelete: Cascade)
-  To         User   @relation("Follow_toUserIdToUser", fields: [toUserId], references: [id], onDelete: Cascade)
+model stock {
+  userId          String         @db.VarChar(26)
+  documentId      String         @db.VarChar(26)
+  stockCategoryId String         @db.VarChar(26)
+  document        document       @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  stock_category  stock_category @relation(fields: [stockCategoryId], references: [id])
+  user            user           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([fromUserId, toUserId])
-  @@index([fromUserId], map: "fromUserId")
-  @@index([toUserId], map: "toUserId")
+  @@id([documentId, userId, stockCategoryId])
+  @@index([documentId])
+  @@index([stockCategoryId])
+  @@index([userId])
 }
 
-model Watch {
+model tag {
+  id            String          @id @db.VarChar(26)
+  text          String          @unique @db.VarChar(63)
+  paper_tag_map paper_tag_map[]
+}
+
+model user_group_map {
   userId  String @db.VarChar(26)
   groupId String @db.VarChar(26)
-  Group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isAdmin Int    @default(0) @db.UnsignedTinyInt
+  group   group  @relation(fields: [groupId], references: [id])
+  user    user   @relation(fields: [userId], references: [id])
 
   @@id([userId, groupId])
-  @@index([groupId], map: "groupId")
-  @@index([userId], map: "userId")
+  @@index([groupId])
+  @@index([userId])
 }
 
-enum Saml_userMapping {
-  uuid
-  username
-  email
+model user_icon {
+  id       String @id @db.VarChar(26)
+  userId   String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum Configuration_ensureSingleRow {
+model user {
+  id              String           @id @db.VarChar(26)
+  uuid            String           @unique @db.VarChar(50)
+  username        String           @unique @db.VarChar(50)
+  email           String           @unique @db.VarChar(255)
+  displayName     String?          @db.VarChar(255)
+  hash            String?          @db.VarChar(127)
+  createdAt       String           @db.VarChar(50)
+  createdAtNumber BigInt           @default(0) @db.UnsignedBigInt
+  attachment      attachment[]
+  comment         comment[]
+  comment_raw     comment_raw[]
+  follow          follow[]         @relation("follow_fromUserIdTousers")
+  followed        follow[]         @relation("follow_toUserIdTousers")
+  like            like[]
+  notification    notification[]
+  paper           paper[]
+  stock           stock[]
+  stock_category  stock_category[]
+  user_group_map  user_group_map[]
+  user_icon       user_icon?
+  watch           watch[]
+}
+
+enum configurations_ensureSingleRow {
   single
 }
 
-enum Group_type {
+enum group_type {
   public
-  announce
+  normal
   private
+}
+
+enum saml_idp_userMapping {
+  uuid
+  username
+  email
 }

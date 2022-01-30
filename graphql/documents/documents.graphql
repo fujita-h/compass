@@ -3,15 +3,15 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
     edges {
       node {
         id
-        Paper {
+        paper {
           id
           title
-          User {
+          user {
             id
             username
             displayName
           }
-          Group {
+          group {
             id
             name
             displayName
@@ -22,12 +22,57 @@ query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String,
           createdAt
           updatedAt
         }
+        createdAt
       }
       cursor
     }
     pageInfo {
       endCursor
       hasNextPage
+    }
+  }
+}
+
+query Document($documentId: String!) {
+  document(auth: user, id: $documentId) {
+    id
+    paper {
+      documentIdLazy
+      user {
+        id
+        username
+        email
+        displayName
+      }
+      group {
+        id
+        name
+        displayName
+      }
+      paper_tag_map {
+        tag {
+          id
+          text
+        }
+      }
+      title
+      body
+      createdAt
+      updatedAt
+    }
+    createdAt
+  }
+}
+
+mutation DeleteDocument($auth: Auth!, $id: String!) {
+  deleteDocument(auth: $auth, id: $id) {
+    id
+    paper {
+      id
+      group {
+        id
+        name
+      }
     }
   }
 }

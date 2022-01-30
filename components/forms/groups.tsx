@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Toggle, Pagination } from '@components/elements';
 import { MyModal } from '@components/modals'
@@ -26,7 +26,7 @@ const uploadGroupIcon = async (files, groupId) => {
   return res.json()
 }
 
-export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude }) => {
+export const EditGroupForm = ({ auth, groupId, refetchQueries, restrictTypeChange = false }: { auth: Auth, groupId: string, refetchQueries?:InternalRefetchQueriesInclude, restrictTypeChange?: boolean }) => {
 
   const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
@@ -89,8 +89,9 @@ export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, g
     reader.readAsDataURL(file)
   }
 
+  const rand = useMemo(() => Date.now().toString(),[data])
   const iconLoader = ({ src, width, quality }) => {
-    return `/api/files/groupicons/${src}?rand=${Date.now().toString()}`
+    return `/api/files/groupicons/${src}?rand=${rand}`
   }
 
   if (loading) return (<></>)
@@ -146,13 +147,13 @@ export const EditGroupForm = ({ auth, groupId, refetchQueries }: { auth: Auth, g
           className="flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" />
       </div>
 
-      <div>
-        <label className="text-gray-700">Type</label>
-        <div className='mt-4'>
-          <select name="type" defaultValue={data.group.type} onChange={handleFormValueChanged} className='border px-2 py-1 rounded-lg'>
-          <option value={'public'}>パブリック</option>
-          <option value={'announce'}>アナウンス</option>
-          <option value={'private'}>プライベート</option>
+      <div className='mt-2'>
+        <label className="text-gray-700">グループ種別</label>
+        <div className='ml-4'>
+          <select name="type" defaultValue={data.group.type} disabled={restrictTypeChange} onChange={handleFormValueChanged} className='border border-gray-300 px-2 py-1 rounded-lg'>
+          <option value={'public'}>パブリックグループ</option>
+          <option value={'normal'}>標準グループ</option>
+          <option value={'private'}>プライベートグループ</option>
           </select>
         </div>
       </div>
@@ -201,13 +202,13 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth, groupId: s
         <tr>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">username</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-end">{group?.MapUserGroup.length} 人のメンバー</th>
+          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-end">{group?.user_group_map.length} 人のメンバー</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {group?.MapUserGroup.map((user) => (
+        {group?.user_group_map.map((user) => (
           <tr key={user.userId}>
-            <td className="px-6 py-2 whitespace-nowrap">{user.User.username}</td>
+            <td className="px-6 py-2 whitespace-nowrap">{user.user.username}</td>
             <td className="px-6 py-2 whitespace-nowrap">
               <input type="checkbox"
                 data-userid={user.userId}
@@ -253,7 +254,7 @@ const AddUserModal = ({ auth, state, setState, group }: { auth: Auth, state, set
 
   return (
     <MyModal show={state.show} close={() => setState({ ...state, show: false })} title="メンバーの追加">
-      <SearchUserForm auth={auth} state={state} setState={setState} groupId={group.id} currentMembers={group?.MapUserGroup} />
+      <SearchUserForm auth={auth} state={state} setState={setState} groupId={group.id} currentMembers={group?.user_group_map} />
     </MyModal>
   )
 

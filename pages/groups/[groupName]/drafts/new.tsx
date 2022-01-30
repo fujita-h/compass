@@ -58,18 +58,23 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
     }
   }
 
-  const initDocData: DocumentData = {
-    title: '',
-    body: '',
-    tags: [],
-  }
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
-  if (loading || !data) return (<Layout></Layout>)
+  if (loading) {
+    return (<Layout>
+      <DocumentEditorForm initDocData={{ title: '', body: '', tags: [], }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} loading={true} />
+    </Layout>)
+  }
+
+  if(!data?.group) {
+    return (<Layout>
+      <div>Group Not Found</div>
+    </Layout>)
+  }
 
   return (
     <Layout>
-      <DocumentEditorForm initDocData={initDocData} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+      <DocumentEditorForm initDocData={{ title: '', body: '', tags: [], }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
     </Layout>
   )
 }

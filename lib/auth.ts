@@ -3,7 +3,6 @@ import { prisma } from './prisma/prismaClient'
 import { ulid } from 'ulid'
 import { MultiSamlStrategy } from 'passport-saml'
 import { Strategy } from 'passport-local'
-import { type } from 'os'
 
 const saltRounds = 12
 const REGEX_USERNAME_RULE = /^[a-z][a-z0-9-_]{2,}$/
@@ -99,7 +98,7 @@ export const samlStrategy = new MultiSamlStrategy(
     passReqToCallback: true,
     getSamlOptions: async function (req, done) {
       const id = req.query.id as string | undefined
-      const idp = await prisma.saml.findUnique({ where: { id } })
+      const idp = await prisma.saml_idp.findUnique({ where: { id } })
       if (!idp) return done(new Error('Idp not found'))
       return done(null, { path: '/api/auth/user/saml/idps/' + idp.id + '/callback', entryPoint: idp.entryPoint, issuer: idp.issuer, cert: idp.cert })
     }
@@ -109,7 +108,7 @@ export const samlStrategy = new MultiSamlStrategy(
   })
 
 export async function getSamlIdp({ id }: { id: string }) {
-  return await prisma.saml.findUnique({
+  return await prisma.saml_idp.findUnique({
     where: { id }
   })
 }

@@ -13,10 +13,10 @@ query User($auth: Auth!, $id: String, $uuid: String, $username: String, $email: 
     username
     email
     displayName
-    Follow {
+    follow {
       toUserId
     }
-    Follower {
+    followed {
       fromUserId
     }
   }

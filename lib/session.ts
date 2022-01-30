@@ -37,6 +37,7 @@ export async function validateUserSession(req: NextApiRequest, res: NextApiRespo
     if (!token) return null
 
     const session: UserSession = await Iron.unseal(token, USER_TOKEN_SECRET, Iron.defaults)
+    if(!session?.id) return null
 
     // DB のユーザーに存在するかチェックし、存在しなければセッションを破棄する
     const check = await prisma.user.findUnique({ where: { id: session.id }, select: { id: true } })

@@ -13,16 +13,6 @@ generates:
 #    plugins:
 #      - "typescript"
 #      - "typescript-operations"
-#  graphql/generated/request.ts:
-#    plugins:
-#      - "typescript"
-#      - "typescript-operations"
-#      - "typescript-graphql-request"
-#  graphql/generated/react-query.ts:
-#    plugins:
-#      - "typescript"
-#      - "typescript-operations"
-#      - "typescript-react-query"
   graphql/generated/react-apollo.ts:
     config:
       enumsAsTypes: true
