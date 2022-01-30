@@ -18,7 +18,7 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (<>
   </nav>
 </>)
 
-export const Header = ({ searchText }: { searchText?: string }) => {
+export const Header = ({ searchText = '' }: { searchText?: string }) => {
 
   const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
   const [userMenuOpen, setUserMenuOpen] = useState(false)
