@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from "react-dropzone"
 import { Markdown } from '@components/markdown'
 import { TagForm } from './forms/tagForm'
@@ -6,7 +6,7 @@ import { TagForm } from './forms/tagForm'
 export type DocumentData = {
   title: string,
   body: string,
-  tags: string[]
+  tags: string[],
 }
 
 
@@ -28,19 +28,35 @@ const insertFileText = (uploadResults) => {
   return '\n' + snipet + '\n'
 }
 
-export const DocumentEditorForm = ({ children, loading = false, initDocData, submitButtonMap, onSubmit }: { children?: any, loading?: boolean, initDocData: DocumentData, submitButtonMap: Array<SubmitButtonSetting>, onSubmit: (submitType: string, data: DocumentData) => void }) => {
+export const DocumentEditorForm = ({ children, loading = false, initDocData, submitButtonMap, autoSaveDelay = 0, onSubmit }: { children?: any, loading?: boolean, initDocData: DocumentData, submitButtonMap: Array<SubmitButtonSetting>, autoSaveDelay?: number, onSubmit: (submitType: string, data: DocumentData) => void }) => {
   const [displayStyle, setDisplayStyle] = useState(0)
   const [docData, setDocData] = useState<DocumentData>(initDocData)
   const [selectionPosition, setSelectionPosition] = useState(0)
+  const isFormValueChangedByUser = useRef(false)
 
   // re-set when initDocData provided.
   useEffect(() => {
+    isFormValueChangedByUser.current = false
     setDocData(initDocData)
   }, [initDocData])
+
+  // auto-saving
+  useEffect(() => {
+    if (isFormValueChangedByUser.current && autoSaveDelay > 0) {
+      const timer = setTimeout(() => {
+        onSubmit('auto-saving', docData)
+      }, autoSaveDelay * 1000)
+      return () => {
+        clearTimeout(timer)
+      }
+    }
+  }, [docData])
+
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const results = await uploadFile(acceptedFiles)
     const doc = insertFileText(results)
+    isFormValueChangedByUser.current = true
     setDocData({
       ...docData, body:
         docData.body.substring(0, selectionPosition) + doc + docData.body.substring(selectionPosition)
@@ -73,8 +89,14 @@ export const DocumentEditorForm = ({ children, loading = false, initDocData, sub
           className="flex-1 appearance-none border border-gray-300 w-full py-2 px-2 mb-1 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           placeholder="タイトル"
           value={docData.title}
-          onChange={(e) => { setDocData({ ...docData, title: e.target.value }) }} />
-        <TagForm initState={docData.tags} setStateFunc={(tags) => { setDocData({ ...docData, tags: tags }) }} />
+          onChange={(e) => {
+            isFormValueChangedByUser.current = true
+            setDocData({ ...docData, title: e.target.value })
+          }} />
+        <TagForm initState={docData.tags} setStateFunc={(tags) => {
+          isFormValueChangedByUser.current = true
+          setDocData({ ...docData, tags: tags })
+        }} />
       </div>
       <div className="flex justify-between" style={{ height: 'calc(100vh - 200px)' }}>
         <div className="w-full border border-gray-400" style={{ display: displayStyle < 0 && 'none' }}>
@@ -94,6 +116,7 @@ export const DocumentEditorForm = ({ children, loading = false, initDocData, sub
                   setSelectionPosition(e.currentTarget.selectionStart)
                 }}
                 onChange={(e) => {
+                  isFormValueChangedByUser.current = true
                   setDocData({ ...docData, body: e.target.value })
                   setSelectionPosition(e.target.selectionStart)
                 }}
@@ -111,6 +134,7 @@ export const DocumentEditorForm = ({ children, loading = false, initDocData, sub
                   // 貼り付けられたファイルをアップロード
                   const results = await uploadFile(items.map(item => item.getAsFile()))
                   const doc = insertFileText(results)
+                  isFormValueChangedByUser.current = true
                   setDocData({
                     ...docData, body:
                       docData.body.substring(0, selectionPosition) + doc + docData.body.substring(selectionPosition)
@@ -161,11 +185,8 @@ export type SubmitButtonSetting = {
 
 const SubmitButton = ({ submitButtonMap, onSubmit }: { submitButtonMap: Array<SubmitButtonSetting>, onSubmit: (submitType: string) => void }) => {
 
-
-
   const [submitButtonType, setSubmitButtonType] = useState('')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
 
   const handleBlur = (e) => {
     if (e.currentTarget === e.target) {
@@ -177,8 +198,6 @@ const SubmitButton = ({ submitButtonMap, onSubmit }: { submitButtonMap: Array<Su
       setIsMenuOpen(false)
     }
   }
-
-
 
   const subitButtonLabel = (key: string) => {
     if (submitButtonMap.length == 0) throw 'submitButtonMap not defined.'
@@ -201,7 +220,6 @@ const SubmitButton = ({ submitButtonMap, onSubmit }: { submitButtonMap: Array<Su
     onSubmit(submitButtonType)
   }
 
-
   return (
     <div onClick={(e) => e.currentTarget.focus()} onBlur={handleBlur} tabIndex={0}>
       <div hidden={!isMenuOpen} className="z-40 absolute right-2 bottom-12 mt-2 w-40 rounded-md shadow-lg bg-white  ring-1 ring-black ring-opacity-5">
@@ -222,6 +240,5 @@ const SubmitButton = ({ submitButtonMap, onSubmit }: { submitButtonMap: Array<Su
         </div>
       </div>
     </div>
-
   )
 }

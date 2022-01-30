@@ -16,8 +16,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ paperId }: { paperId: string }) => {
-  const { data, loading } = useDraftPageQuery({ variables: { paperId } })
-
+  const { data, loading } = useDraftPageQuery({ variables: { paperId }, fetchPolicy: 'network-only' })
   const [updateDraft, { data: updateDraftData, loading: updateDraftLoading, error: updateDraftError, client }] = useUpdateDraftMutation({
     onCompleted: (data) => {
       if (data?.updatePaper?.documentIdLazy && data?.updatePaper?.isPosted) {
@@ -65,7 +64,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
 
   return (
     <Layout>
-      <DocumentEditorForm initDocData={{ title: data.draft.title, body: data.draft.body, tags: data.draft.paper_tag_map.map((x) => x.tag.text) }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+      <DocumentEditorForm initDocData={{ title: data.draft.title, body: data.draft.body, tags: data.draft.paper_tag_map.map((x) => x.tag.text) }} submitButtonMap={submitButtonMap} autoSaveDelay={3} onSubmit={handleSubmit} />
     </Layout>
   )
 }
