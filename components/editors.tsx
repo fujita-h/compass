@@ -28,10 +28,15 @@ const insertFileText = (uploadResults) => {
   return '\n' + snipet + '\n'
 }
 
-export const DocumentEditorForm = ({ children, initDocData, submitButtonMap, onSubmit }: { children?: any, initDocData: DocumentData, submitButtonMap: Array<SubmitButtonSetting>, onSubmit: (submitType: string, data: DocumentData) => void }) => {
+export const DocumentEditorForm = ({ children, loading = false, initDocData, submitButtonMap, onSubmit }: { children?: any, loading?: boolean, initDocData: DocumentData, submitButtonMap: Array<SubmitButtonSetting>, onSubmit: (submitType: string, data: DocumentData) => void }) => {
   const [displayStyle, setDisplayStyle] = useState(0)
   const [docData, setDocData] = useState<DocumentData>(initDocData)
   const [selectionPosition, setSelectionPosition] = useState(0)
+
+  // re-set when initDocData provided.
+  useEffect(() => {
+    setDocData(initDocData)
+  }, [initDocData])
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const results = await uploadFile(acceptedFiles)
@@ -131,11 +136,19 @@ export const DocumentEditorForm = ({ children, initDocData, submitButtonMap, onS
         </div>
       </div>
       <div className="mt-1 flex justify-between">
-        <div>left pain</div>
+        <div></div>
         <div>
           <SubmitButton submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
         </div>
 
+      </div>
+      <div id='loading-layer' hidden={!loading} className='absolute top-0 left-0 w-full h-full bg-transparent z-50'>
+        <div className='w-full h-full flex justify-center items-center'>
+          <div>
+            <div className="animate-spin h-16 w-16 border-8 border-blue-500 rounded-full border-t-transparent" />
+            <div className='text-gray-700 font-bold text-center mt-2'>Loading..</div>
+          </div>
+        </div>
       </div>
     </div>
   )

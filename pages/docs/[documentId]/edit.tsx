@@ -64,8 +64,11 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     }
   }
 
-  if (loadingDocument) { return <></> }
-  if (!document) { return <></> }
+  const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: 'ドキュメントを更新' }, { key: 'draft', label: '下書きに保存' }]
+
+  if (loadingDocument) { return <DocumentEditorForm initDocData={{ title: '', body: '', tags: [] }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} loading={true} /> }
+  if (userId !== document.document.paper.user.id) { return <div> Permission Denied.</div> }
+  if (!document?.document) { return <div>Not Found</div> }
 
   if (document.drafts && document.drafts.length > 0) {
     return (<div className='max-w-7xl mx-auto mt-5'>
@@ -78,17 +81,14 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     </div>)
   }
 
-  if (userId !== document.document.paper.user.id) { return <div> Permission Denied.</div> }
-
-  const initDocData: DocumentData =
-  {
-    title: document.document.paper.title,
-    body: document.document.paper.body,
-    tags: document.document.paper.paper_tag_map.map((x) => x.tag.text)
-  }
-  const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: 'ドキュメントを更新' }, { key: 'draft', label: '下書きに保存' }]
-
   return (
-    <DocumentEditorForm initDocData={initDocData} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+    <DocumentEditorForm
+      initDocData={{
+        title: document.document.paper.title,
+        body: document.document.paper.body,
+        tags: document.document.paper.paper_tag_map.map((x) => x.tag.text),
+      }}
+      submitButtonMap={submitButtonMap}
+      onSubmit={handleSubmit} />
   )
 }
