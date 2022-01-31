@@ -49,13 +49,8 @@ query Document($documentId: String!) {
         name
         displayName
       }
-      paper_tag_map {
-        tag {
-          id
-          text
-        }
-      }
       title
+      tags
       body
       createdAt
       updatedAt

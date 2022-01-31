@@ -29,17 +29,6 @@ model like {
   @@index([userId])
 }
 
-model paper_tag_map {
-  paperId String @db.VarChar(26)
-  tagId   String @db.VarChar(26)
-  paper   paper  @relation(fields: [paperId], references: [id])
-  tag     tag    @relation(fields: [tagId], references: [id])
-
-  @@id([paperId, tagId])
-  @@index([paperId])
-  @@index([tagId])
-}
-
 model watch {
   userId  String @db.VarChar(26)
   groupId String @db.VarChar(26)
@@ -149,23 +138,23 @@ model notification {
 }
 
 model paper {
-  id                String          @id @db.VarChar(26)
-  userId            String          @db.VarChar(26)
-  groupId           String          @db.VarChar(26)
-  documentIdLazy    String?         @db.VarChar(26)
-  parentPaperIdLazy String?         @db.VarChar(26)
-  title             String          @db.VarChar(255)
-  body              String          @db.LongText
-  isPosted          Int             @default(0) @db.UnsignedTinyInt
-  canReadAll        Int             @default(0) @db.UnsignedTinyInt
-  createdAt         String          @db.VarChar(50)
-  createdAtNumber   BigInt          @default(0) @db.UnsignedBigInt
-  updatedAt         String          @db.VarChar(50)
-  updatedAtNumber   BigInt          @default(0) @db.UnsignedBigInt
-  group             group           @relation(fields: [groupId], references: [id])
-  user              user            @relation(fields: [userId], references: [id])
+  id                String     @id @db.VarChar(26)
+  userId            String     @db.VarChar(26)
+  groupId           String     @db.VarChar(26)
+  documentIdLazy    String?    @db.VarChar(26)
+  parentPaperIdLazy String?    @db.VarChar(26)
+  title             String     @db.VarChar(255)
+  tags              String     @db.Text
+  body              String     @db.LongText
+  isPosted          Int        @default(0) @db.UnsignedTinyInt
+  canReadAll        Int        @default(0) @db.UnsignedTinyInt
+  createdAt         String     @db.VarChar(50)
+  createdAtNumber   BigInt     @default(0) @db.UnsignedBigInt
+  updatedAt         String     @db.VarChar(50)
+  updatedAtNumber   BigInt     @default(0) @db.UnsignedBigInt
+  group             group      @relation(fields: [groupId], references: [id])
+  user              user       @relation(fields: [userId], references: [id])
   document          document[]
-  paper_tag_map     paper_tag_map[]
 
   @@index([canReadAll])
   @@index([createdAtNumber])
@@ -212,12 +201,6 @@ model stock {
   @@index([documentId])
   @@index([stockCategoryId])
   @@index([userId])
-}
-
-model tag {
-  id            String          @id @db.VarChar(26)
-  text          String          @unique @db.VarChar(63)
-  paper_tag_map paper_tag_map[]
 }
 
 model user_group_map {

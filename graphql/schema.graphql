@@ -111,11 +111,11 @@ type Paper {
   groupId: String!
   documentIdLazy: String
   title: String!
+  tags: String!
   body: String!
   isPosted: Int!
   user: User!
   group: Group!
-  paper_tag_map: [MapPaperTag]!
   createdAt: String!
   updatedAt: String!
 }
@@ -315,8 +315,8 @@ type Mutation {
   updateMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   deleteMapUserGroup(auth: Auth!, userId: String!, groupId: String!): MapUserGroup
   
-  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, body: String!, tags: [String]!, documentId: String, isPosted: Int): Paper
-  updatePaper(auth: Auth!, paperId: String!, title: String!, body: String!, tags: [String]!, isPosted: Int): Paper
+  createPaper(auth: Auth!, userId: String!, groupId: String!, title: String!, tags: String!, body: String!, documentId: String, isPosted: Int): Paper
+  updatePaper(auth: Auth!, paperId: String!, title: String!, tags: String!, body: String!, isPosted: Int): Paper
   
   deleteDocument(auth: Auth!, id: String!): Document
 

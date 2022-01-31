@@ -40,7 +40,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
           userId, groupId,
           title: data.title,
           body: data.body,
-          tags: data.tags,
+          tags: data.tags.join(','),
           isPosted: 1
         }
       })
@@ -52,7 +52,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
           userId, groupId,
           title: data.title,
           body: data.body,
-          tags: data.tags,
+          tags: data.tags.join(','),
         }
       })
     }

@@ -133,7 +133,7 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, 
             </h1>
             <div>
               <BsTags className='inline-block w-5 h-5 text-gray-600 mr-2' />
-              {data.document.paper.paper_tag_map.map((x) => <span key={`tag-${x.tag.id}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{x.tag.text}</span>)}
+              {data.document.paper.tags.split(',').map((tag) => <span key={`tag-${tag}`} className="mx-1 px-2 py-1 bg-blue-50 rounded-md">{tag}</span>)}
             </div>
           </div>
           <div className='p-2'>

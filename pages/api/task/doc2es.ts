@@ -9,12 +9,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!adminSession?.admin) return res.status(401).end()
 
   const docs = await prisma.document.findMany({
-    include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
+    include: { paper: { include: { user: true, group: true } } }
   })
 
   for (let i = 0; i < docs.length; i++) {
     const doc = docs[i]
-    const tags = doc.paper.paper_tag_map.map((x) => x.tag.text)
     await esClient.upsertDocument({
       id: doc.id,
       document: {
@@ -31,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         updatedAt: doc.paper.updatedAt,
         updatedAtNumber: Number(doc.paper.updatedAtNumber),
         title: doc.paper.title,
-        tags: tags,
+        tags: doc.paper.tags.split(','),
         body: doc.paper.body
       }
     })

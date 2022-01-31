@@ -74,13 +74,8 @@ query documentEditPage($documentId: String!) {
         name
         displayName
       }
-      paper_tag_map {
-        tag {
-          id
-          text
-        }
-      }
       title
+      tags
       body
       createdAt
       updatedAt
@@ -100,13 +95,8 @@ query draftPage($paperId: String!) {
     userId
     groupId
     title
+    tags
     body
-    paper_tag_map {
-      tag {
-        id
-        text
-      }
-    }
     isPosted
   }
 }

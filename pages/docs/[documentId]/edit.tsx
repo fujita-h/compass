@@ -44,7 +44,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
           documentId: document.document.id,
           title: data.title,
           body: data.body,
-          tags: data.tags,
+          tags: data.tags.join(','),
           isPosted: 1
         }
       })
@@ -57,7 +57,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
           groupId: document.document.paper.group.id,
           documentId: document.document.id,
           title: data.title,
-          tags: data.tags,
+          tags: data.tags.join(','),
           body: data.body,
         }
       })
@@ -86,7 +86,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
       initDocData={{
         title: document.document.paper.title,
         body: document.document.paper.body,
-        tags: document.document.paper.paper_tag_map.map((x) => x.tag.text),
+        tags: document.document.paper.tags.split(','),
       }}
       submitButtonMap={submitButtonMap}
       onSubmit={handleSubmit} />

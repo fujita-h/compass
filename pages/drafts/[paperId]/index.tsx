@@ -33,7 +33,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
           paperId,
           title: data.title,
           body: data.body,
-          tags: data.tags,
+          tags: data.tags.join(','),
           isPosted: 1
         }
       })
@@ -44,7 +44,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
           paperId,
           title: data.title,
           body: data.body,
-          tags: data.tags,
+          tags: data.tags.join(','),
         }
       })
     }
@@ -64,7 +64,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
 
   return (
     <Layout>
-      <DocumentEditorForm initDocData={{ title: data.draft.title, body: data.draft.body, tags: data.draft.paper_tag_map.map((x) => x.tag.text) }} submitButtonMap={submitButtonMap} autoSaveDelay={3} onSubmit={handleSubmit} />
+      <DocumentEditorForm initDocData={{ title: data.draft.title, body: data.draft.body, tags: data.draft.tags.split(',') }} submitButtonMap={submitButtonMap} autoSaveDelay={3} onSubmit={handleSubmit} />
     </Layout>
   )
 }
