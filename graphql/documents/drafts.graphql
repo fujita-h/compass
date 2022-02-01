@@ -14,12 +14,16 @@ query Drafts($auth: Auth!, $groupId: String) {
   }
 }
 
-mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: String!, $tags: String!, $body: String!,  $documentId: String, $isPosted: Int) {
+mutation CreateDraft($auth: Auth!, $userId: String, $groupId: String!, $title: String!, $tags: String!, $body: String!,  $documentId: String, $isPosted: Int) {
   createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, tags: $tags body: $body, documentId: $documentId, isPosted: $isPosted) {
     id
     documentIdLazy
     userId
     groupId
+    group {
+      id
+      name
+    }
     title
     tags
     body
@@ -33,6 +37,10 @@ mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $tags: St
     documentIdLazy
     userId
     groupId
+    group {
+      id
+      name
+    }
     title
     tags
     body

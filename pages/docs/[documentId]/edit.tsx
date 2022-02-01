@@ -1,16 +1,15 @@
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
-import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
-import { Auth, useCreateDraftMutation, useDocumentEditPageQuery } from '@graphql/generated/react-apollo'
+import { EditorForm, SubmitButtonSetting } from '@components/editors'
+import { useDocumentEditPageQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
   const router = useRouter()
   const documentId = getAsString(router.query?.documentId)
-
 
   if (!session?.id) return (<Layout></Layout>)
   if (!documentId) return (<Layout></Layout>)
@@ -21,52 +20,9 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
 
   const { data: document, loading: loadingDocument } = useDocumentEditPageQuery({ variables: { documentId } })
 
-  const [createDraft, { data, loading, error, client }] = useCreateDraftMutation({
-    onCompleted: (data) => {
-      if (data?.createPaper?.documentIdLazy && data?.createPaper?.isPosted) {
-        router.push(`/docs/${encodeURIComponent(data.createPaper.documentIdLazy.toLowerCase())}`)
-      } else {
-        router.push(`/drafts/${encodeURIComponent(data.createPaper.id.toLowerCase())}`)
-      }
-    },
-    onError: (error) => { console.error(error) }
-  })
-
-
-  const handleSubmit = (submitType, data: DocumentData) => {
-    console.log(data.tags)
-    if (submitType == 'publish') {
-      createDraft({
-        variables: {
-          auth: 'user',
-          userId: document.document.paper.user.id,
-          groupId: document.document.paper.group.id,
-          documentId: document.document.id,
-          title: data.title,
-          body: data.body,
-          tags: data.tags.join(','),
-          isPosted: 1
-        }
-      })
-
-    } else { // submitType == 'draft' || submitType == null
-      createDraft({
-        variables: {
-          auth: 'user',
-          userId: document.document.paper.user.id,
-          groupId: document.document.paper.group.id,
-          documentId: document.document.id,
-          title: data.title,
-          tags: data.tags.join(','),
-          body: data.body,
-        }
-      })
-    }
-  }
-
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: 'ドキュメントを更新' }, { key: 'draft', label: '下書きに保存' }]
 
-  if (loadingDocument) { return <DocumentEditorForm initDocData={{ title: '', body: '', tags: [] }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} loading={true} /> }
+  if (loadingDocument) { return <EditorForm data={{ title: '', body: '', tags: [] }} meta={{}} submitButtonMap={submitButtonMap} submitType='dummy' loading={true} /> }
   if (userId !== document.document.paper.user.id) { return <div> Permission Denied.</div> }
   if (!document?.document) { return <div>Not Found</div> }
 
@@ -82,13 +38,10 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
   }
 
   return (
-    <DocumentEditorForm
-      initDocData={{
-        title: document.document.paper.title,
-        body: document.document.paper.body,
-        tags: document.document.paper.tags.split(','),
-      }}
+    <EditorForm
+      data={{ title: document.document.paper.title, body: document.document.paper.body, tags: document.document.paper.tags.split(',') }}
+      meta={{ groupId: document.document.paper.group.id, documentId: document.document.id }}
       submitButtonMap={submitButtonMap}
-      onSubmit={handleSubmit} />
+      submitType='editDoc' />
   )
 }
