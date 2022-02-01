@@ -1112,7 +1112,7 @@ export const resolvers: Resolvers = {
           const [updatePaper, upsertDoc, result] = await prisma.$transaction([
             prisma.paper.update({
               where: { id: paperId.toUpperCase() },
-              data: { title, body, documentIdLazy: documentId.toUpperCase(), isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
+              data: { title, tags, body, documentIdLazy: documentId.toUpperCase(), isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
             }),
             prisma.document.upsert({
               where: { id: documentId.toUpperCase() },
@@ -1156,7 +1156,7 @@ export const resolvers: Resolvers = {
           const [updatePaper, result] = await prisma.$transaction([
             prisma.paper.update({
               where: { id: paperId.toUpperCase() },
-              data: { title, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
+              data: { title, tags, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },

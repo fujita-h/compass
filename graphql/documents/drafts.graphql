@@ -9,6 +9,7 @@ query Drafts($auth: Auth!, $groupId: String) {
       type
     }
     title
+    tags
     body
   }
 }
@@ -20,6 +21,7 @@ mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: 
     userId
     groupId
     title
+    tags
     body
     isPosted
   }
@@ -32,6 +34,7 @@ mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $tags: St
     userId
     groupId
     title
+    tags
     body
     isPosted
   }
