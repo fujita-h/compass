@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         updatedAt: doc.paper.updatedAt,
         updatedAtNumber: Number(doc.paper.updatedAtNumber),
         title: doc.paper.title,
-        tags: doc.paper.tags.split(','),
+        tags: doc.paper.tags.split(',').filter((tag) => tag !== ''),
         body: doc.paper.body
       }
     })

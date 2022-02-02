@@ -32,7 +32,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
 
   return (
     <Layout>
-      <EditorForm data={{ title: data.draft.title, body: data.draft.body, tags: data.draft.tags.split(',') }} meta={{ paperId }} submitButtonMap={submitButtonMap} submitType='draft' autoSaveDelay={3} />
+      <EditorForm data={{ title: data.draft.title, body: data.draft.body, tags: data.draft.tags.split(',').filter((tag) => tag !== '') }} meta={{ paperId }} submitButtonMap={submitButtonMap} submitType='draft' autoSaveDelay={3} />
     </Layout>
   )
 }
