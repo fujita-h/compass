@@ -25,7 +25,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
 
   if (loading) {
     return (<Layout>
-      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='groupNew' loading={true} />
+      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' loading={true} />
     </Layout>)
   }
 
@@ -37,7 +37,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
 
   return (
     <Layout>
-      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='groupNew' />
+      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' />
     </Layout>
   )
 }

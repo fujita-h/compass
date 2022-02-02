@@ -61,7 +61,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
   useEffect(() => {
     if (isFormValueChangedByUser.current && autoSaveDelay > 0) {
       const timer = setTimeout(() => {
-        submitFunc[submitType]('auto-saving', docData)
+        submitFunc('auto-saving', docData)
       }, autoSaveDelay * 1000)
       return () => {
         clearTimeout(timer)
@@ -69,16 +69,18 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
     }
   }, [docData])
 
-  const submitFunc = {
-    draft: useCallback((submitType, data: EditorData) => {
-      const auth: Auth = 'user'
-      const variables = {
-        auth,
-        paperId: meta.paperId,
-        title: data.title,
-        body: data.body,
-        tags: data.tags.join(','),
-      }
+  const submitFunc = useCallback((submitType, data: EditorData) => {
+    const auth: Auth = 'user'
+    const variables = {
+      auth,
+      paperId: meta.paperId,
+      groupId: meta.groupId,
+      documentId: meta.documentId,
+      title: data.title,
+      body: data.body,
+      tags: data.tags.join(','),
+    }
+    if (meta.paperId) {
       if (submitType == 'publish') {
         updateDraft({
           variables: { ...variables, isPosted: 1 },
@@ -94,16 +96,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
           onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.updatePaper.group.name)}`) }
         })
       }
-    }, [meta]),
-    groupNew: useCallback((submitType, data: EditorData) => {
-      const auth: Auth = 'user'
-      const variables = {
-        auth,
-        groupId: meta.groupId,
-        title: data.title,
-        body: data.body,
-        tags: data.tags.join(','),
-      }
+    } else {
       if (submitType == 'publish') {
         createDraft({
           variables: { ...variables, isPosted: 1 },
@@ -119,36 +112,8 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
           onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.createPaper.group.name)}`) }
         })
       }
-    }, [meta]),
-    editDoc: useCallback((submitType, data: EditorData) => {
-      const auth: Auth = 'user'
-      const variables = {
-        auth,
-        groupId: meta.groupId,
-        documentId: meta.documentId,
-        title: data.title,
-        body: data.body,
-        tags: data.tags.join(','),
-      }
-      if (submitType == 'publish') {
-        createDraft({
-          variables: { ...variables, isPosted: 1 },
-          onCompleted: (data) => { router.push(`/docs/${encodeURIComponent(data.createPaper.documentIdLazy.toLowerCase())}`) }
-        })
-
-      } else if (submitType == 'auto-saving') {
-        createDraft({
-          variables: { ...variables },
-        })
-      } else { // if (submitType == 'draft')
-        createDraft({
-          variables: { ...variables },
-          onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.createPaper.group.name)}`) }
-        })
-      }
-    }, [meta])
-  }
-
+    }
+  }, [meta])
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const results = await uploadFile(acceptedFiles)
@@ -175,7 +140,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
   }, [displayStyle])
 
   const handleSubmit = useCallback((type) => {
-    submitFunc[submitType](type, docData)
+    submitFunc(type, docData)
   }, [submitType, docData])
 
   return (
