@@ -1,9 +1,9 @@
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
-import { DocumentData, DocumentEditorForm, SubmitButtonSetting } from '@components/editors'
-import { Auth, useCreateDraftMutation, useGroupQuery } from '@graphql/generated/react-apollo'
+import { EditorForm, SubmitButtonSetting } from '@components/editors'
+import { useGroupQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
 export default function Page() {
@@ -21,52 +21,15 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
   const { data, loading } = useGroupQuery({ variables: { auth: 'user', name: groupName } })
   const groupId = useMemo(() => data?.group?.id, [data])
 
-  const [createDraft, { data: createDraftResult }] = useCreateDraftMutation({
-    onCompleted: (data) => {
-      if (data?.createPaper?.documentIdLazy && data?.createPaper?.isPosted) {
-        router.push('/docs/' + data.createPaper.documentIdLazy)
-      } else {
-        router.push('/drafts/' + data.createPaper.id)
-      }
-    },
-    onError: (error) => { console.error(error) }
-  })
-
-  const handleSubmit = (submitType, data: DocumentData) => {
-    if (submitType == 'publish') {
-      createDraft({
-        variables: {
-          auth: 'user',
-          userId, groupId,
-          title: data.title,
-          body: data.body,
-          tags: data.tags,
-          isPosted: 1
-        }
-      })
-
-    } else { // submitType == 'draft' || submitType == null
-      createDraft({
-        variables: {
-          auth: 'user',
-          userId, groupId,
-          title: data.title,
-          body: data.body,
-          tags: data.tags,
-        }
-      })
-    }
-  }
-
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
   if (loading) {
     return (<Layout>
-      <DocumentEditorForm initDocData={{ title: '', body: '', tags: [], }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} loading={true} />
+      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' loading={true} />
     </Layout>)
   }
 
-  if(!data?.group) {
+  if (!data?.group) {
     return (<Layout>
       <div>Group Not Found</div>
     </Layout>)
@@ -74,7 +37,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
 
   return (
     <Layout>
-      <DocumentEditorForm initDocData={{ title: '', body: '', tags: [], }} submitButtonMap={submitButtonMap} onSubmit={handleSubmit} />
+      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' autoSaveDelay={3} />
     </Layout>
   )
 }

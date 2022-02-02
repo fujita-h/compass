@@ -9,29 +9,40 @@ query Drafts($auth: Auth!, $groupId: String) {
       type
     }
     title
+    tags
     body
   }
 }
 
-mutation CreateDraft($auth: Auth!, $userId: String!, $groupId: String!, $title: String!, $body: String!, $tags: [String]!,  $documentId: String, $isPosted: Int) {
-  createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, body: $body, documentId: $documentId, tags: $tags, isPosted: $isPosted) {
+mutation CreateDraft($auth: Auth!, $userId: String, $groupId: String!, $title: String!, $tags: String!, $body: String!,  $documentId: String, $isPosted: Int) {
+  createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, tags: $tags body: $body, documentId: $documentId, isPosted: $isPosted) {
     id
     documentIdLazy
     userId
     groupId
+    group {
+      id
+      name
+    }
     title
+    tags
     body
     isPosted
   }
 }
 
-mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $body: String!, $tags: [String]!, $isPosted: Int) {
-  updatePaper(auth: $auth, paperId: $paperId, title: $title, body: $body, tags: $tags, isPosted: $isPosted) {
+mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $tags: String!, $body: String!, $isPosted: Int) {
+  updatePaper(auth: $auth, paperId: $paperId, title: $title, tags: $tags, body: $body, isPosted: $isPosted) {
     id
     documentIdLazy
     userId
     groupId
+    group {
+      id
+      name
+    }
     title
+    tags
     body
     isPosted
   }

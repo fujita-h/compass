@@ -254,7 +254,7 @@ export const resolvers: Resolvers = {
             updatedAtNumber: { lt: Number(targetCursor) }
           }
         },
-        include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } },
+        include: { paper: { include: { user: true, group: true } } },
         orderBy: { paper: { updatedAtNumber: 'desc' } },
         take: first + 1
       })).map(_item => {
@@ -292,7 +292,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
+          include: { paper: { include: { user: true, group: true } } }
         })
       }
       if (auth == 'none') {
@@ -328,7 +328,7 @@ export const resolvers: Resolvers = {
               updatedAtNumber: { lt: Number(targetCursor) }
             }
           },
-          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } },
+          include: { paper: { include: { user: true, group: true } } },
           orderBy: { paper: { updatedAtNumber: 'desc' } },
           take: first + 1
         })).map(_item => {
@@ -370,7 +370,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { paper: { include: { user: true, group: true, paper_tag_map: { include: { tag: true } } } } }
+          include: { paper: { include: { user: true, group: true } } }
         })
       }
       if (auth == 'none') {
@@ -393,7 +393,7 @@ export const resolvers: Resolvers = {
             documentIdLazy: documentId ? documentId.toUpperCase() : undefined,
             isPosted: { equals: 0 }
           },
-          include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+          include: { user: true, group: true }
         })
       }
       if (auth == 'none') {
@@ -418,7 +418,7 @@ export const resolvers: Resolvers = {
               { group: { user_group_map: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
-          include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+          include: { user: true, group: true }
         })
       }
       if (auth == 'none') {
@@ -942,10 +942,6 @@ export const resolvers: Resolvers = {
 
         const now = Date.now()
 
-        // まずは Tags を一括で追加する (重複はskip)
-        await prisma.tag.createMany({ data: tags.map((x) => ({ id: ulid(), text: x })), skipDuplicates: true })
-        const _tags = await prisma.tag.findMany({ where: { text: { in: tags } } })
-
         if (isPosted) {
           // isPosted === true の場合は、pageを新規に作りつつ、
           // document も処理する必要がある。
@@ -957,7 +953,7 @@ export const resolvers: Resolvers = {
           const _documentId = documentId ?? ulid()
           const _paperId = ulid()
 
-          const [upsertDoc, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+          const [upsertDoc, result] = await prisma.$transaction([
             prisma.document.upsert({
               where: { id: _documentId },
               create: {
@@ -971,6 +967,7 @@ export const resolvers: Resolvers = {
                     groupId: groupId.toUpperCase(),
                     documentIdLazy: _documentId.toUpperCase(),
                     title,
+                    tags,
                     body,
                     isPosted,
                     createdAt: new Date(now).toISOString(),
@@ -988,6 +985,7 @@ export const resolvers: Resolvers = {
                     groupId: groupId.toUpperCase(),
                     documentIdLazy: _documentId.toUpperCase(),
                     title,
+                    tags,
                     body,
                     isPosted,
                     createdAt: new Date(now).toISOString(),
@@ -998,16 +996,9 @@ export const resolvers: Resolvers = {
                 }
               }
             }),
-            prisma.paper_tag_map.deleteMany({
-              where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
-            }),
-            prisma.paper_tag_map.createMany({
-              data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
-              skipDuplicates: true,
-            }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+              include: { user: true, group: true }
             })
           ])
 
@@ -1028,7 +1019,7 @@ export const resolvers: Resolvers = {
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
-                tags: tags,
+                tags: tags.split(',').filter((tag) => tag !== ''),
                 body: result.body,
               }
             })
@@ -1054,7 +1045,7 @@ export const resolvers: Resolvers = {
 
           const _paperId = ulid()
 
-          const [createPaper, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+          const [createPaper, result] = await prisma.$transaction([
             prisma.paper.create({
               data: {
                 id: _paperId,
@@ -1062,6 +1053,7 @@ export const resolvers: Resolvers = {
                 groupId: groupId.toUpperCase(),
                 documentIdLazy: documentId ? documentId.toUpperCase() : undefined,
                 title,
+                tags,
                 body,
                 isPosted,
                 createdAt: new Date(now).toISOString(),
@@ -1070,16 +1062,9 @@ export const resolvers: Resolvers = {
                 updatedAtNumber: now
               }
             }),
-            prisma.paper_tag_map.deleteMany({
-              where: { paperId: _paperId, tagId: { notIn: _tags.map((x) => x.id) } }
-            }),
-            prisma.paper_tag_map.createMany({
-              data: _tags.map((x) => ({ paperId: _paperId, tagId: x.id })),
-              skipDuplicates: true,
-            }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+              include: { user: true, group: true }
             })
           ])
 
@@ -1121,33 +1106,22 @@ export const resolvers: Resolvers = {
 
         const now = Date.now()
 
-        // まずは Tags を一括で追加する (重複はskip)
-        await prisma.tag.createMany({ data: tags.map((x) => ({ id: ulid(), text: x })), skipDuplicates: true })
-        const _tags = await prisma.tag.findMany({ where: { text: { in: tags } } })
-
         if (isPosted) {
 
           const documentId = check.documentIdLazy ?? ulid()
-          const [updatePaper, upsertDoc, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+          const [updatePaper, upsertDoc, result] = await prisma.$transaction([
             prisma.paper.update({
               where: { id: paperId.toUpperCase() },
-              data: { title, body, documentIdLazy: documentId.toUpperCase(), isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
+              data: { title, tags, body, documentIdLazy: documentId.toUpperCase(), isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
             }),
             prisma.document.upsert({
               where: { id: documentId.toUpperCase() },
               create: { id: documentId.toUpperCase(), paperId: paperId.toUpperCase(), createdAt: new Date(now).toISOString(), createdAtNumber: now },
               update: { paperId: paperId.toUpperCase() }
             }),
-            prisma.paper_tag_map.deleteMany({
-              where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
-            }),
-            prisma.paper_tag_map.createMany({
-              data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
-              skipDuplicates: true,
-            }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+              include: { user: true, group: true }
             })
           ])
 
@@ -1168,7 +1142,7 @@ export const resolvers: Resolvers = {
                 updatedAt: result.updatedAt,
                 updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
-                tags: tags,
+                tags: tags.split(',').filter((tag) => tag !== ''),
                 body: result.body,
               }
             })
@@ -1179,21 +1153,14 @@ export const resolvers: Resolvers = {
           return result
         } else {
 
-          const [updatePaper, deleteTagMap, createTagMap, result] = await prisma.$transaction([
+          const [updatePaper, result] = await prisma.$transaction([
             prisma.paper.update({
               where: { id: paperId.toUpperCase() },
-              data: { title, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
-            }),
-            prisma.paper_tag_map.deleteMany({
-              where: { paperId: paperId.toUpperCase(), tagId: { notIn: _tags.map((x) => x.id) } }
-            }),
-            prisma.paper_tag_map.createMany({
-              data: _tags.map((x) => ({ paperId: paperId.toUpperCase(), tagId: x.id })),
-              skipDuplicates: true,
+              data: { title, tags, body, isPosted, updatedAt: new Date(now).toISOString(), updatedAtNumber: now },
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { user: true, group: true, paper_tag_map: { include: { tag: true } } }
+              include: { user: true, group: true }
             })
           ])
 
@@ -1220,7 +1187,7 @@ export const resolvers: Resolvers = {
         if (!check) throw new ApolloError('NotFound')
         if (check.paper.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
 
-        const result = await prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, paper_tag_map: true, user: true } } } })
+        const result = await prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, user: true } } } })
 
         try {
           await esClient.deleteDocument({ id: result.id })

@@ -2,11 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from "react-dropzone"
 import { Markdown } from '@components/markdown'
 import { TagForm } from './forms/tagForm'
+import { Auth, useCreateDraftMutation, useUpdateDraftMutation } from '@graphql/generated/react-apollo'
+import { useRouter } from 'next/router'
 
-export type DocumentData = {
+export type EditorData = {
   title: string,
   body: string,
   tags: string[],
+}
+export type EditorMeta = {
+  groupId?: string,
+  documentId?: string,
+  paperId?: string,
 }
 
 
@@ -28,23 +35,38 @@ const insertFileText = (uploadResults) => {
   return '\n' + snipet + '\n'
 }
 
-export const DocumentEditorForm = ({ children, loading = false, initDocData, submitButtonMap, autoSaveDelay = 0, onSubmit }: { children?: any, loading?: boolean, initDocData: DocumentData, submitButtonMap: Array<SubmitButtonSetting>, autoSaveDelay?: number, onSubmit: (submitType: string, data: DocumentData) => void }) => {
+export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = false, autoSaveDelay = 0 }: {
+  data: EditorData,
+  meta: EditorMeta
+  submitButtonMap: Array<SubmitButtonSetting>,
+  submitType: string,
+  loading?: boolean,
+  autoSaveDelay?: number,
+}) => {
+  const router = useRouter()
   const [displayStyle, setDisplayStyle] = useState(0)
-  const [docData, setDocData] = useState<DocumentData>(initDocData)
+  const [docData, setDocData] = useState<EditorData>(data)
+  const [docMeta, setDocMeta] = useState<EditorMeta>(meta)
   const [selectionPosition, setSelectionPosition] = useState(0)
   const isFormValueChangedByUser = useRef(false)
+  const [createDraft, { }] = useCreateDraftMutation()
+  const [updateDraft, { }] = useUpdateDraftMutation()
 
   // re-set when initDocData provided.
   useEffect(() => {
     isFormValueChangedByUser.current = false
-    setDocData(initDocData)
-  }, [initDocData])
+    setDocData(data)
+  }, [data])
+
+  useEffect(() => {
+    setDocMeta(meta)
+  }, [meta])
 
   // auto-saving
   useEffect(() => {
     if (isFormValueChangedByUser.current && autoSaveDelay > 0) {
       const timer = setTimeout(() => {
-        onSubmit('auto-saving', docData)
+        submitFunc('auto-saving', docData)
       }, autoSaveDelay * 1000)
       return () => {
         clearTimeout(timer)
@@ -52,6 +74,52 @@ export const DocumentEditorForm = ({ children, loading = false, initDocData, sub
     }
   }, [docData])
 
+  const submitFunc = useCallback((submitType, data: EditorData) => {
+    const auth: Auth = 'user'
+    const variables = {
+      auth,
+      paperId: docMeta.paperId,
+      groupId: docMeta.groupId,
+      documentId: docMeta.documentId,
+      title: data.title,
+      body: data.body,
+      tags: data.tags.join(','),
+    }
+    if (docMeta.paperId) {
+      if (submitType == 'publish') {
+        updateDraft({
+          variables: { ...variables, isPosted: 1 },
+          onCompleted: (data) => { router.push(`/docs/${encodeURIComponent(data.updatePaper.documentIdLazy.toLowerCase())}`) }
+        })
+      } else if (submitType == 'auto-saving') {
+        updateDraft({
+          variables: { ...variables },
+        })
+      } else { // if (submitType == 'draft')
+        updateDraft({
+          variables: { ...variables },
+          onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.updatePaper.group.name)}`) }
+        })
+      }
+    } else {
+      if (submitType == 'publish') {
+        createDraft({
+          variables: { ...variables, isPosted: 1 },
+          onCompleted: (data) => { router.push(`/docs/${encodeURIComponent(data.createPaper.documentIdLazy.toLowerCase())}`) }
+        })
+      } else if (submitType == 'auto-saving') {
+        createDraft({
+          variables: { ...variables },
+          onCompleted: (data) => { setDocMeta({ ...docData, paperId: data.createPaper.id }) }
+        })
+      } else { // if (submitType == 'draft')
+        createDraft({
+          variables: { ...variables },
+          onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.createPaper.group.name)}`) }
+        })
+      }
+    }
+  }, [docMeta])
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const results = await uploadFile(acceptedFiles)
@@ -77,10 +145,9 @@ export const DocumentEditorForm = ({ children, loading = false, initDocData, sub
     }
   }, [displayStyle])
 
-  const handleSubmit = (submitType) => {
-    onSubmit(submitType, docData)
-  }
-
+  const handleSubmit = useCallback((type) => {
+    submitFunc(type, docData)
+  }, [submitType, docData])
 
   return (
     <div className='mx-1 mt-1 bg-white'>

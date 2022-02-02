@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const NormarizeText = (text) =>
   text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
@@ -8,6 +8,10 @@ export const NormarizeText = (text) =>
 export function TagForm({ initState, setStateFunc }: { initState: string[], setStateFunc: Function }) {
 
   const [tagState, setTagState] = useState({ tags: initState ?? [] })
+
+  useEffect(() => {
+    setTagState({...tagState, tags: initState})
+  }, [initState])
 
   const areaClicked = (e) => {
     const eTarget = e.target as HTMLDivElement
