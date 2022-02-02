@@ -46,6 +46,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
   const router = useRouter()
   const [displayStyle, setDisplayStyle] = useState(0)
   const [docData, setDocData] = useState<EditorData>(data)
+  const [docMeta, setDocMeta] = useState<EditorMeta>(meta)
   const [selectionPosition, setSelectionPosition] = useState(0)
   const isFormValueChangedByUser = useRef(false)
   const [createDraft, { }] = useCreateDraftMutation()
@@ -56,6 +57,10 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
     isFormValueChangedByUser.current = false
     setDocData(data)
   }, [data])
+
+  useEffect(() => {
+    setDocMeta(meta)
+  }, [meta])
 
   // auto-saving
   useEffect(() => {
@@ -73,14 +78,14 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
     const auth: Auth = 'user'
     const variables = {
       auth,
-      paperId: meta.paperId,
-      groupId: meta.groupId,
-      documentId: meta.documentId,
+      paperId: docMeta.paperId,
+      groupId: docMeta.groupId,
+      documentId: docMeta.documentId,
       title: data.title,
       body: data.body,
       tags: data.tags.join(','),
     }
-    if (meta.paperId) {
+    if (docMeta.paperId) {
       if (submitType == 'publish') {
         updateDraft({
           variables: { ...variables, isPosted: 1 },
@@ -105,6 +110,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
       } else if (submitType == 'auto-saving') {
         createDraft({
           variables: { ...variables },
+          onCompleted: (data) => { setDocMeta({ ...docData, paperId: data.createPaper.id }) }
         })
       } else { // if (submitType == 'draft')
         createDraft({
@@ -113,7 +119,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
         })
       }
     }
-  }, [meta])
+  }, [docMeta])
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const results = await uploadFile(acceptedFiles)

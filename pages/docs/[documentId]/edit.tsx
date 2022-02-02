@@ -41,7 +41,6 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
     <EditorForm
       data={{ title: document.document.paper.title, body: document.document.paper.body, tags: document.document.paper.tags.split(',').filter((tag) => tag !== '') }}
       meta={{ groupId: document.document.paper.group.id, documentId: document.document.id }}
-      submitButtonMap={submitButtonMap}
-      submitType='new' />
+      submitButtonMap={submitButtonMap} submitType='new' autoSaveDelay={3} />
   )
 }

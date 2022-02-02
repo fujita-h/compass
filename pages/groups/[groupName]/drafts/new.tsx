@@ -37,7 +37,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
 
   return (
     <Layout>
-      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' />
+      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' autoSaveDelay={3} />
     </Layout>
   )
 }
