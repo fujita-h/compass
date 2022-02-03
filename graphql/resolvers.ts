@@ -1174,6 +1174,31 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    deletePaper: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const check = await prisma.paper.findUnique({ where: { id: id.toUpperCase() }, include: { group: { include: { user_group_map: { include: { user: { select: { id: true } } } } } } } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.isPosted) throw new ApolloError('PageAlreadyPublished') // published がすでにマークされたものは削除不可
+        if (check.userId !== _context.userSession.id) throw new ForbiddenError('Forbidden') // 自分のpaperでない場合は削除不可
+        if (check.group.type === 'private' || check.group.type === 'normal') {
+          // 記事のグループがprivate/normalだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は削除不可
+          if (!(check.group.user_group_map.map((x) => x.user.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
+        }
+
+        const result = await prisma.paper.delete({ where: { id: id.toUpperCase() }, include: { group: true, user: true } })
+        return result
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     deleteDocument: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
       if (auth == 'admin') {

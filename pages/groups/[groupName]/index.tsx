@@ -139,7 +139,7 @@ const MyGroupDrafts = ({ groupId }: { groupId: string }) => {
     <div>
       {data.drafts.map((draft) =>
         <div key={draft.id} className='mx-2 my-1'>
-          <Link href={`/drafts/${encodeURIComponent(draft.id.toLowerCase())}/edit`} passHref>
+          <Link href={`/drafts/${encodeURIComponent(draft.id.toLowerCase())}`} passHref>
             <a className='text-md text-blue-700 underline'>{draft.title || 'UNTITLED'}</a>
           </Link>
         </div>)}

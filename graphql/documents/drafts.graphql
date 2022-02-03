@@ -14,6 +14,34 @@ query Drafts($auth: Auth!, $groupId: String) {
   }
 }
 
+query Draft($auth: Auth!, $id: String!) {
+  draft(auth: $auth, id: $id) {
+    id
+    userId
+    groupId
+    documentIdLazy
+    title
+    tags
+    body
+    isPosted
+    user {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    group {
+      id
+      name
+      displayName
+      description
+      type
+    }
+    createdAt
+    updatedAt
+  }
+}
 mutation CreateDraft($auth: Auth!, $userId: String, $groupId: String!, $title: String!, $tags: String!, $body: String!,  $documentId: String, $isPosted: Int) {
   createPaper(auth: $auth, userId: $userId, groupId: $groupId, title: $title, tags: $tags body: $body, documentId: $documentId, isPosted: $isPosted) {
     id
@@ -33,6 +61,23 @@ mutation CreateDraft($auth: Auth!, $userId: String, $groupId: String!, $title: S
 
 mutation UpdateDraft($auth: Auth!, $paperId: String!, $title: String!, $tags: String!, $body: String!, $isPosted: Int) {
   updatePaper(auth: $auth, paperId: $paperId, title: $title, tags: $tags, body: $body, isPosted: $isPosted) {
+    id
+    documentIdLazy
+    userId
+    groupId
+    group {
+      id
+      name
+    }
+    title
+    tags
+    body
+    isPosted
+  }
+}
+
+mutation DeleteDraft($auth: Auth!, $id: String!) {
+  deletePaper(auth: $auth, id: $id) {
     id
     documentIdLazy
     userId

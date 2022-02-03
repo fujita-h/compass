@@ -100,7 +100,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
       } else { // if (submitType == 'draft')
         updateDraft({
           variables: { ...variables },
-          onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.updatePaper.group.name)}`) }
+          onCompleted: (data) => { router.push(`/drafts/${encodeURIComponent(data.updatePaper.id.toLowerCase())}`) }
         })
       }
     } else {
@@ -120,7 +120,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
       } else { // if (submitType == 'draft')
         createDraft({
           variables: { ...variables },
-          onCompleted: (data) => { router.push(`/groups/${encodeURIComponent(data.createPaper.group.name)}`) }
+          onCompleted: (data) => { router.push(`/drafts/${encodeURIComponent(data.createPaper.id.toLowerCase())}`) }
         })
       }
     }
