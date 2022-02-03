@@ -31,7 +31,7 @@ const InnerPage = ({ userId, documentId }: { userId: string, documentId: string 
       <div className='text-xl border-b-1 border-gray-300'>同じドキュメントの下書きがあるため、このドキュメントを編集できません。以下の下書きから編集を再開して下さい。</div>
       <div className='mt-4 ml-4 text-lg'>
         {document.drafts.map((draft) =>
-          <div key={`draft-ref-${draft.id}`}><Link href={`/drafts/${encodeURIComponent(draft.id.toLowerCase())}`} passHref><a>{draft.title}</a></Link></div>
+          <div key={`draft-ref-${draft.id}`}><Link href={`/drafts/${encodeURIComponent(draft.id.toLowerCase())}/edit`} passHref><a>{draft.title}</a></Link></div>
         )}
       </div>
     </div>)
