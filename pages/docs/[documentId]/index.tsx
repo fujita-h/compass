@@ -115,8 +115,9 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, 
                       </div>
                     </div>
                     <MyModal show={deleteModalState} close={() => { setDeleteModalState(false) }} title="ドキュメントの削除">
-                      <div>
-                        コメントを削除しますか？
+                      <div className='ml-4'>
+                        <div>削除すると元に戻すことは出来ません。また、コメント、ストックの情報もすべて削除されます。</div>
+                        <div className='mt-2'>このドキュメントを削除しますか？</div>
                       </div>
                       <div className='flex justify-between mt-3'>
                         <button className='border px-2 py-1 bg-gray-200' onClick={() => { setDeleteModalState(false) }}>キャンセル</button>
