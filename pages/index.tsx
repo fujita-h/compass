@@ -50,7 +50,6 @@ export default function Page() {
           </div>
         </div>
         <div className="w-full p-4">
-          <h1 className="text-2xl border-b-1">タイムライン</h1>
           <Timeline />
         </div>
       </div>
@@ -64,7 +63,12 @@ const Timeline = () => {
   const nodes = data.myTimelineCP.edges.map((edge) => edge.node)
   const pageInfo = data.myTimelineCP.pageInfo
 
-  return (
+  if (nodes.length == 0) {
+    return (<WelcomeMessage />)
+  }
+
+  return (<>
+    <h1 className="text-2xl border-b-1">タイムライン</h1>
     <div className='flex flex-wrap'>
       {nodes.map((doc) =>
         <div key={`docs-${doc.id}`} className='w-full lg:w-full 2xl:w-1/2 max-w-4xl'>
@@ -97,7 +101,7 @@ const Timeline = () => {
         </div>
       }
     </div>
-  )
+  </>)
 }
 
 const MyJoinedGroup = () => {
@@ -130,3 +134,17 @@ const MyJoinedGroup = () => {
 
 }
 
+const WelcomeMessage = () => {
+  return (
+    <div>
+      <div className='bg-white rounded-lg p-4'>
+        <div className='text-3xl'>Welcome to Compass</div>
+        <div>Compass へようこそ。</div>
+        <div className='text-2xl border-b mt-4'>興味のあるグループを ウォッチ する</div>
+        <div className='ml-4 mt-2'>Compass のドキュメントは必ずいずれかのグループに属しています。<br />興味のあるグループを ウォッチ することで、そのグループの新着記事がトップページに記事が表示されるようになります。</div>
+        <div className='text-2xl border-b mt-4'>興味のあるユーザーを フォロー する</div>
+        <div className='ml-4 mt-2'>特定のユーザーの記事に興味がありますか?<br />興味のあるユーザーを フォロー することで、そのユーザーの新着記事がトップページに記事が表示されるようになります。</div>
+      </div>
+    </div>
+  )
+}
