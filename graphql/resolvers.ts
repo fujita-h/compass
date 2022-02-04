@@ -244,12 +244,18 @@ export const resolvers: Resolvers = {
       })
       const follower = (followerResult && followerResult.followed) ? followerResult.followed.map(x => x.fromUserId) : []
 
+      const watches = (await prisma.watch.findMany({
+        where: { userId: _context.userSession.id.toUpperCase() },
+        select: { groupId: true }
+      })).map(x => x.groupId)
+
       const _edges: DocumentEdge[] = (await prisma.document.findMany({
         where: {
           paper: {
             OR: [
               { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-              { user: { id: { in: follower } } }
+              { user: { id: { in: follower } } },
+              { group: { id: { in: watches } } },
             ],
             updatedAtNumber: { lt: Number(targetCursor) }
           }
