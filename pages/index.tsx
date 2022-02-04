@@ -1,10 +1,7 @@
 import { Layout } from '@components/layouts'
 import Link from 'next/link'
 import { useSessionQuery, useMyTimelineCpQuery, useMyJoinedGroupsCpQuery } from '@graphql/generated/react-apollo'
-import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
-import Image from 'next/image'
 import { UserIconNameLinkSmall } from '@components/elements'
-import { BsAppIndicator } from 'react-icons/bs'
 import { RiCompasses2Line } from 'react-icons/ri'
 
 export default function Page() {
