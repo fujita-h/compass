@@ -644,7 +644,8 @@ export const resolvers: Resolvers = {
           select: { groupId: true }
         })
         const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.searchDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId), from, size }) : undefined
-        return { Documents: documentsResult }
+        const groupsResult = (index && index.toLowerCase() === 'groups') ? await esClient.searchGroups({ query: query, from, size }) : undefined
+        return { Documents: documentsResult, Groups: groupsResult}
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -784,7 +785,7 @@ export const resolvers: Resolvers = {
         const checkAdmin = check.user_group_map.find(x => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
         const result = await prisma.group.update({
-          data: { name, displayName, description, type },
+          data: { name, displayName, description }, //restrict update type
           where: { id }
         })
 
@@ -795,8 +796,7 @@ export const resolvers: Resolvers = {
               name: result.name,
               displayName: result.displayName,
               description: result.description,
-              type: undefined,
-              //type: result.type, //restrict update type by group admin
+              type: result.type,
             }
           })
         } catch (error) {

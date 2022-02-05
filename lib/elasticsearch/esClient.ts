@@ -1,5 +1,5 @@
 import { Client } from '@elastic/elasticsearch'
-import { EsSearchDocmentsResponse } from '@graphql/generated/resolvers'
+import { EsSearchDocmentsResponse, EsSearchGroupsResponse } from '@graphql/generated/resolvers'
 import { documents, groups } from './indices'
 
 
@@ -134,8 +134,8 @@ class ElasticsearchClient {
     return result.body
   }
 
-  async searchGroups({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchDocmentsResponse> {
-    const result = await this.client.search<SearchResponse<Document>>({
+  async searchGroups({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchGroupsResponse> {
+    const result = await this.client.search<SearchResponse<Group>>({
       index: 'groups',
       body: {
         from,
