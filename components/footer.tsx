@@ -8,7 +8,7 @@ export const Footer = () => {
           <div><RiCompasses2Line className='w-12 h-12 inline-block' /><span className='text-2xl font-bold align-middle'>Compass</span></div>
         </div>
         <div className="px-8">
-            <a href="https://github.com/fujita-h/compass" target="_blank">Project hosted on <span className="font-bold">Github</span></a>
+            <a href="https://github.com/fujita-h/compass" target="_blank">Project hosted on <span className="font-bold">GitHub</span></a>
         </div>
       </div>
     </div>
