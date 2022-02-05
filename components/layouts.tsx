@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { Header, AdminHeader } from './headers'
+import { Footer } from '@components/footer'
 
 export const Layout = ({ children, htmlTitle, searchText }: { children?: any, htmlTitle?: string, searchText?: string }) => {
   return (
@@ -10,13 +11,16 @@ export const Layout = ({ children, htmlTitle, searchText }: { children?: any, ht
       <Head>
         <title key="title">{htmlTitle || 'compass'}</title>
       </Head>
-      <div className='bg-gray-100 min-h-screen'>
+      <div className='bg-gray-100 min-h-screen flex flex-col'>
         <header>
           <Header searchText={searchText} />
         </header>
-        <main>
+        <main className='flex-1'>
           <div className="max-w-full">{children}</div>
         </main>
+        <footer>
+          <Footer />
+        </footer>
       </div>
     </>
   )
