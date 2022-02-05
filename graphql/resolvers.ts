@@ -645,7 +645,8 @@ export const resolvers: Resolvers = {
         })
         const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.searchDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId), from, size }) : undefined
         const groupsResult = (index && index.toLowerCase() === 'groups') ? await esClient.searchGroups({ query: query, from, size }) : undefined
-        return { Documents: documentsResult, Groups: groupsResult}
+        const usersResult = (index && index.toLowerCase() === 'users') ? await esClient.searchUsers({ query: query, from, size }) : undefined
+        return { Documents: documentsResult, Groups: groupsResult, Users: usersResult }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -675,7 +676,8 @@ export const resolvers: Resolvers = {
         })
         const documentsResult = await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) })
         const groupsResult = await esClient.countGroups({ query: query })
-        return { Documents: documentsResult, Groups: groupsResult }
+        const usersResult = await esClient.countUsers({ query: query })
+        return { Documents: documentsResult, Groups: groupsResult, Users: usersResult }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -1241,12 +1243,28 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.user.update({
+        const result = await prisma.user.update({
           where: { id: _context.userSession.id.toUpperCase() },
           data: {
             username, displayName, description
           }
         })
+
+        try {
+          await esClient.upsertUser({
+            id: result.id,
+            user: {
+              username: result.username,
+              email: result.username,
+              displayName: result.displayName,
+              description: result.description,
+            }
+          })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

@@ -230,6 +230,13 @@ type EsSearchGroup {
   type: String!
 }
 
+type EsSearchUser {
+  username: String!
+  email: String!
+  displayName: String
+  description: String
+}
+
 type EsSearchDocumentResult{
   _id: String
   _score: Float
@@ -240,6 +247,12 @@ type EsSearchGroupResult{
   _id: String
   _score: Float
   _source: EsSearchGroup
+}
+
+type EsSearchUserResult{
+  _id: String
+  _score: Float
+  _source: EsSearchUser
 }
 
 type EsSearchDocumentsHits {
@@ -254,6 +267,11 @@ type EsSearchGroupsHits {
   hits:[EsSearchGroupResult]
 }
 
+type EsSearchUsersHits {
+  max_score: Float
+  total: EsTotal
+  hits:[EsSearchUserResult]
+}
 
 type EsSearchDocmentsResponse {
   took: Int
@@ -269,6 +287,13 @@ type EsSearchGroupsResponse {
   hits: EsSearchGroupsHits
 }
 
+type EsSearchUsersResponse {
+  took: Int
+  timed_out: Boolean
+  _shards: EsShards
+  hits: EsSearchUsersHits
+}
+
 type EsCountResponse {
   count: Int
   _shards: EsShards
@@ -277,11 +302,13 @@ type EsCountResponse {
 type EsSearchResponses {
   Documents: EsSearchDocmentsResponse
   Groups: EsSearchGroupsResponse
+  Users: EsSearchUsersResponse
 }
 
 type EsCountResponses {
   Documents: EsCountResponse
   Groups: EsCountResponse
+  Users: EsCountResponse
 }
 
 type Query {

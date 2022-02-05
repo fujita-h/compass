@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch'
-import { EsSearchDocmentsResponse, EsSearchGroupsResponse } from '@graphql/generated/resolvers'
-import { documents, groups } from './indices'
+import { EsSearchDocmentsResponse, EsSearchGroupsResponse, EsSearchUsersResponse }from '@graphql/generated/resolvers'
+import { documents, groups, users } from './indices'
 
 
 interface ShardsResponse {
@@ -75,6 +75,13 @@ interface Group {
   type: string
 }
 
+interface User {
+  username: string
+  email: string
+  displayName: string
+  description: string
+}
+
 class ElasticsearchClient {
   client: Client
 
@@ -91,6 +98,10 @@ class ElasticsearchClient {
     this.client.indices.exists({ index: 'groups' })
       .then((response) => {
         if (!response.body) { this.client.indices.create(groups) }
+      })
+    this.client.indices.exists({ index: 'users' })
+      .then((response) => {
+        if (!response.body) { this.client.indices.create(users) }
       })
   }
 
@@ -166,7 +177,40 @@ class ElasticsearchClient {
       }
     })
     return result.body
+  }
 
+  async searchUsers({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchUsersResponse> {
+    const result = await this.client.search<SearchResponse<User>>({
+      index: 'users',
+      body: {
+        from,
+        size,
+        query: {
+          bool: {
+            must: [
+              { multi_match: { query: query, fields: ["username", "email", "displayName", "description"] } }
+            ]
+          }
+        }
+      }
+    })
+    return result.body
+  }
+
+  async countUsers({ query }: { query: string }) {
+    const result = await this.client.count<CountResponse>({
+      index: 'users',
+      body: {
+        query: {
+          bool: {
+            must: [
+              { multi_match: { query: query, fields: ["username", "email", "displayName", "description"] } }
+            ]
+          }
+        }
+      }
+    })
+    return result.body
   }
 
   upsertDocument({ id, document }: { id: string, document: Document }) {
@@ -187,20 +231,37 @@ class ElasticsearchClient {
     })
   }
 
+  upsertUser({id, user}: {id:string, user:User}) {
+    return this.client.index({
+      index: 'users',
+      id,
+      body: {...user},
+      timeout: '5s'
+    })
+  }
+
   deleteDocument({ id }: { id: string }) {
     return this.client.delete({
       index: 'documents',
       id
     })
   }
-  
+
   deleteGroup({ id }: { id: string }) {
     return this.client.delete({
       index: 'groups',
       id: id
     })
   }
+
+  deleteUser({ id }: { id: string }) {
+    return this.client.delete({
+      index: 'users',
+      id: id
+    })
+  }
 }
+
 
 
 declare global {
