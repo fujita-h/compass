@@ -1,4 +1,4 @@
-query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size: Int) {
+query EsSearch($auth: Auth!, $query: String, $index: String!, $from: Int, $size: Int) {
   esSearch(auth: $auth, query: $query, index: $index, from: $from, size: $size) {
     Documents {
       took

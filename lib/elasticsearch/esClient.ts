@@ -1,5 +1,5 @@
 import { Client } from '@elastic/elasticsearch'
-import { EsSearchDocmentsResponse, EsSearchGroupsResponse, EsSearchUsersResponse }from '@graphql/generated/resolvers'
+import { EsSearchDocmentsResponse, EsSearchGroupsResponse, EsSearchUsersResponse } from '@graphql/generated/resolvers'
 import { documents, groups, users } from './indices'
 
 
@@ -105,22 +105,35 @@ class ElasticsearchClient {
       })
   }
 
+  private documentsQuery(query: string, filterGroupIds: string[]) {
+    return query ? {
+      bool: {
+        filter: [
+          { terms: { groupId: filterGroupIds } }
+        ],
+        must: [
+          { match: { body: query } }
+        ]
+      }
+    } : {
+      bool: {
+        filter: [
+          { terms: { groupId: filterGroupIds } }
+        ],
+        must: [
+          { match_all: {} }
+        ]
+      }
+    }
+  }
+
   async searchDocuments({ query, filterGroupIds, from = 0, size = 100 }: { query: string, filterGroupIds: string[], from: number, size: number }): Promise<EsSearchDocmentsResponse> {
     const result = await this.client.search<SearchResponse<Document>>({
       index: 'documents',
       body: {
         from,
         size,
-        query: {
-          bool: {
-            filter: [
-              { terms: { groupId: filterGroupIds } }
-            ],
-            must: [
-              { match: { body: query } }
-            ]
-          }
-        }
+        query: this.documentsQuery(query, filterGroupIds)
       }
     })
     return result.body
@@ -130,19 +143,20 @@ class ElasticsearchClient {
     const result = await this.client.count<CountResponse>({
       index: 'documents',
       body: {
-        query: {
-          bool: {
-            filter: [
-              { terms: { groupId: filterGroupIds } }
-            ],
-            must: [
-              { match: { body: query } }
-            ]
-          }
-        }
+        query: this.documentsQuery(query, filterGroupIds)
       }
     })
     return result.body
+  }
+
+  private groupsQuery(query: string) {
+    return query ? {
+      bool: {
+        must: [
+          { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
+        ]
+      }
+    } : { match_all: {} }
   }
 
   async searchGroups({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchGroupsResponse> {
@@ -151,13 +165,7 @@ class ElasticsearchClient {
       body: {
         from,
         size,
-        query: {
-          bool: {
-            must: [
-              { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
-            ]
-          }
-        }
+        query: this.groupsQuery(query)
       }
     })
     return result.body
@@ -167,16 +175,20 @@ class ElasticsearchClient {
     const result = await this.client.count<CountResponse>({
       index: 'groups',
       body: {
-        query: {
-          bool: {
-            must: [
-              { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
-            ]
-          }
-        }
+        query: this.groupsQuery(query)
       }
     })
     return result.body
+  }
+
+  private usersQuery(query: string) {
+    return query ? {
+      bool: {
+        must: [
+          { multi_match: { query, fields: ["username", "email", "displayName", "description"] } }
+        ]
+      }
+    } : { match_all: {} }
   }
 
   async searchUsers({ query, from = 0, size = 100 }: { query: string, from: number, size: number }): Promise<EsSearchUsersResponse> {
@@ -185,13 +197,7 @@ class ElasticsearchClient {
       body: {
         from,
         size,
-        query: {
-          bool: {
-            must: [
-              { multi_match: { query: query, fields: ["username", "email", "displayName", "description"] } }
-            ]
-          }
-        }
+        query: this.usersQuery(query)
       }
     })
     return result.body
@@ -201,13 +207,7 @@ class ElasticsearchClient {
     const result = await this.client.count<CountResponse>({
       index: 'users',
       body: {
-        query: {
-          bool: {
-            must: [
-              { multi_match: { query: query, fields: ["username", "email", "displayName", "description"] } }
-            ]
-          }
-        }
+        query: this.usersQuery(query)
       }
     })
     return result.body
@@ -231,11 +231,11 @@ class ElasticsearchClient {
     })
   }
 
-  upsertUser({id, user}: {id:string, user:User}) {
+  upsertUser({ id, user }: { id: string, user: User }) {
     return this.client.index({
       index: 'users',
       id,
-      body: {...user},
+      body: { ...user },
       timeout: '5s'
     })
   }

@@ -16,9 +16,8 @@ export default function Page() {
 
   if (!router.isReady) return (<></>)
   if (!session) return (<></>)
-  const query = getAsString(router.query.q)
+  const query = getAsString(router.query.q) || ''
   const type = getAsString(router.query.type)
-
 
   return (<Layout searchText={query}><InnerPage query={query} type={type} /></Layout>)
 }
@@ -38,16 +37,10 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
     }
   }, [type])
 
-
-  console.log(query, type, typeValidated)
-
-
   const { data, loading } = useEsSearchQuery({ variables: { auth: 'user', index: typeValidated, query: query } })
 
   if (loading) return (<></>)
   if (!data) return (<></>)
-
-  console.log(data.esSearch)
 
   return (<>
     <div className="max-w-7xl mt-4 mx-auto flex bg-white">
