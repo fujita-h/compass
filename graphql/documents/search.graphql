@@ -61,6 +61,33 @@ query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size
         }
       }
     }
+    Users {
+      took
+      timed_out
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+      hits {
+        max_score
+        total {
+          value
+          relation
+        }
+        hits {
+          _id
+          _score
+          _source {
+            username
+            email
+            displayName
+            description
+          }
+        }
+      }
+    }
   }
   esCount(auth: $auth, query: $query) {
     Documents {
@@ -73,6 +100,15 @@ query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size
       }
     }
     Groups {
+      count
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+    }
+    Users {
       count
       _shards {
         total

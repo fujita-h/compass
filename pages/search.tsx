@@ -31,6 +31,8 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
         return 'documents'
       case 'groups':
         return 'groups'
+      case 'users':
+        return 'users'
       default:
         return 'documents'
     }
@@ -86,7 +88,23 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
 
             </a>
           }
-          <a href="#" className="block p-2 ">Users</a>
+          {typeValidated === 'users' ?
+            <div className="">
+              <div className="p-2 flex justify-between border-l-2 border-orange-400">
+                <span>Users</span>
+                <span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Users.count}</span>
+              </div>
+            </div>
+            :
+            <a href={`/search?q=${query}&type=users`}>
+              <div className="">
+                <div className="p-2 flex justify-between">
+                  <span>Users</span>
+                  <span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Users.count}</span>
+                </div>
+              </div>
+            </a>
+          }
         </div>
       </div>
       <div className="flex-1">
@@ -127,6 +145,28 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
                         <div className="border-b-1">
                           <h3 className='inline-block text-lg font-bold mr-2'>{d._source.displayName || d._source.name}{Boolean(d._source.type === 'private') && <RiLock2Fill className='ml-1 inline-block' />}</h3>
                           <h4 className='inline-block text-md font-bold text-gray-600'>{d._source.name}</h4>
+                        </div>
+                        <div className="mt-2 text-sm">{d._source.description}</div>
+                      </div>
+                    </div>
+                  </a>
+                </Link>
+              </div>
+            )}
+          </div> : <></>
+        }
+        {typeValidated === 'users' ?
+          <div>
+            {data.esSearch.Users.hits.hits.map((d) =>
+              <div key={`search-users-${d._id}`} >
+                <Link href={`/users/${encodeURIComponent(d._source.username.toLowerCase())}`} passHref>
+                  <a className='hover:text-green-700'>
+                    <div className='border rounded-lg m-4 p-2 flex'>
+                      <Image loader={userIconLoader} src={d._id} width={60} height={60} alt={d._source.username} className='rounded-lg' />
+                      <div className='flex-1 break-words ml-2'>
+                        <div className="border-b-1">
+                          <h3 className='inline-block text-lg font-bold mr-2'>{d._source.displayName || d._source.username}</h3>
+                          <h4 className='inline-block text-md font-bold text-gray-600'>{d._source.username}</h4>
                         </div>
                         <div className="mt-2 text-sm">{d._source.description}</div>
                       </div>
