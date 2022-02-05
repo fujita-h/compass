@@ -55,6 +55,7 @@ type User {
   username: String!
   email: String!
   displayName: String
+  description: String
   follow: [Follow]
   followed: [Follow]
 }
@@ -349,7 +350,7 @@ type Mutation {
   
   deleteDocument(auth: Auth!, id: String!): Document
 
-  updateMyProfile(auth: Auth!, username: String, displayName: String): User
+  updateMyProfile(auth: Auth!, username: String, displayName: String, description: String): User
 
   createStockCategory(auth: Auth!, userId: String!, name: String!): StockCategory
   updateStockCategory(auth: Auth!, id: String!, name: String!): StockCategory

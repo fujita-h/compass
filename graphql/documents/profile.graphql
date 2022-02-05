@@ -5,15 +5,17 @@ query MyProfile {
     username
     email
     displayName
+    description
   }
 }
 
-mutation UpdateMyProfile($auth: Auth!, $username: String, $displayName: String) {
-  updateMyProfile(auth: $auth, username: $username, displayName: $displayName) {
+mutation UpdateMyProfile($auth: Auth!, $username: String, $displayName: String, $description: String) {
+  updateMyProfile(auth: $auth, username: $username, displayName: $displayName, description: $description) {
     id
     uuid
     username
     email
     displayName
+    description
   }
 }

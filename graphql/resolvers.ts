@@ -1234,7 +1234,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     updateMyProfile: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, username, displayName } = args
+      const { auth, username, displayName, description } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -1244,7 +1244,7 @@ export const resolvers: Resolvers = {
         return await prisma.user.update({
           where: { id: _context.userSession.id.toUpperCase() },
           data: {
-            username, displayName,
+            username, displayName, description
           }
         })
       }
