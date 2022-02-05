@@ -305,7 +305,7 @@ const ReactiveToC = ({ children }) => {
     const elements = Array.from(document.getElementsByClassName(CONTENT_ANCHOR_CLASS_NAME))
     const targets = elements.map(element => {
       const rect = element.getBoundingClientRect()
-      return { id: element.id, top: rect.top }
+      return { id: element.id, top: rect.top - 1 }
     }).sort((a, b) => b.top - a.top)
     const target = targets.find(x => x.top < 0) ?? targets.slice(-1)[0]
     setScrollMarker(target?.id ?? '')
