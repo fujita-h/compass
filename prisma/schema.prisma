@@ -115,7 +115,7 @@ model group {
   id             String           @id @db.VarChar(26)
   name           String           @unique @db.VarChar(127)
   displayName    String?          @db.VarChar(127)
-  description    String?          @db.VarChar(255)
+  description    String?          @db.VarChar(500)
   type           group_type       @default(normal)
   group_icon     group_icon?
   paper          paper[]
@@ -229,6 +229,7 @@ model user {
   username        String           @unique @db.VarChar(50)
   email           String           @unique @db.VarChar(255)
   displayName     String?          @db.VarChar(255)
+  description     String?          @db.VarChar(500)
   hash            String?          @db.VarChar(127)
   createdAt       String           @db.VarChar(50)
   createdAtNumber BigInt           @default(0) @db.UnsignedBigInt

@@ -244,12 +244,18 @@ export const resolvers: Resolvers = {
       })
       const follower = (followerResult && followerResult.followed) ? followerResult.followed.map(x => x.fromUserId) : []
 
+      const watches = (await prisma.watch.findMany({
+        where: { userId: _context.userSession.id.toUpperCase() },
+        select: { groupId: true }
+      })).map(x => x.groupId)
+
       const _edges: DocumentEdge[] = (await prisma.document.findMany({
         where: {
           paper: {
             OR: [
               { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-              { user: { id: { in: follower } } }
+              { user: { id: { in: follower } } },
+              { group: { id: { in: watches } } },
             ],
             updatedAtNumber: { lt: Number(targetCursor) }
           }
@@ -638,7 +644,9 @@ export const resolvers: Resolvers = {
           select: { groupId: true }
         })
         const documentsResult = (index && index.toLowerCase() === 'documents') ? await esClient.searchDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId), from, size }) : undefined
-        return { Documents: documentsResult }
+        const groupsResult = (index && index.toLowerCase() === 'groups') ? await esClient.searchGroups({ query: query, from, size }) : undefined
+        const usersResult = (index && index.toLowerCase() === 'users') ? await esClient.searchUsers({ query: query, from, size }) : undefined
+        return { Documents: documentsResult, Groups: groupsResult, Users: usersResult }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -668,7 +676,8 @@ export const resolvers: Resolvers = {
         })
         const documentsResult = await esClient.countDocuments({ query: query, filterGroupIds: groups.map(x => x.groupId) })
         const groupsResult = await esClient.countGroups({ query: query })
-        return { Documents: documentsResult, Groups: groupsResult }
+        const usersResult = await esClient.countUsers({ query: query })
+        return { Documents: documentsResult, Groups: groupsResult, Users: usersResult }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -778,7 +787,7 @@ export const resolvers: Resolvers = {
         const checkAdmin = check.user_group_map.find(x => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
         const result = await prisma.group.update({
-          data: { name, displayName, description, type },
+          data: { name, displayName, description }, //restrict update type
           where: { id }
         })
 
@@ -789,8 +798,7 @@ export const resolvers: Resolvers = {
               name: result.name,
               displayName: result.displayName,
               description: result.description,
-              type: undefined,
-              //type: result.type, //restrict update type by group admin
+              type: result.type,
             }
           })
         } catch (error) {
@@ -1174,6 +1182,31 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    deletePaper: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const check = await prisma.paper.findUnique({ where: { id: id.toUpperCase() }, include: { group: { include: { user_group_map: { include: { user: { select: { id: true } } } } } } } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.isPosted) throw new ApolloError('PageAlreadyPublished') // published がすでにマークされたものは削除不可
+        if (check.userId !== _context.userSession.id) throw new ForbiddenError('Forbidden') // 自分のpaperでない場合は削除不可
+        if (check.group.type === 'private' || check.group.type === 'normal') {
+          // 記事のグループがprivate/normalだった場合、現在もそのgroupに自分が属しているのか確認。違った場合は削除不可
+          if (!(check.group.user_group_map.map((x) => x.user.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
+        }
+
+        const result = await prisma.paper.delete({ where: { id: id.toUpperCase() }, include: { group: true, user: true } })
+        return result
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     deleteDocument: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, id } = args
       if (auth == 'admin') {
@@ -1203,19 +1236,35 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     updateMyProfile: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, username, displayName } = args
+      const { auth, username, displayName, description } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.user.update({
+        const result = await prisma.user.update({
           where: { id: _context.userSession.id.toUpperCase() },
           data: {
-            username, displayName,
+            username, displayName, description
           }
         })
+
+        try {
+          await esClient.upsertUser({
+            id: result.id,
+            user: {
+              username: result.username,
+              email: result.username,
+              displayName: result.displayName,
+              description: result.description,
+            }
+          })
+        } catch (error) {
+          console.error(error)
+        }
+
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

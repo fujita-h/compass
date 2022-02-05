@@ -1,4 +1,4 @@
-query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size: Int) {
+query EsSearch($auth: Auth!, $query: String, $index: String!, $from: Int, $size: Int) {
   esSearch(auth: $auth, query: $query, index: $index, from: $from, size: $size) {
     Documents {
       took
@@ -34,6 +34,60 @@ query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size
         }
       }
     }
+    Groups{
+      took
+      timed_out
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+      hits {
+        max_score
+        total {
+          value
+          relation
+        }
+        hits {
+          _id
+          _score
+          _source {
+            name
+            displayName
+            description
+            type
+          }
+        }
+      }
+    }
+    Users {
+      took
+      timed_out
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+      hits {
+        max_score
+        total {
+          value
+          relation
+        }
+        hits {
+          _id
+          _score
+          _source {
+            username
+            email
+            displayName
+            description
+          }
+        }
+      }
+    }
   }
   esCount(auth: $auth, query: $query) {
     Documents {
@@ -46,6 +100,15 @@ query EsSearch($auth: Auth!, $query: String!, $index: String!, $from: Int, $size
       }
     }
     Groups {
+      count
+      _shards {
+        total
+        successful
+        skipped
+        failed
+      }
+    }
+    Users {
       count
       _shards {
         total

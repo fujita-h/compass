@@ -68,7 +68,7 @@ export default function Page() {
     reader.readAsDataURL(file)
   }
 
-  const rand = useMemo(() => Date.now().toString(),[data])
+  const rand = useMemo(() => Date.now().toString(), [data])
   const iconLoader = ({ src, width, quality }) => {
     return `/api/files/usericons/${src}?rand=${rand}`
   }
@@ -118,6 +118,12 @@ export default function Page() {
             <input type="text" name="displayName" placeholder="Dispaly Name"
               defaultValue={formState?.displayName || ''} onChange={handleFormValueChanged}
               className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" />
+          </div>
+          <div>
+            <div className="text-gray-700">自己紹介</div>
+            <textarea name="description" placeholder='所属や自己紹介、アピールポイント'
+              className='border border-gray-300 rounded-lg p-2 w-full' 
+              defaultValue={formState?.description} onChange={handleFormValueChanged} />
           </div>
 
           <div className='mt-2'>

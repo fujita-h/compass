@@ -55,6 +55,7 @@ type User {
   username: String!
   email: String!
   displayName: String
+  description: String
   follow: [Follow]
   followed: [Follow]
 }
@@ -222,23 +223,75 @@ type EsSearchDocument {
   body: String!
 }
 
+type EsSearchGroup {
+  name: String!
+  displayName: String
+  description: String
+  type: String!
+}
+
+type EsSearchUser {
+  username: String!
+  email: String!
+  displayName: String
+  description: String
+}
+
 type EsSearchDocumentResult{
   _id: String
   _score: Float
   _source: EsSearchDocument
 }
 
-type EsSerarchDocumentsHits {
+type EsSearchGroupResult{
+  _id: String
+  _score: Float
+  _source: EsSearchGroup
+}
+
+type EsSearchUserResult{
+  _id: String
+  _score: Float
+  _source: EsSearchUser
+}
+
+type EsSearchDocumentsHits {
   max_score: Float
   total: EsTotal
   hits:[EsSearchDocumentResult]
+}
+
+type EsSearchGroupsHits {
+  max_score: Float
+  total: EsTotal
+  hits:[EsSearchGroupResult]
+}
+
+type EsSearchUsersHits {
+  max_score: Float
+  total: EsTotal
+  hits:[EsSearchUserResult]
 }
 
 type EsSearchDocmentsResponse {
   took: Int
   timed_out: Boolean
   _shards: EsShards
-  hits: EsSerarchDocumentsHits
+  hits: EsSearchDocumentsHits
+}
+
+type EsSearchGroupsResponse {
+  took: Int
+  timed_out: Boolean
+  _shards: EsShards
+  hits: EsSearchGroupsHits
+}
+
+type EsSearchUsersResponse {
+  took: Int
+  timed_out: Boolean
+  _shards: EsShards
+  hits: EsSearchUsersHits
 }
 
 type EsCountResponse {
@@ -248,11 +301,14 @@ type EsCountResponse {
 
 type EsSearchResponses {
   Documents: EsSearchDocmentsResponse
+  Groups: EsSearchGroupsResponse
+  Users: EsSearchUsersResponse
 }
 
 type EsCountResponses {
   Documents: EsCountResponse
   Groups: EsCountResponse
+  Users: EsCountResponse
 }
 
 type Query {
@@ -296,7 +352,7 @@ type Query {
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
   watches(auth: Auth!, userId: String, groupId: String): [Watch]!
 
-  esSearch(auth: Auth!, query: String!, index: String!, from: Int, size: Int): EsSearchResponses
+  esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
 }
 
@@ -317,10 +373,11 @@ type Mutation {
   
   createPaper(auth: Auth!, userId: String, groupId: String!, title: String!, tags: String!, body: String!, documentId: String, isPosted: Int): Paper
   updatePaper(auth: Auth!, paperId: String!, title: String!, tags: String!, body: String!, isPosted: Int): Paper
+  deletePaper(auth: Auth!, id: String!): Paper
   
   deleteDocument(auth: Auth!, id: String!): Document
 
-  updateMyProfile(auth: Auth!, username: String, displayName: String): User
+  updateMyProfile(auth: Auth!, username: String, displayName: String, description: String): User
 
   createStockCategory(auth: Auth!, userId: String!, name: String!): StockCategory
   updateStockCategory(auth: Auth!, id: String!, name: String!): StockCategory
