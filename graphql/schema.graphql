@@ -242,13 +242,13 @@ type EsSearchGroupResult{
   _source: EsSearchGroup
 }
 
-type EsSerarchDocumentsHits {
+type EsSearchDocumentsHits {
   max_score: Float
   total: EsTotal
   hits:[EsSearchDocumentResult]
 }
 
-type EsSerarchGroupsHits {
+type EsSearchGroupsHits {
   max_score: Float
   total: EsTotal
   hits:[EsSearchGroupResult]
@@ -259,14 +259,14 @@ type EsSearchDocmentsResponse {
   took: Int
   timed_out: Boolean
   _shards: EsShards
-  hits: EsSerarchDocumentsHits
+  hits: EsSearchDocumentsHits
 }
 
 type EsSearchGroupsResponse {
   took: Int
   timed_out: Boolean
   _shards: EsShards
-  hits: EsSerarchGroupsHits
+  hits: EsSearchGroupsHits
 }
 
 type EsCountResponse {
