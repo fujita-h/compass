@@ -54,14 +54,14 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
               </div>
             </div>
             :
-            <a href={`/search?q=${query}&type=documents`}>
+            <Link href={`/search?q=${query}&type=documents`} passHref><a>
               <div className="border-b">
                 <div className="p-2 flex justify-between">
                   <span>Documents</span>
                   <span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Documents.count}</span>
                 </div>
               </div>
-            </a>
+            </a></Link>
           }
           {typeValidated === 'groups' ?
             <div className="border-b">
@@ -71,15 +71,14 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
               </div>
             </div>
             :
-            <a href={`/search?q=${query}&type=groups`}>
+            <Link href={`/search?q=${query}&type=groups`} passHref><a>
               <div className="border-b">
                 <div className="p-2 flex justify-between">
                   <span>Groups</span>
                   <span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Groups.count}</span>
                 </div>
               </div>
-
-            </a>
+            </a></Link>
           }
           {typeValidated === 'users' ?
             <div className="">
@@ -89,19 +88,19 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
               </div>
             </div>
             :
-            <a href={`/search?q=${query}&type=users`}>
+            <Link href={`/search?q=${query}&type=users`} passHref><a>
               <div className="">
                 <div className="p-2 flex justify-between">
                   <span>Users</span>
                   <span className="border rounded-lg text-md bg-gray-500 text-white px-2">{data.esCount.Users.count}</span>
                 </div>
               </div>
-            </a>
+            </a></Link>
           }
         </div>
       </div>
       <div className="flex-1">
-        {typeValidated === 'documents' ?
+        {typeValidated === 'documents' && data.esSearch.Documents?
           <div>
             {data.esSearch.Documents.hits.hits.map((d) =>
               <div key={`search-docs-${d._id}`} className="w-full lg:w-full 2xl:w-1/2 max-w-4xl">
@@ -126,7 +125,7 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
             )}
           </div> : <></>
         }
-        {typeValidated === 'groups' ?
+        {typeValidated === 'groups' && data.esSearch.Groups ?
           <div>
             {data.esSearch.Groups.hits.hits.map((d) =>
               <div key={`search-groups-${d._id}`} >
@@ -148,7 +147,7 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
             )}
           </div> : <></>
         }
-        {typeValidated === 'users' ?
+        {typeValidated === 'users' && data.esSearch.Users?
           <div>
             {data.esSearch.Users.hits.hits.map((d) =>
               <div key={`search-users-${d._id}`} >

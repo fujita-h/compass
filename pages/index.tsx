@@ -138,9 +138,15 @@ const WelcomeMessage = () => {
         <div className='text-3xl'>Welcome to Compass</div>
         <div>Compass へようこそ。</div>
         <div className='text-2xl border-b mt-4'>興味のあるグループを ウォッチ する</div>
-        <div className='ml-4 mt-2'>Compass のドキュメントは必ずいずれかのグループに属しています。<br />興味のあるグループを ウォッチ することで、そのグループの新着記事がトップページに記事が表示されるようになります。</div>
+        <div className='ml-4 mt-2'>
+          <div>Compass のドキュメントは必ずいずれかのグループに属しています。<br />興味のあるグループを ウォッチ することで、そのグループの新着記事がトップページに記事が表示されるようになります。</div>
+          <Link href={`search?type=groups`}><div className='bg-blue-100 border-2 border-blue-200 rounded-lg text-center p-1 mt-2 text-lg w-52 hover:cursor-pointer hover:border-blue-400'>グループを探す</div></Link>
+        </div>
         <div className='text-2xl border-b mt-4'>興味のあるユーザーを フォロー する</div>
-        <div className='ml-4 mt-2'>特定のユーザーの記事に興味がありますか?<br />興味のあるユーザーを フォロー することで、そのユーザーの新着記事がトップページに記事が表示されるようになります。</div>
+        <div className='ml-4 mt-2'>
+          <div>特定のユーザーの記事に興味がありますか?<br />興味のあるユーザーを フォロー することで、そのユーザーの新着記事がトップページに記事が表示されるようになります。</div>
+          <Link href={`search?type=users`}><div className='bg-blue-100 border-2 border-blue-200 rounded-lg text-center p-1 mt-2 text-lg w-52 hover:cursor-pointer hover:border-blue-400'>ユーザーを探す</div></Link>
+        </div>
       </div>
     </div>
   )
