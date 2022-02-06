@@ -105,22 +105,72 @@ class ElasticsearchClient {
 
   private documentsQuery(query: string, filterGroupIds: string[]) {
     return query ? {
-      bool: {
-        filter: [
-          { terms: { groupId: filterGroupIds } }
+      "function_score": {
+        "query": {
+          "bool": {
+            "filter": [
+              { "terms": { "groupId": filterGroupIds } }
+            ],
+            "should": [
+              {
+                "multi_match": {
+                  "query": query,
+                  "fields": ["title.sudachi_C^2.0", "title.sudachi_B^1.0", "title.sudachi_A^0.5", "title.kuromoji^0.3", "title.ngram^0.1"],
+                  "boost": 1.0
+                }
+              },
+              {
+                "multi_match": {
+                  "query": query,
+                  "fields": ["body.sudachi_C^2.0", "body.sudachi_B^1.0", "body.sudachi_A^0.5", "body.kuromoji^0.3", "body.ngram^0.1"],
+                  "boost": 1.0
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "functions": [
+          {
+            "exp": {
+              "createdAt": {
+                "offset": "30d",
+                "scale": "360d",
+                "decay": 0.5
+              }
+            },
+            "weight": 1
+          }
         ],
-        must: [
-          { match: { body: query } }
-        ]
+        "score_mode": "multiply",
+        "boost_mode": "sum"
       }
     } : {
-      bool: {
-        filter: [
-          { terms: { groupId: filterGroupIds } }
+      "function_score": {
+        "query": {
+          "bool": {
+            "filter": [
+              { "terms": { "groupId": filterGroupIds } }
+            ],
+            "must": [
+              { "match_all": {} }
+            ]
+          }
+        },
+        "functions": [
+          {
+            "exp": {
+              "createdAt": {
+                "offset": "1m",
+                "scale": "360d",
+                "decay": 0.5
+              }
+            },
+            "weight": 1
+          }
         ],
-        must: [
-          { match_all: {} }
-        ]
+        "score_mode": "multiply",
+        "boost_mode": "sum"
       }
     }
   }
@@ -141,7 +191,7 @@ class ElasticsearchClient {
     const result = await this.client.count<CountResponse>({
       index: 'documents',
       body: {
-        query: this.documentsQuery(query, filterGroupIds)
+        query: this.documentsQuery(query, filterGroupIds).function_score.query
       }
     })
     return result.body
