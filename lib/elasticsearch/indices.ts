@@ -8,6 +8,18 @@ const normalize = {
   mode: "compose"
 }
 
+const ja_sudachi_search_split = {
+  type: "sudachi_split",
+  mode: "search"
+}
+
+const ja_sudachi_tokenizer = {
+  type: "sudachi_tokenizer",
+  split_mode: "B",
+  discard_compound_token: true, // 複合語を含んだ同義語を設定した場合の処置
+  additional_settings: "{\"systemDict\":\"system_full.dic\"}",
+}
+
 const ja_kuromoji_tokenizer = {
   mode: "search",
   type: "kuromoji_tokenizer",
@@ -20,7 +32,7 @@ const ja_kuromoji_tokenizer = {
 const ja_ngram_tokenizer = {
   type: "ngram",
   min_gram: 2,
-  max_gram: 2,
+  max_gram: 3,
   token_chars: [
     "letter",
     "digit"
@@ -42,6 +54,37 @@ const ja_search_synonym = {
   ]
 }
 
+const ja_sudachi_index_analyzer = {
+  type: "custom",
+  char_filter: [
+    "normalize" // unicode文字の正規化
+  ],
+  filter: [
+    "cjk_width",
+    "lowercase",
+    "sudachi_baseform",
+    "sudachi_part_of_speech",
+    "sudachi_normalizedform",
+    "sudachi_ja_stop",
+  ],
+  tokenizer: "ja_sudachi_tokenizer",
+}
+
+const ja_sudachi_search_analyzer = {
+  type: "custom",
+  char_filter: [
+    "normalize" // unicode文字の正規化
+  ],
+  filter: [
+    "sudachi_baseform",
+    "sudachi_part_of_speech",
+    "sudachi_normalizedform",
+    "sudachi_ja_stop",
+    "ja_sudachi_search_split"
+  ],
+  tokenizer: "ja_sudachi_tokenizer",
+}
+
 const ja_kuromoji_index_analyzer = {
   type: "custom",
   char_filter: [
@@ -59,7 +102,7 @@ const ja_kuromoji_index_analyzer = {
   ]
 }
 
-const ja_kuromoji_search_analyzer =  {
+const ja_kuromoji_search_analyzer = {
   type: "custom",
   char_filter: [
     "normalize" // unicode文字の正規化
@@ -113,14 +156,18 @@ export const documents = {
           normalize,
         },
         tokenizer: {
+          ja_sudachi_tokenizer,
           ja_kuromoji_tokenizer,
           ja_ngram_tokenizer,
         },
         filter: {
+          ja_sudachi_search_split,
           ja_index_synonym,
           ja_search_synonym,
         },
         analyzer: {
+          ja_sudachi_index_analyzer,
+          ja_sudachi_search_analyzer,
           ja_kuromoji_index_analyzer,
           ja_kuromoji_search_analyzer,
           ja_ngram_index_analyzer,
@@ -171,6 +218,16 @@ export const documents = {
           search_analyzer: "ja_kuromoji_search_analyzer",
           analyzer: "ja_kuromoji_index_analyzer",
           fields: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
             ngram: {
               type: "text",
               search_analyzer: "ja_ngram_search_analyzer",
@@ -181,7 +238,12 @@ export const documents = {
         tags: {
           type: "keyword",
           fields: {
-            text: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
               type: "text",
               search_analyzer: "ja_kuromoji_search_analyzer",
               analyzer: "ja_kuromoji_index_analyzer",
@@ -195,9 +257,19 @@ export const documents = {
         },
         body: {
           type: "text",
-          search_analyzer: "ja_kuromoji_search_analyzer",
-          analyzer: "ja_kuromoji_index_analyzer",
+          search_analyzer: "ja_sudachi_search_analyzer",
+          analyzer: "ja_sudachi_index_analyzer",
           fields: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
             ngram: {
               type: "text",
               search_analyzer: "ja_ngram_search_analyzer",
@@ -220,14 +292,18 @@ export const groups = {
           normalize,
         },
         tokenizer: {
+          ja_sudachi_tokenizer,
           ja_kuromoji_tokenizer,
           ja_ngram_tokenizer,
         },
         filter: {
+          ja_sudachi_search_split,
           ja_index_synonym,
           ja_search_synonym,
         },
         analyzer: {
+          ja_sudachi_index_analyzer,
+          ja_sudachi_search_analyzer,
           ja_kuromoji_index_analyzer,
           ja_kuromoji_search_analyzer,
           ja_ngram_index_analyzer,
@@ -243,7 +319,12 @@ export const groups = {
         displayName: {
           type: "keyword",
           fields: {
-            text: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
               type: "text",
               search_analyzer: "ja_kuromoji_search_analyzer",
               analyzer: "ja_kuromoji_index_analyzer",
@@ -260,9 +341,19 @@ export const groups = {
         },
         description: {
           type: "text",
-          search_analyzer: "ja_kuromoji_search_analyzer",
-          analyzer: "ja_kuromoji_index_analyzer",
+          search_analyzer: "ja_sudachi_search_analyzer",
+          analyzer: "ja_sudachi_index_analyzer",
           fields: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
             ngram: {
               type: "text",
               search_analyzer: "ja_ngram_search_analyzer",
@@ -284,14 +375,18 @@ export const users = {
           normalize,
         },
         tokenizer: {
+          ja_sudachi_tokenizer,
           ja_kuromoji_tokenizer,
           ja_ngram_tokenizer,
         },
         filter: {
+          ja_sudachi_search_split,
           ja_index_synonym,
           ja_search_synonym,
         },
         analyzer: {
+          ja_sudachi_index_analyzer,
+          ja_sudachi_search_analyzer,
           ja_kuromoji_index_analyzer,
           ja_kuromoji_search_analyzer,
           ja_ngram_index_analyzer,
@@ -312,9 +407,19 @@ export const users = {
         },
         description: {
           type: "text",
-          search_analyzer: "ja_kuromoji_search_analyzer",
-          analyzer: "ja_kuromoji_index_analyzer",
+          search_analyzer: "ja_sudachi_search_analyzer",
+          analyzer: "ja_sudachi_index_analyzer",
           fields: {
+            sudachi: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer",
+              analyzer: "ja_sudachi_index_analyzer",
+            },
+            kuromoji: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
             ngram: {
               type: "text",
               search_analyzer: "ja_ngram_search_analyzer",
