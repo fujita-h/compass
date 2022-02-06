@@ -35,6 +35,7 @@ services:
         image: docker.elastic.co/kibana/kibana:7.16.3
         environment:
             - ELASTICSEARCH_HOSTS=http://es01:9200
+            - I18N_LOCALE=ja-JP
         mem_limit: 1g
         depends_on:
             - elasticsearch
