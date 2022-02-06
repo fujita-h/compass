@@ -100,18 +100,25 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
         </div>
       </div>
       <div className="flex-1">
-        {typeValidated === 'documents' && data.esSearch.Documents?
+        {typeValidated === 'documents' && data.esSearch.Documents ?
           <div>
             {data.esSearch.Documents.hits.hits.map((d) =>
               <div key={`search-docs-${d._id}`} className="w-full lg:w-full 2xl:w-1/2 max-w-4xl">
                 <Link href={`/docs/${encodeURIComponent(d._id.toLowerCase())}`} passHref>
                   <a className='hover:text-green-700'>
                     <div className='border m-2 p-2 bg-white'>
-                      <Link href={`/groups/${encodeURIComponent(d._source.groupName)}`} passHref>
-                        <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
-                          {d._source.groupDisplayName || d._source.groupName}
+                      <div className="flex justify-between">
+                        <div>
+                          <Link href={`/groups/${encodeURIComponent(d._source.groupName)}`} passHref>
+                            <div className='bg-red-100 text-black inline-block px-2 mb-1 hover:underline'>
+                              {d._source.groupDisplayName || d._source.groupName}
+                            </div>
+                          </Link>
                         </div>
-                      </Link>
+                        <div className="text-sm">
+                          {d._score.toFixed(4)}
+                        </div>
+                      </div>
                       <div className='text-black'>
                         <UserIconNameLinkSmall userId={d._source.userId} username={d._source.userName} />
                         <div className='inline-block ml-2'>
@@ -147,7 +154,7 @@ const InnerPage = ({ query, type }: { query: string, type: string }) => {
             )}
           </div> : <></>
         }
-        {typeValidated === 'users' && data.esSearch.Users?
+        {typeValidated === 'users' && data.esSearch.Users ?
           <div>
             {data.esSearch.Users.hits.hits.map((d) =>
               <div key={`search-users-${d._id}`} >
