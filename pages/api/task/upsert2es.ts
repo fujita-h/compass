@@ -34,6 +34,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   }
 
+
+  const groups = await prisma.group.findMany()
+
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i]
+    await esClient.upsertGroup({
+      id: group.id,
+      group: {
+        name: group.name,
+        displayName: group.displayName,
+        description: group.description,
+        type: group.type
+      }
+    })
+  }
+
+  const users = await prisma.user.findMany()
+
+  for(let i=0; i<users.length; i++) {
+    const user = users[i]
+    await esClient.upsertUser({
+      id: user.id,
+      user: {
+        username: user.username,
+        email: user.email,
+        displayName: user.displayName,
+        description: user.description,
+      }
+    })
+  }
+
   return res.json({ state: 'ok' })
 
 }
