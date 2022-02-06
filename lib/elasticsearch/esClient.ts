@@ -60,9 +60,7 @@ interface Document {
   groupDisplayName: string
   groupType: string
   createdAt: string
-  createdAtNumber: number
   updatedAt: string
-  updatedAtNumber: number
   title: string
   tags: string[]
   body: string

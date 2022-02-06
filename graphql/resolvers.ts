@@ -1023,9 +1023,7 @@ export const resolvers: Resolvers = {
                 groupDisplayName: result.group.displayName,
                 groupType: result.group.type,
                 createdAt: upsertDoc.createdAt,
-                createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
-                updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
                 tags: tags.split(',').filter((tag) => tag !== ''),
                 body: result.body,
@@ -1065,9 +1063,7 @@ export const resolvers: Resolvers = {
                 body,
                 isPosted,
                 createdAt: new Date(now).toISOString(),
-                createdAtNumber: now,
                 updatedAt: new Date(now).toISOString(),
-                updatedAtNumber: now
               }
             }),
             prisma.paper.findUnique({
@@ -1146,9 +1142,7 @@ export const resolvers: Resolvers = {
                 groupDisplayName: result.group.displayName,
                 groupType: result.group.type,
                 createdAt: upsertDoc.createdAt,
-                createdAtNumber: Number(upsertDoc.createdAtNumber),
                 updatedAt: result.updatedAt,
-                updatedAtNumber: Number(result.updatedAtNumber),
                 title: result.title,
                 tags: tags.split(',').filter((tag) => tag !== ''),
                 body: result.body,

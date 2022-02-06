@@ -26,9 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         groupDisplayName: doc.paper.group.displayName,
         groupType: doc.paper.group.type,
         createdAt: doc.createdAt,
-        createdAtNumber: Number(doc.createdAtNumber),
         updatedAt: doc.paper.updatedAt,
-        updatedAtNumber: Number(doc.paper.updatedAtNumber),
         title: doc.paper.title,
         tags: doc.paper.tags.split(',').filter((tag) => tag !== ''),
         body: doc.paper.body

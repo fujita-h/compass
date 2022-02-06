@@ -287,14 +287,8 @@ export const documents = {
         createdAt: {
           type: "date"
         },
-        createdAtNumber: {
-          type: "unsigned_long"
-        },
         updatedAt: {
           type: "date"
-        },
-        updatedAtNumber: {
-          type: "unsigned_long"
         },
         title: {
           type: "text",
