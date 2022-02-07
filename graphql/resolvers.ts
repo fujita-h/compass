@@ -7,6 +7,7 @@ import { ulid } from 'ulid'
 import { Prisma } from '.prisma/client'
 import { NextApiResponse } from 'next'
 import { IncomingHttpHeaders } from 'http'
+import { validateUsername } from '@lib/auth'
 
 export type GraphQLResolveContext = {
   headers: IncomingHttpHeaders
@@ -1237,6 +1238,7 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (username && !validateUsername(username)) throw new ApolloError('Invalid Username')
         const result = await prisma.user.update({
           where: { id: _context.userSession.id.toUpperCase() },
           data: {
