@@ -7,11 +7,16 @@ import { Strategy } from 'passport-local'
 const saltRounds = 12
 const REGEX_USERNAME_RULE = /^[a-z][a-z0-9-_]{2,}$/
 
+export const validateUsername  = (username: string) : boolean => {
+  if (username.match(REGEX_USERNAME_RULE) == null) return false
+  return true
+}
+
 export async function createUser({ uuid: _uuid, username: _username, email: _email, password }: { uuid?: string, username?: string, email?: string, password?: string })
   : Promise<{ id: string, uuid: string, username: string, email: string } | null> {
 
   // ユーザー名ルール適合チェック
-  if (_username && _username.match(REGEX_USERNAME_RULE) == null) {
+  if (_username && !validateUsername(_username)) {
     return Promise.reject('Invalid username')
   }
 
