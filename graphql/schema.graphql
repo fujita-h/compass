@@ -311,6 +311,21 @@ type EsCountResponses {
   Users: EsCountResponse
 }
 
+
+type EsBucket {
+  key: String
+  doc_count: Int
+}
+type EsTags {
+  buckets: [EsBucket]
+}
+type EsTagsAggregations {
+  tags: EsTags
+}
+type EsTagsResponse {
+  aggregations: EsTagsAggregations
+}
+
 type Query {
   session: Session
 
@@ -354,6 +369,7 @@ type Query {
 
   esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
+  esTags(auth: Auth!, size: Int): EsTagsResponse
 }
 
 type Mutation {

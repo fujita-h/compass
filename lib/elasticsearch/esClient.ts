@@ -80,6 +80,21 @@ interface User {
   description: string
 }
 
+interface Bucket {
+  key: string
+  doc_count: number
+}
+interface Tags {
+  buckets: [Bucket]
+}
+interface TagsAggregations {
+  tags: Tags
+}
+
+interface TagsResponse {
+  aggregations: TagsAggregations
+}
+
 class ElasticsearchClient {
   client: Client
 
@@ -256,6 +271,31 @@ class ElasticsearchClient {
       index: 'users',
       body: {
         query: this.usersQuery(query)
+      }
+    })
+    return result.body
+  }
+
+  async tags({ filterGroupIds, size = 100 }: { filterGroupIds: string[], size?: number }) {
+    const result = await this.client.search<TagsResponse>({
+      index: 'documents',
+      filter_path: 'aggregations',
+      body: {
+        query: {
+          bool: {
+            filter: [
+              { terms: { groupId: filterGroupIds } }
+            ]
+          }
+        },
+        aggs: {
+          tags: {
+            terms: {
+              field: "tags",
+              size
+            }
+          }
+        }
       }
     })
     return result.body

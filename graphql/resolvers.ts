@@ -685,6 +685,35 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    esTags: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, size } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const groups = await prisma.user_group_map.findMany({
+          where: {
+            OR: [
+              { group: { type: 'public' } },
+              { group: { type: 'normal' } },
+              {
+                group: { type: 'private' },
+                userId: _context.userSession.id.toUpperCase()
+              },
+            ]
+          },
+          select: { groupId: true }
+        })
+        const tagsResult = await esClient.tags({ filterGroupIds: groups.map(x => x.groupId), size })
+        return tagsResult
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
   },
   Mutation: {
     updateConfiguration: async (_parent, args, _context: GraphQLResolveContext, _info) => {
