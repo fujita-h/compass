@@ -1,0 +1,12 @@
+query Tags($auth: Auth!, $size: Int) {
+  esTags(auth: $auth, size: $size) {
+    aggregations {
+      tags {
+        buckets {
+          key
+          doc_count
+        }
+      }
+    }
+  }
+}
