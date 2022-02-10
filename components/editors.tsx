@@ -294,7 +294,7 @@ const SubmitButton = ({ submitButtonMap, onSubmit }: { submitButtonMap: Array<Su
 
   return (
     <div onClick={(e) => e.currentTarget.focus()} onBlur={handleBlur} tabIndex={0}>
-      <div hidden={!isMenuOpen} className="z-40 absolute right-2 bottom-12 mt-2 w-40 rounded-md shadow-lg bg-white  ring-1 ring-black ring-opacity-5">
+      <div hidden={!isMenuOpen} className="z-40 absolute right-2 bottom-14 mt-2 w-fit rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
         {submitButtonMap.map((btn) =>
           <div className="py-1" key={btn.key} >
             <div data-name={btn.key} onClick={submitSelectionSelected} className="cursor-pointer block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600">{btn.label}</div>
