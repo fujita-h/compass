@@ -24,7 +24,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
   if (loading) {
-    return (<Layout>
+    return (<Layout showFooter={false}>
       <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' loading={true} />
     </Layout>)
   }
@@ -36,7 +36,7 @@ const InnerPage = ({ userId, groupName }: { userId: string, groupName: string })
   }
 
   return (
-    <Layout>
+    <Layout showFooter={false}>
       <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' autoSaveDelay={3} />
     </Layout>
   )

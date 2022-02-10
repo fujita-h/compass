@@ -11,9 +11,9 @@ export default function Page() {
   const router = useRouter()
   const documentId = getAsString(router.query?.documentId)
 
-  if (!session?.id) return (<Layout></Layout>)
-  if (!documentId) return (<Layout></Layout>)
-  return (<Layout><InnerPage userId={session.id} documentId={documentId} /></Layout>)
+  if (!session?.id) return (<Layout showFooter={false}></Layout>)
+  if (!documentId) return (<Layout showFooter={false}></Layout>)
+  return (<Layout showFooter={false}><InnerPage userId={session.id} documentId={documentId} /></Layout>)
 }
 
 const InnerPage = ({ userId, documentId }: { userId: string, documentId: string }) => {

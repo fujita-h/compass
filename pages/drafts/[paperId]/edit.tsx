@@ -21,7 +21,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: data?.draft?.documentIdLazy ? 'ドキュメントを更新' : '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
 
   if (loading) {
-    return (<Layout>
+    return (<Layout showFooter={false}>
       <EditorForm data={{ title: '', body: '', tags: [] }} meta={{ paperId }} submitButtonMap={submitButtonMap} submitType='draft' loading={true} />
     </Layout>)
   }
@@ -31,7 +31,7 @@ const InnerPage = ({ paperId }: { paperId: string }) => {
   }
 
   return (
-    <Layout>
+    <Layout showFooter={false}>
       <EditorForm data={{ title: data.draft.title, body: data.draft.body, tags: data.draft.tags.split(',').filter((tag) => tag !== '') }} meta={{ paperId }} submitButtonMap={submitButtonMap} submitType='draft' autoSaveDelay={3} />
     </Layout>
   )
