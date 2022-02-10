@@ -79,7 +79,7 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter, 
     <div className='max-w-7xl mx-auto flex'>
       <div className='flex-1'>
         <div className='bg-white'>
-          <div className='mt-3 p-2'>
+          <div className='mt-3 p-4'>
             <div className='flex place-content-between'>
               <div>
                 <Link href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`} passHref><a>
@@ -317,16 +317,16 @@ const ReactiveToC = ({ children }) => {
   }, [])
 
   const H1 = useCallback(({ node, ...props }) => {
-    const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200' : ''
+    const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 py-1' : 'py-1'
     return (<div className={className}><a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a></div>)
   }, [scrollMarker])
   const H2 = useCallback(({ node, ...props }) => {
-    const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 pl-4' : 'pl-4'
+    const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 pl-3 py-1' : 'pl-3 py-1'
     return (<div className={className}><a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a></div>)
   }, [scrollMarker])
 
   return (
-    <ReactMarkdown allowedElements={['h1', 'h2']} components={{ h1: H1, h2: H2 }}>{children}</ReactMarkdown>
+    <ReactMarkdown className='text-zinc-700 text-sm' allowedElements={['h1', 'h2']} components={{ h1: H1, h2: H2 }}>{children}</ReactMarkdown>
   )
 }
 
