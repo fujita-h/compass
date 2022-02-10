@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { Header, AdminHeader } from './headers'
 import { Footer } from '@components/footer'
 
-export const Layout = ({ children, htmlTitle, searchText }: { children?: any, htmlTitle?: string, searchText?: string }) => {
+export const Layout = ({ children, htmlTitle, searchText, showFooter = true }: { children?: any, htmlTitle?: string, searchText?: string, showFooter?: boolean }) => {
   return (
     <>
       <Head>
@@ -19,7 +19,7 @@ export const Layout = ({ children, htmlTitle, searchText }: { children?: any, ht
           <div className="max-w-full">{children}</div>
         </main>
         <footer>
-          <Footer />
+          {showFooter ? <Footer /> : <></>}
         </footer>
       </div>
     </>
