@@ -3,28 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+
   .markdown {
-    @apply p-2 text-lg
+    @apply p-2 ml-6 text-lg leading-8 text-zinc-800
   }
   .markdown h1 {
-    @apply pl-2 mb-2 text-4xl font-bold border-b-1
+    @apply pl-2 py-2 mt-8 mb-6 -ml-6 text-4xl font-bold border-b-1 border-l-blue-700 border-l-6
   }
   .markdown h2 {
-    @apply pl-2 mb-2 text-3xl font-bold border-b-1
+    @apply pl-2 py-1 my-6 -ml-3 text-3xl font-bold border-b-1 border-l-blue-700 border-l-3
   }
   .markdown h3 {
-    @apply pl-2 mb-2 text-2xl font-bold border-b-1
+    @apply pl-2 my-4 -ml-1 text-2xl font-bold border-b-1
   }
   .markdown h4, .markdown h5 {
-    @apply pl-2 mb-2 text-xl font-bold border-b-1
+    @apply pl-2 my-4 text-xl font-bold border-b-1
   }
   .markdown p {
-    @apply pl-2 mb-2
-  } 
+    @apply my-4
+  }
+  .markdown img {
+    @apply my-4 border-1 border-gray-300
+  }
   .markdown ul {
-    @apply pl-3 list-disc ml-4
+    @apply pl-3 ml-4 list-disc
   }
   .markdown ol {
-    @apply pl-3 list-decimal ml-4
+    @apply pl-3 ml-4 list-decimal
   }
 }
