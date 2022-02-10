@@ -2,6 +2,7 @@ import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import { relayStylePagination } from "@apollo/client/utilities"
 import { AppProps } from 'next/app'
 import Head from 'next/head'
+import "yakuhanjp"
 import '../styles/global.css'
 import 'react-toastify/dist/ReactToastify.css'
 
