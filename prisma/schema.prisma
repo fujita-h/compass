@@ -118,6 +118,7 @@ model group {
   description    String?          @db.VarChar(500)
   type           group_type       @default(normal)
   group_icon     group_icon?
+  group_template group_template[]
   paper          paper[]
   user_group_map user_group_map[]
   watch          watch[]
@@ -245,7 +246,40 @@ model user {
   stock_category  stock_category[]
   user_group_map  user_group_map[]
   user_icon       user_icon?
+  user_template   user_template[]
   watch           watch[]
+}
+
+model user_template {
+  id              String @id @db.VarChar(26)
+  userId          String @db.VarChar(26)
+  name            String @db.VarChar(255)
+  title           String @db.VarChar(255)
+  tags            String @db.Text
+  body            String @db.LongText
+  createdAt       String @db.VarChar(50)
+  createdAtNumber BigInt @default(0) @db.UnsignedBigInt
+  updatedAt       String @db.VarChar(50)
+  updatedAtNumber BigInt @default(0) @db.UnsignedBigInt
+  user            user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model group_template {
+  id              String @id @db.VarChar(26)
+  groupId         String @db.VarChar(26)
+  name            String @db.VarChar(255)
+  title           String @db.VarChar(255)
+  tags            String @db.Text
+  body            String @db.LongText
+  createdAt       String @db.VarChar(50)
+  createdAtNumber BigInt @default(0) @db.UnsignedBigInt
+  updatedAt       String @db.VarChar(50)
+  updatedAtNumber BigInt @default(0) @db.UnsignedBigInt
+  group           group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
 }
 
 enum configurations_ensureSingleRow {
