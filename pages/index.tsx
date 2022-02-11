@@ -32,23 +32,8 @@ export default function Page() {
 
   return (
     <Layout>
-      <div style={{ minHeight: 'calc(100vh - 48px)' }} className="flex content-between">
-        <div className="w-80 bg-white p-2">
-          <div className="p-2">
-            <div className='flex justify-between items-end'>
-              <div><h2>参加グループ</h2></div>
-              <div>
-                <Link href="/groups/new" passHref><a>
-                  <div className='border rounded-lg px-2 py-1 text-sm text-white bg-green-600'><span>New</span></div>
-                </a></Link>
-              </div>
-            </div>
-            <MyJoinedGroup />
-          </div>
-        </div>
-        <div className="w-full p-4">
-          <Timeline />
-        </div>
+      <div className="w-full px-8 my-4">
+        <Timeline />
       </div>
     </Layout>
   )
@@ -99,36 +84,6 @@ const Timeline = () => {
       }
     </div>
   </>)
-}
-
-const MyJoinedGroup = () => {
-  const { data, loading, fetchMore } = useMyJoinedGroupsCpQuery({ variables: { first: 10 }, fetchPolicy: "network-only" })
-  if (loading) return (<></>)
-  const nodes = data.myJoinedGroupsCP.edges.map((edge) => edge.node)
-  const pageInfo = data.myJoinedGroupsCP.pageInfo
-
-  return (
-    <div className='pt-2 text-base'>
-      {nodes.map((group) =>
-        <div key={`myGroups-${group.id}`} className='my-1'>
-          <Link href={`/groups/${encodeURIComponent(group.name)}`} passHref>
-            <a className='hover:underline'>
-              <span>{group.displayName || group.name}</span>
-            </a>
-          </Link>
-        </div>
-      )}
-      {pageInfo.hasNextPage &&
-        <div className='text-center w-full'>
-          <button className='border rounded-md px-4 py-2 bg-gray-100'
-            onClick={() => {
-              fetchMore({ variables: { after: pageInfo.endCursor, } })
-            }}>もっと読み込む</button>
-        </div>
-      }
-    </div>
-  )
-
 }
 
 const WelcomeMessage = () => {
