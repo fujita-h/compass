@@ -295,7 +295,6 @@ export const resolvers: Resolvers = {
               OR: [
                 { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-                { canReadAll: { gt: 0 } },
               ],
             }
           },
@@ -330,7 +329,6 @@ export const resolvers: Resolvers = {
               OR: [
                 { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-                { canReadAll: { gt: 0 } },
               ],
               updatedAtNumber: { lt: Number(targetCursor) }
             }
@@ -373,7 +371,6 @@ export const resolvers: Resolvers = {
               OR: [
                 { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-                { canReadAll: { gt: 0 } },
               ],
             }
           },
