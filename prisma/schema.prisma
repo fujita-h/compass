@@ -92,7 +92,6 @@ model configuration {
 model document {
   id              String    @id @db.VarChar(26)
   paperId         String    @db.VarChar(26)
-  isShared        Int       @default(0) @db.UnsignedTinyInt
   createdAt       String    @db.VarChar(50)
   createdAtNumber BigInt    @default(0) @db.UnsignedBigInt
   paper           paper     @relation(fields: [paperId], references: [id])
@@ -139,25 +138,25 @@ model notification {
 }
 
 model paper {
-  id                String     @id @db.VarChar(26)
-  userId            String     @db.VarChar(26)
-  groupId           String     @db.VarChar(26)
-  documentIdLazy    String?    @db.VarChar(26)
-  parentPaperIdLazy String?    @db.VarChar(26)
-  title             String     @db.VarChar(255)
-  tags              String     @db.Text
-  body              String     @db.LongText
-  isPosted          Int        @default(0) @db.UnsignedTinyInt
-  canReadAll        Int        @default(0) @db.UnsignedTinyInt
-  createdAt         String     @db.VarChar(50)
-  createdAtNumber   BigInt     @default(0) @db.UnsignedBigInt
-  updatedAt         String     @db.VarChar(50)
-  updatedAtNumber   BigInt     @default(0) @db.UnsignedBigInt
-  group             group      @relation(fields: [groupId], references: [id])
-  user              user       @relation(fields: [userId], references: [id])
+  id                String       @id @db.VarChar(26)
+  userId            String       @db.VarChar(26)
+  groupId           String       @db.VarChar(26)
+  documentIdLazy    String?      @db.VarChar(26)
+  parentPaperIdLazy String?      @db.VarChar(26)
+  title             String       @db.VarChar(255)
+  tags              String       @db.Text
+  body              String       @db.LongText
+  isPosted          Int          @default(0) @db.UnsignedTinyInt
+  type              paper_type   @default(normal)
+  status            paper_status @default(none)
+  createdAt         String       @db.VarChar(50)
+  createdAtNumber   BigInt       @default(0) @db.UnsignedBigInt
+  updatedAt         String       @db.VarChar(50)
+  updatedAtNumber   BigInt       @default(0) @db.UnsignedBigInt
+  group             group        @relation(fields: [groupId], references: [id])
+  user              user         @relation(fields: [userId], references: [id])
   document          document[]
 
-  @@index([canReadAll])
   @@index([createdAtNumber])
   @@index([documentIdLazy])
   @@index([groupId])
@@ -296,4 +295,17 @@ enum saml_idp_userMapping {
   uuid
   username
   email
+}
+
+enum paper_type {
+  normal
+  shared
+  question
+  discussion
+}
+
+enum paper_status {
+  none
+  opened
+  closed
 }
