@@ -171,7 +171,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
         }} />
       </div>
       <div className="flex justify-between" style={{ height: 'calc(100vh - 200px)' }}>
-        <div className="w-full border border-gray-400" style={{ display: displayStyle < 0 && 'none' }}>
+        <div className="flex-1 w-full border border-gray-400" style={{ display: displayStyle < 0 ? 'none' : '' }}>
           <div className="p-1" style={{ height: '2.4rem' }}>
             {displayStyle >= 0 && <div className="text-right">
               <span className="align-middle pb-1 px-1 border bg-gray-100 border-gray-400 hover:cursor-pointer" onClick={() => displayStyleChangeHandler(-1)}>&lt;</span>
@@ -220,13 +220,13 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
             }
           </div>
         </div>
-        <div className="w-full border border-gray-400" style={{ display: displayStyle > 0 && 'none' }}>
+        <div className="flex-1 w-full border border-gray-400" style={{ display: displayStyle > 0 ? 'none' : '', maxWidth: displayStyle == 0 ? '50%' : '' }}>
           <div className="p-1" style={{ height: '2.4rem' }}>
             {displayStyle <= 0 && <div className="text-left">
               <span className="align-middle pb-1 px-1 border bg-gray-100 border-gray-400 hover:cursor-pointer" onClick={() => displayStyleChangeHandler(1)}>&gt;</span>
             </div>}
           </div>
-          <div style={{ height: 'calc(100% - 2.4rem)' }} className="w-full p-2 overflow-auto markdown">
+          <div style={{ height: 'calc(100% - 2.4rem)', overflowWrap: 'anywhere' }} className="w-full p-2 overflow-auto markdown">
             <Markdown>{docData.body}</Markdown>
           </div>
         </div>
