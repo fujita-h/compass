@@ -130,13 +130,23 @@ class ElasticsearchClient {
               {
                 "multi_match": {
                   "query": query,
+                  "operator": "and",
                   "fields": ["title.sudachi_C^2.0", "title.sudachi_B^1.0", "title.sudachi_A^0.5", "title.kuromoji^0.3", "title.ngram^0.1"],
-                  "boost": 1.0
+                  "boost": 1.2
                 }
               },
               {
                 "multi_match": {
                   "query": query,
+                  "operator": "and",
+                  "fields": ["tags.sudachi_C^2.0", "tags.sudachi_B^1.0", "tags.sudachi_A^0.5", "tags.kuromoji^0.3", "tags.ngram^0.1"],
+                  "boost": 1.8
+                }
+              },
+              {
+                "multi_match": {
+                  "query": query,
+                  "operator": "and",
                   "fields": ["body.sudachi_C^2.0", "body.sudachi_B^1.0", "body.sudachi_A^0.5", "body.kuromoji^0.3", "body.ngram^0.1"],
                   "boost": 1.0
                 }
@@ -214,10 +224,28 @@ class ElasticsearchClient {
 
   private groupsQuery(query: string) {
     return query ? {
-      bool: {
-        must: [
-          { multi_match: { query: query, fields: ["name", "displayName", "description"] } }
-        ]
+      "bool": {
+        "should": [
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["name", "name.ngram"]
+            }
+          },
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["displayName.sudachi_C", "displayName.sudachi_B", "displayName.sudachi_A", "displayName.kuromoji", "displayName.ngram"]
+            }
+          },
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["description.sudachi_C", "description.sudachi_B", "description.sudachi_A", "description.kuromoji", "description.ngram"]
+            }
+          }
+        ],
+        "minimum_should_match": 1
       }
     } : { match_all: {} }
   }
@@ -246,10 +274,34 @@ class ElasticsearchClient {
 
   private usersQuery(query: string) {
     return query ? {
-      bool: {
-        must: [
-          { multi_match: { query, fields: ["username", "email", "displayName", "description"] } }
-        ]
+      "bool": {
+        "should": [
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["name", "name.ngram"]
+            }
+          },
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["email", "email.ngram"]
+            }
+          },
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["displayName.sudachi_C", "displayName.sudachi_B", "displayName.sudachi_A", "displayName.kuromoji", "displayName.ngram"]
+            }
+          },
+          {
+            "multi_match": {
+              "query": query,
+              "fields": ["description.sudachi_C", "description.sudachi_B", "description.sudachi_A", "description.kuromoji", "description.ngram"]
+            }
+          }
+        ],
+        "minimum_should_match": 1
       }
     } : { match_all: {} }
   }

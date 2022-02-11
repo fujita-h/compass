@@ -339,7 +339,7 @@ export const documents = {
               type: "text",
               search_analyzer: "ja_sudachi_search_analyzer_C",
               analyzer: "ja_sudachi_index_analyzer_C",
-            },            kuromoji: {
+            }, kuromoji: {
               type: "text",
               search_analyzer: "ja_kuromoji_search_analyzer",
               analyzer: "ja_kuromoji_index_analyzer",
@@ -370,7 +370,7 @@ export const documents = {
               type: "text",
               search_analyzer: "ja_sudachi_search_analyzer_C",
               analyzer: "ja_sudachi_index_analyzer_C",
-            },            kuromoji: {
+            }, kuromoji: {
               type: "text",
               search_analyzer: "ja_kuromoji_search_analyzer",
               analyzer: "ja_kuromoji_index_analyzer",
@@ -425,7 +425,14 @@ export const groups = {
     mappings: {
       properties: {
         name: {
-          type: "keyword"
+          type: "keyword",
+          fields: {
+            ngram: {
+              type: "text",
+              search_analyzer: "ja_ngram_search_analyzer",
+              analyzer: "ja_ngram_index_analyzer",
+            }
+          }
         },
         displayName: {
           type: "keyword",
@@ -535,12 +542,53 @@ export const users = {
       properties: {
         username: {
           type: "keyword",
+          fields: {
+            ngram: {
+              type: "text",
+              search_analyzer: "ja_ngram_search_analyzer",
+              analyzer: "ja_ngram_index_analyzer",
+            }
+          }
         },
         email: {
           type: "keyword",
+          fields: {
+            ngram: {
+              type: "text",
+              search_analyzer: "ja_ngram_search_analyzer",
+              analyzer: "ja_ngram_index_analyzer",
+            }
+          }
         },
         displayName: {
           type: "keyword",
+          fields: {
+            sudachi_A: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer_A",
+              analyzer: "ja_sudachi_index_analyzer_A",
+            },
+            sudachi_B: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer_B",
+              analyzer: "ja_sudachi_index_analyzer_B",
+            },
+            sudachi_C: {
+              type: "text",
+              search_analyzer: "ja_sudachi_search_analyzer_C",
+              analyzer: "ja_sudachi_index_analyzer_C",
+            },
+            kuromoji: {
+              type: "text",
+              search_analyzer: "ja_kuromoji_search_analyzer",
+              analyzer: "ja_kuromoji_index_analyzer",
+            },
+            ngram: {
+              type: "text",
+              search_analyzer: "ja_ngram_search_analyzer",
+              analyzer: "ja_ngram_index_analyzer"
+            }
+          }
         },
         description: {
           type: "text",
