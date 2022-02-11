@@ -76,6 +76,7 @@ type Group {
   displayName: String
   description: String
   type: GroupType!
+  user_group_map: [MapUserGroup]!
 }
 
 type GroupEdge {
@@ -95,15 +96,6 @@ type MapUserGroup {
   isAdmin: Int!
   user: User
   group: Group
-}
-
-type GroupWithMember {
-  id: String!
-  name: String!
-  displayName: String
-  description: String
-  type: GroupType!
-  user_group_map: [MapUserGroup]!
 }
 
 type Paper {
@@ -332,8 +324,8 @@ type Query {
   configuration(auth: Auth!): Configuration!
   samls(auth: Auth!): [Saml!]
 
-  groups(auth: Auth!): [Group!]
-  group(auth: Auth!, id: String, name: String): GroupWithMember
+  groups(auth: Auth!, offset: Int, limit: Int): [Group!]
+  group(auth: Auth!, id: String, name: String): Group
 
   joinedGroups(userId: String!): [Group!]
   myJoinedGroups: [Group!]

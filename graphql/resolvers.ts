@@ -64,14 +64,14 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     groups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth } = args
+      const { auth, limit, offset } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.group.findMany({})
+        return await prisma.group.findMany({ include: { user_group_map: true }, skip: offset, take: limit })
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        return await prisma.group.findMany({})
+        return await prisma.group.findMany({ include: { user_group_map: true }, skip: offset, take: limit })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -109,11 +109,11 @@ export const resolvers: Resolvers = {
     },
     joinedGroups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-      return (await prisma.user_group_map.findMany({ where: { userId: args.userId }, include: { group: true } })).map(x => x.group)
+      return (await prisma.user_group_map.findMany({ where: { userId: args.userId }, include: { group: { include: { user_group_map: true } } } })).map(x => x.group)
     },
     myJoinedGroups: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-      return (await prisma.user_group_map.findMany({ where: { userId: _context.userSession.id }, include: { group: true } })).map(x => x.group)
+      return (await prisma.user_group_map.findMany({ where: { userId: _context.userSession.id }, include: { group: { include: { user_group_map: true } } } })).map(x => x.group)
     },
     myJoinedGroupsCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { first, after } = args
@@ -126,7 +126,7 @@ export const resolvers: Resolvers = {
             name: { gt: targetCursor }
           }
         },
-        include: { group: true },
+        include: { group: { include: { user_group_map: true } } },
         orderBy: { group: { name: 'asc' } },
         take: first + 1
       })).map(_item => {
@@ -261,7 +261,7 @@ export const resolvers: Resolvers = {
             updatedAtNumber: { lt: Number(targetCursor) }
           }
         },
-        include: { paper: { include: { user: true, group: true } } },
+        include: { paper: { include: { user: true, group: { include: { user_group_map: true } } } } },
         orderBy: { paper: { updatedAtNumber: 'desc' } },
         take: first + 1
       })).map(_item => {
@@ -299,7 +299,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { paper: { include: { user: true, group: true } } }
+          include: { paper: { include: { user: true, group: { include: { user_group_map: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -335,7 +335,7 @@ export const resolvers: Resolvers = {
               updatedAtNumber: { lt: Number(targetCursor) }
             }
           },
-          include: { paper: { include: { user: true, group: true } } },
+          include: { paper: { include: { user: true, group: { include: { user_group_map: true } } } } },
           orderBy: { paper: { updatedAtNumber: 'desc' } },
           take: first + 1
         })).map(_item => {
@@ -377,7 +377,7 @@ export const resolvers: Resolvers = {
               ],
             }
           },
-          include: { paper: { include: { user: true, group: true } } }
+          include: { paper: { include: { user: true, group: { include: { user_group_map: true } } } } }
         })
       }
       if (auth == 'none') {
@@ -400,7 +400,7 @@ export const resolvers: Resolvers = {
             documentIdLazy: documentId ? documentId.toUpperCase() : undefined,
             isPosted: { equals: 0 }
           },
-          include: { user: true, group: true }
+          include: { user: true, group: { include: { user_group_map: true } } }
         })
       }
       if (auth == 'none') {
@@ -425,7 +425,7 @@ export const resolvers: Resolvers = {
               { group: { user_group_map: { some: { userId: { equals: _context.userSession.id.toUpperCase() } } } } },
             ],
           },
-          include: { user: true, group: true }
+          include: { user: true, group: { include: { user_group_map: true } } }
         })
       }
       if (auth == 'none') {
@@ -738,7 +738,7 @@ export const resolvers: Resolvers = {
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
-        const result = await prisma.group.create({ data: { id: ulid(), name, displayName, description, type } })
+        const result = await prisma.group.create({ data: { id: ulid(), name, displayName, description, type }, include: { user_group_map: true } })
 
         try {
           await esClient.upsertGroup({
@@ -764,7 +764,8 @@ export const resolvers: Resolvers = {
           data: {
             id: ulid(), name, displayName, description, type,
             user_group_map: { create: { userId: _context.userSession.id, isAdmin: 1 } }
-          }
+          },
+          include: { user_group_map: true }
         })
 
         try {
@@ -792,7 +793,7 @@ export const resolvers: Resolvers = {
       const { auth, id, name, displayName, description, type } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
-        const result = await prisma.group.update({ data: { name, displayName, description, type }, where: { id } })
+        const result = await prisma.group.update({ data: { name, displayName, description, type }, where: { id }, include: { user_group_map: true } })
 
         try {
           await esClient.upsertGroup({
@@ -818,7 +819,8 @@ export const resolvers: Resolvers = {
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
         const result = await prisma.group.update({
           data: { name, displayName, description }, //restrict update type
-          where: { id }
+          where: { id },
+          include: { user_group_map: true }
         })
 
         try {
@@ -849,7 +851,7 @@ export const resolvers: Resolvers = {
         /*
         ** deleteGroupした際、いろいろなものがカスケードで削除されるか確認すること
         */
-        const result = await prisma.group.delete({ where: { id } })
+        const result = await prisma.group.delete({ where: { id }, include: { user_group_map: true } })
         try {
           await esClient.deleteGroup({ id })
         } catch (error) {
@@ -1036,7 +1038,7 @@ export const resolvers: Resolvers = {
             }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { user: true, group: true }
+              include: { user: true, group: { include: { user_group_map: true } } }
             })
           ])
 
@@ -1098,7 +1100,7 @@ export const resolvers: Resolvers = {
             }),
             prisma.paper.findUnique({
               where: { id: _paperId },
-              include: { user: true, group: true }
+              include: { user: true, group: { include: { user_group_map: true } } }
             })
           ])
 
@@ -1155,7 +1157,7 @@ export const resolvers: Resolvers = {
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { user: true, group: true }
+              include: { user: true, group: { include: { user_group_map: true } } }
             })
           ])
 
@@ -1192,7 +1194,7 @@ export const resolvers: Resolvers = {
             }),
             prisma.paper.findUnique({
               where: { id: paperId.toUpperCase() },
-              include: { user: true, group: true }
+              include: { user: true, group: { include: { user_group_map: true } } }
             })
           ])
 
@@ -1223,7 +1225,7 @@ export const resolvers: Resolvers = {
           if (!(check.group.user_group_map.map((x) => x.user.id).includes(_context.userSession.id))) throw new ForbiddenError('Forbidden')
         }
 
-        const result = await prisma.paper.delete({ where: { id: id.toUpperCase() }, include: { group: true, user: true } })
+        const result = await prisma.paper.delete({ where: { id: id.toUpperCase() }, include: { group: { include: { user_group_map: true } }, user: true } })
         return result
       }
       if (auth == 'none') {
@@ -1244,7 +1246,7 @@ export const resolvers: Resolvers = {
         if (!check) throw new ApolloError('NotFound')
         if (check.paper.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
 
-        const result = await prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: true, user: true } } } })
+        const result = await prisma.document.delete({ where: { id: id.toUpperCase() }, include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } })
 
         try {
           await esClient.deleteDocument({ id: result.id })
