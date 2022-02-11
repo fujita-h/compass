@@ -20,6 +20,48 @@ query Stocks($auth: Auth!, $userId: String, $documentId: String) {
     userId
     documentId
     stockCategoryId
+    stock_category {
+      id
+      userId
+      name
+    }  
+  }
+}
+
+query StocksAndCategories($auth: Auth!, $userId: String, $documentId: String) {
+  stocks(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+    stockCategoryId
+    stock_category {
+      id
+      userId
+      name
+    }
+    document {
+      id
+      paper {
+        title
+        tags
+        user {
+          id
+          username
+          displayName
+        }
+        group {
+          id
+          name
+          displayName
+        }
+        updatedAt
+      }
+      createdAt
+    }
+  }
+  stockCategories(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
   }
 }
 

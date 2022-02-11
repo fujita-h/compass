@@ -64,6 +64,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
           
           <div className='text-sm'><Link href="/groups" passHref><a className='hover:text-gray-300'>Groups</a></Link></div>
           <div className='text-sm'><Link href="/tags" passHref><a className='hover:text-gray-300'>Tags</a></Link></div>
+          <div className='text-sm'><Link href="/stocks" passHref><a className='hover:text-gray-300'>Stocks</a></Link></div>
 
         </div>
       </div>

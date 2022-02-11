@@ -140,6 +140,8 @@ type Stock {
   userId: String!
   documentId: String!
   stockCategoryId: String!
+  stock_category: StockCategory!
+  document: Document!
 }
 
 type Like {

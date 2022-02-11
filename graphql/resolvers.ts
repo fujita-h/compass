@@ -441,9 +441,9 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!userId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stock_category.findMany({ where: { userId: userId.toUpperCase() } })
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.stock_category.findMany({ where: { userId: _userId.toUpperCase() } })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -458,12 +458,16 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!userId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         return await prisma.stock.findMany({
           where: {
-            userId: userId.toUpperCase(),
+            userId: _userId.toUpperCase(),
             documentId: documentId ? documentId.toUpperCase() : undefined,
+          },
+          include: {
+            stock_category: true,
+            document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } }
           }
         })
       }
@@ -1381,6 +1385,10 @@ export const resolvers: Resolvers = {
             userId: userId.toUpperCase(),
             documentId: documentId.toUpperCase(),
             stockCategoryId: stockCategoryId.toUpperCase(),
+          },
+          include: {
+            stock_category: true,
+            document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } }
           }
         })
       }
@@ -1408,6 +1416,10 @@ export const resolvers: Resolvers = {
               documentId: documentId.toUpperCase(),
               stockCategoryId: stockCategoryId.toUpperCase(),
             }
+          },
+          include: {
+            stock_category: true,
+            document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } }
           }
         })
       }
