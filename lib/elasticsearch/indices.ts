@@ -292,8 +292,6 @@ export const documents = {
         },
         title: {
           type: "text",
-          search_analyzer: "ja_sudachi_search_analyzer_C",
-          analyzer: "ja_sudachi_index_analyzer_C",
           fields: {
             sudachi_A: {
               type: "text",
@@ -353,8 +351,6 @@ export const documents = {
         },
         body: {
           type: "text",
-          search_analyzer: "ja_sudachi_search_analyzer_C",
-          analyzer: "ja_sudachi_index_analyzer_C",
           fields: {
             sudachi_A: {
               type: "text",
@@ -469,8 +465,6 @@ export const groups = {
         },
         description: {
           type: "text",
-          search_analyzer: "ja_sudachi_search_analyzer_C",
-          analyzer: "ja_sudachi_index_analyzer_C",
           fields: {
             sudachi_A: {
               type: "text",
@@ -592,8 +586,6 @@ export const users = {
         },
         description: {
           type: "text",
-          search_analyzer: "ja_sudachi_search_analyzer_C",
-          analyzer: "ja_sudachi_index_analyzer_C",
           fields: {
             sudachi_A: {
               type: "text",
