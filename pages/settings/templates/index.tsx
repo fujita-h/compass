@@ -16,7 +16,7 @@ export default function Page() {
   const session = useSession({ redirectTo: '/login' })
 
   const { data, loading } = useUserTemplatesQuery({ variables: { auth: 'user' } })
-  const [createUserTemplate, { }] = useCreateUserTemplateMutation({})
+  const [createUserTemplate] = useCreateUserTemplateMutation()
 
   if (!session) return <></>
   if (loading) return <UserSettingLayout></UserSettingLayout>
@@ -50,8 +50,8 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
   const [open, setOpen] = useState(false)
   const [editNameMode, setEditNameMode] = useState(false)
   const [newName, setNewName] = useState(name)
-  const [updateUserTemplate, { }] = useUpdateUserTemplateMutation()
-  const [deleteUserTemplate, { }] = useDeleteUserTemplateMutation()
+  const [updateUserTemplate] = useUpdateUserTemplateMutation()
+  const [deleteUserTemplate] = useDeleteUserTemplateMutation()
 
   const handleDelete = (e) => {
     e.stopPropagation()
@@ -117,7 +117,9 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
         buttonFunc={() => {
           deleteUserTemplate({ variables: { auth: 'user', id }, refetchQueries: [UserTemplatesDocument] })
         }}
-        cancelFunc={() => { }}
+        cancelFunc={() => {
+          /* nothoing to do */
+        }}
       />
     </div>
   )
