@@ -16,7 +16,7 @@ export default function Page() {
   const session = useSession({ redirectTo: '/login' })
 
   const { data, loading } = useUserTemplatesQuery({ variables: { auth: 'user' } })
-  const [createUserTemplate, {}] = useCreateUserTemplateMutation({})
+  const [createUserTemplate, { }] = useCreateUserTemplateMutation({})
 
   if (!session) return <></>
   if (loading) return <UserSettingLayout></UserSettingLayout>
@@ -50,8 +50,8 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
   const [open, setOpen] = useState(false)
   const [editNameMode, setEditNameMode] = useState(false)
   const [newName, setNewName] = useState(name)
-  const [updateUserTemplate, {}] = useUpdateUserTemplateMutation()
-  const [deleteUserTemplate, {}] = useDeleteUserTemplateMutation()
+  const [updateUserTemplate, { }] = useUpdateUserTemplateMutation()
+  const [deleteUserTemplate, { }] = useDeleteUserTemplateMutation()
 
   const handleDelete = (e) => {
     e.stopPropagation()
@@ -67,7 +67,7 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
               <input
                 type="text"
                 name="name"
-                className="inline-block rounded-md border-gray-300 py-1 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="form-input inline-block rounded-md border-gray-300 py-1 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 defaultValue={name}
                 onChange={(e) => setNewName(e.target.value)}
               />
@@ -117,7 +117,7 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
         buttonFunc={() => {
           deleteUserTemplate({ variables: { auth: 'user', id }, refetchQueries: [UserTemplatesDocument] })
         }}
-        cancelFunc={() => {}}
+        cancelFunc={() => { }}
       />
     </div>
   )
