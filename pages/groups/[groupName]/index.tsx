@@ -4,7 +4,7 @@ import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
-import { getAsString } from '@lib/utils'
+import { getAsString, classNames } from '@lib/utils'
 import {
   useGroupIndexPageQuery,
   GroupIndexPageQuery,
@@ -15,12 +15,16 @@ import {
   WatchesDocument,
   useDeleteWatchMutation,
   useDraftsQuery,
+  useTemplatesQuery,
 } from '@graphql/generated/react-apollo'
 import { RiLock2Fill } from 'react-icons/ri'
 import { BsFlag, BsFlagFill, BsSquare, BsCheck2Square, BsEye, BsEyeFill } from 'react-icons/bs'
 import { UserIconNameLinkSmall } from '@components/elements'
 import { useEffect, useMemo } from 'react'
 import { updatePageViews } from '@lib/localStorage/pageViews'
+import { Fragment } from 'react'
+import { Menu, Transition } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/solid'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: '/login' })
@@ -86,13 +90,8 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
             <div className="mb-4">
               <WatchBadge userId={userId} groupId={groupId} />
             </div>
-
             <div>
-              <Link href={`${encodeURIComponent(groupName)}/drafts/new`} passHref>
-                <a>
-                  <div className="rounded-lg border bg-blue-100 p-2 text-center">Create New Document</div>
-                </a>
-              </Link>
+              <CreateDocumentButton groupName={groupName} />
             </div>
           </div>
 
@@ -101,6 +100,62 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
         </div>
       </div>
     </div>
+  )
+}
+
+/* With dropdown */
+const CreateDocumentButton = ({ groupName }: { groupName: string }) => {
+  const { data, loading } = useTemplatesQuery({ variables: { auth: 'user' } })
+
+  if (loading) return <span></span>
+
+  return (
+    <span className="relative z-0 inline-flex rounded-md shadow-sm">
+      <Link href={`/groups/${encodeURIComponent(groupName.toLowerCase())}/drafts/new`} passHref>
+        <a
+          type="button"
+          className="relative inline-flex w-48 items-center rounded-l-md border border-gray-300 bg-blue-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 focus:z-10 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+        >
+          新規ドキュメント作成
+        </a>
+      </Link>
+      <Menu as="span" className="relative -ml-px block">
+        <Menu.Button className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+          <span className="sr-only">Open options</span>
+          <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+        </Menu.Button>
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Menu.Items className="absolute right-0 mt-1 -mr-1 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <div className="py-1">
+              {data.userTemplates.map((template) => (
+                <Menu.Item key={template.id}>
+                  {({ active }) => (
+                    <div>
+                      <Link
+                        href={`/groups/${encodeURIComponent(groupName.toLowerCase())}/drafts/new?ut=${template.id.toLowerCase()}`}
+                        passHref
+                      >
+                        <a className={classNames(active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm')}>
+                          {template.name}
+                        </a>
+                      </Link>
+                    </div>
+                  )}
+                </Menu.Item>
+              ))}
+            </div>
+          </Menu.Items>
+        </Transition>
+      </Menu>
+    </span>
   )
 }
 
@@ -167,8 +222,8 @@ const MyGroupDrafts = ({ groupId }: { groupId: string }) => {
 
 const WatchBadge = ({ userId, groupId }: { userId: string; groupId: string }) => {
   const { data, loading } = useWatchesQuery({ variables: { auth: 'user', groupId: groupId } })
-  const [createWatch, {}] = useCreateWatchMutation({ refetchQueries: [WatchesDocument] })
-  const [deleteWatch, {}] = useDeleteWatchMutation({ refetchQueries: [WatchesDocument] })
+  const [createWatch] = useCreateWatchMutation({ refetchQueries: [WatchesDocument] })
+  const [deleteWatch] = useDeleteWatchMutation({ refetchQueries: [WatchesDocument] })
 
   const isWatched = useMemo(() => data?.watches?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
   const countWatches = useMemo(() => data?.watches.length, [data])

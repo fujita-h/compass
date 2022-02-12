@@ -1,3 +1,12 @@
+query Templates($auth: Auth!, $userId: String) {
+  userTemplates(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+    title
+  }
+}
+
 query UserTemplates($auth: Auth!, $userId: String) {
   userTemplates(auth: $auth, userId: $userId) {
     id
