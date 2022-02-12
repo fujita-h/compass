@@ -624,6 +624,45 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    userTemplates: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.user_template.findMany({
+          where: {
+            userId: _userId.toUpperCase()
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    userTemplate: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        const result = await prisma.user_template.findUnique({ where: { id: id.toUpperCase() } })
+        if (result.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return result
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     esSearch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, query, index, from, size } = args
       if (auth == 'admin') {
@@ -1690,6 +1729,85 @@ export const resolvers: Resolvers = {
             }
           }
         })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createUserTemplate: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        const now = Date.now()
+        return await prisma.user_template.create({
+          data: {
+            id: ulid(),
+            userId: _userId.toUpperCase(),
+            name: 'New Template',
+            title: '',
+            tags: '',
+            body: '',
+            createdAt: new Date(now).toISOString(),
+            createdAtNumber: now,
+            updatedAt: new Date(now).toISOString(),
+            updatedAtNumber: now,
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    updateUserTemplate: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id, name, title, tags, body } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        const check = await prisma.user_template.findUnique({ where: { id: id.toUpperCase() } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        const now = Date.now()
+        return await prisma.user_template.update({
+          where: { id: id.toUpperCase() },
+          data: {
+            name: name ?? undefined,
+            title: title ?? undefined,
+            tags: tags ?? undefined,
+            body: body ?? undefined,
+            updatedAt: new Date(now).toISOString(),
+            updatedAtNumber: now,
+          }
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    }, deleteUserTemplate: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, id } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!id) throw new UserInputError('UserInputError')
+        const check = await prisma.user_template.findUnique({ where: { id: id.toUpperCase() } })
+        if (!check) throw new ApolloError('NotFound')
+        if (check.userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return await prisma.user_template.delete({ where: { id: id.toUpperCase() } })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

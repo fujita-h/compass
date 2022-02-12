@@ -58,6 +58,7 @@ export const UserSettingLayout = ({ children, htmlTitle }: { children?: any, htm
                 <MenuItem name="Profile" badge="" href="/settings/profile" selected={router.pathname == "/settings/profile"} />
                 <MenuItem name="認証" href="#" selected={router.pathname == "/admin/auth"} />
                 <MenuItem name="グループ" href="#" selected={router.pathname.startsWith("/admin/groups")} />
+                <MenuItem name="テンプレート" href="/settings/templates" selected={router.pathname == "/settings/templates"} />
               </nav>
             </div>
             <div className='w-full'>{children}</div>

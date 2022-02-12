@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from "react-dropzone"
 import { Markdown } from '@components/markdown'
 import { TagForm } from './forms/tagForm'
-import { Auth, useCreateDraftMutation, useUpdateDraftMutation } from '@graphql/generated/react-apollo'
+import { Auth, useCreateDraftMutation, useUpdateDraftMutation, useUpdateUserTemplateMutation } from '@graphql/generated/react-apollo'
 import { useRouter } from 'next/router'
 
 export type EditorData = {
@@ -14,6 +14,8 @@ export type EditorMeta = {
   groupId?: string,
   documentId?: string,
   paperId?: string,
+  userTemplateId?: string
+  groupTemplateId?: string
 }
 
 
@@ -51,6 +53,7 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
   const isFormValueChangedByUser = useRef(false)
   const [createDraft, { }] = useCreateDraftMutation()
   const [updateDraft, { }] = useUpdateDraftMutation()
+  const [updateUserTemplate, { }] = useUpdateUserTemplateMutation()
   const paperIdRef = useRef(meta.paperId)
 
   // re-set when initDocData provided.
@@ -87,7 +90,21 @@ export const EditorForm = ({ data, meta, submitButtonMap, submitType, loading = 
       body: data.body,
       tags: data.tags.join(','),
     }
-    if (paperId) {
+
+    if (docMeta.userTemplateId) {
+      if (submitType == 'auto-saving') {
+        updateUserTemplate({
+          variables: { ...variables, id: docMeta.userTemplateId }
+        })
+      } else { // if (submitType == 'save')
+        updateUserTemplate({
+          variables: { ...variables, id: docMeta.userTemplateId },
+          onCompleted: (data) => {router.push(`/settings/templates`)}
+        })
+      }
+    } else if (docMeta.groupTemplateId) {
+      // not implemeted yet.
+    } else if (paperId) {
       if (submitType == 'publish') {
         updateDraft({
           variables: { ...variables, isPosted: 1 },

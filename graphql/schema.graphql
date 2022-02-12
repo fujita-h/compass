@@ -190,6 +190,14 @@ type MapPaperTag {
   tag: Tag
 }
 
+type UserTemplate {
+  id: String!
+  userId: String!
+  name: String!
+  title: String!
+  tags: String!
+  body: String!
+}
 
 type EsShards {
   total: Int
@@ -361,6 +369,9 @@ type Query {
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
   watches(auth: Auth!, userId: String, groupId: String): [Watch]!
 
+  userTemplates(auth: Auth!, userId: String): [UserTemplate]
+  userTemplate(auth: Auth!, id: String!): UserTemplate
+
   esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
   esTags(auth: Auth!, size: Int): EsTagsResponse
@@ -408,5 +419,9 @@ type Mutation {
 
   createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
   deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+
+  createUserTemplate(auth: Auth!, userId: String): UserTemplate
+  updateUserTemplate(auth: Auth!, id: String!, name: String, title: String, tags: String, body: String): UserTemplate
+  deleteUserTemplate(auth: Auth!, id: String!): UserTemplate
 
 }
