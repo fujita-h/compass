@@ -11,33 +11,51 @@ export default function Page() {
   const router = useRouter()
   const groupName = getAsString(router.query?.groupName)
 
-  if (!session?.id) return (<></>)
-  if (!groupName) return (<></>)
-  return (<InnerPage userId={session.id} groupName={groupName} />)
+  if (!session?.id) return <></>
+  if (!groupName) return <></>
+  return <InnerPage userId={session.id} groupName={groupName} />
 }
 
-const InnerPage = ({ userId, groupName }: { userId: string, groupName: string }) => {
-
+const InnerPage = ({ userId, groupName }: { userId: string; groupName: string }) => {
   const { data, loading } = useGroupQuery({ variables: { auth: 'user', name: groupName } })
   const groupId = useMemo(() => data?.group?.id, [data])
 
-  const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'publish', label: '全体に公開' }, { key: 'draft', label: '下書きに保存' }]
+  const submitButtonMap: Array<SubmitButtonSetting> = [
+    { key: 'publish', label: '全体に公開' },
+    { key: 'draft', label: '下書きに保存' },
+  ]
 
   if (loading) {
-    return (<Layout showFooter={false}>
-      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' loading={true} />
-    </Layout>)
+    return (
+      <Layout showFooter={false}>
+        <EditorForm
+          data={{ title: '', body: '', tags: [] }}
+          meta={{ groupId }}
+          submitButtonMap={submitButtonMap}
+          submitType="new"
+          loading={true}
+        />
+      </Layout>
+    )
   }
 
   if (!data?.group) {
-    return (<Layout>
-      <div>Group Not Found</div>
-    </Layout>)
+    return (
+      <Layout>
+        <div>Group Not Found</div>
+      </Layout>
+    )
   }
 
   return (
     <Layout showFooter={false}>
-      <EditorForm data={{ title: '', body: '', tags: [], }} meta={{ groupId }} submitButtonMap={submitButtonMap} submitType='new' autoSaveDelay={3} />
+      <EditorForm
+        data={{ title: '', body: '', tags: [] }}
+        meta={{ groupId }}
+        submitButtonMap={submitButtonMap}
+        submitType="new"
+        autoSaveDelay={3}
+      />
     </Layout>
   )
 }

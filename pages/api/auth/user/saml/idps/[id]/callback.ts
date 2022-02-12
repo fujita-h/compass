@@ -1,9 +1,8 @@
 import nextConnect from 'next-connect'
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next'
 import passport from 'passport'
 import { samlStrategy, findUser, createUser, getSamlIdp } from '@lib/auth'
 import { setUserSession } from '@lib/session'
-
 
 passport.use(samlStrategy)
 
@@ -41,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.error('mappedUser:', mappedUser)
       throw 'Inalid SAML Configuration.'
     }
-    const authedUser = await findUser(checkParam) ?? await createUser(mappedUser)
+    const authedUser = (await findUser(checkParam)) ?? (await createUser(mappedUser))
 
     // session is the payload to save in the token, it may contain basic info about the user
     const session = { method: 'saml', provider: id, id: authedUser.id, uuid: authedUser.uuid }
@@ -51,7 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     //res.status(200).send({ done: true })
   } catch (error) {
     console.error(error)
-    res.status(401).send({error: error})
+    res.status(401).send({ error: error })
   }
 }
 

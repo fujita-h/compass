@@ -1,2 +1,1 @@
-export function x(){}
-
+export function x() {}

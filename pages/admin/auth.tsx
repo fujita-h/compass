@@ -4,13 +4,12 @@ import { Auth, AdminAuthPageDocument, useAdminAuthPageQuery, useUpdateConfigurat
 import { Toggle } from '@components/elements'
 
 export default function Page() {
-
   const session = useAdminSession({ redirectTo: '/admin/login' })
   const { data, loading } = useAdminAuthPageQuery()
-  const [setConfiguration, { }] = useUpdateConfigurationMutation({ refetchQueries: [AdminAuthPageDocument] })
+  const [setConfiguration, {}] = useUpdateConfigurationMutation({ refetchQueries: [AdminAuthPageDocument] })
 
-  if (loading) return (<AdminLayout />)
-  if (!session) return (<AdminLayout />)
+  if (loading) return <AdminLayout />
+  if (!session) return <AdminLayout />
 
   const handleChanged = async (e) => {
     if (e.target.type == 'checkbox') {
@@ -23,33 +22,45 @@ export default function Page() {
   if (session?.admin) {
     return (
       <AdminLayout withMenu>
-
-        <Toggle id="authEnableEmailVerificationForLocalUsers"
+        <Toggle
+          id="authEnableEmailVerificationForLocalUsers"
           label="ローカルユーザーのメールアドレスを確認する"
           checked={Boolean(data.configuration?.authEnableEmailVerificationForLocalUsers)}
-          onChange={handleChanged} />
-        <Toggle id="authEnableSamlLogin"
+          onChange={handleChanged}
+        />
+        <Toggle
+          id="authEnableSamlLogin"
           label="SAMLログインを使用する"
           checked={Boolean(data.configuration?.authEnableSamlLogin)}
-          onChange={handleChanged} />
-
-
+          onChange={handleChanged}
+        />
 
         <div>
-          {Boolean(data.configuration?.authEnableSamlLogin) && <div className="ms-5">
-            {data.samls.map(idp =>
-              <button key={idp.id}
-                className="py-2 px-4 m-1 text-center text-base font-semibold text-white
-                                bg-green-600 hover:bg-green-700 focus:ring-green-500 focus:ring-offset-green-200
-                                focus:outline-none focus:ring-2 focus:ring-offset-2 
-                                transition ease-in duration-200 shadow-md rounded-lg">{idp.name}</button>)}
-            <div className="mt-2">
-              <button className="py-2 px-4 text-center text-base font-semibold text-white 
-                             bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200 
-                             focus:outline-none focus:ring-2 focus:ring-offset-2 
-                             transition ease-in duration-200 shadow-md rounded-lg">Add new IDP</button>
+          {Boolean(data.configuration?.authEnableSamlLogin) && (
+            <div className="ms-5">
+              {data.samls.map((idp) => (
+                <button
+                  key={idp.id}
+                  className="m-1 rounded-lg bg-green-600 py-2 px-4 text-center text-base
+                                font-semibold text-white shadow-md transition
+                                duration-200 ease-in hover:bg-green-700 
+                                focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-green-200"
+                >
+                  {idp.name}
+                </button>
+              ))}
+              <div className="mt-2">
+                <button
+                  className="rounded-lg bg-indigo-600 py-2 px-4 text-center text-base 
+                             font-semibold text-white shadow-md transition 
+                             duration-200 ease-in hover:bg-indigo-700 
+                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-indigo-200"
+                >
+                  Add new IDP
+                </button>
+              </div>
             </div>
-          </div>}
+          )}
         </div>
       </AdminLayout>
     )

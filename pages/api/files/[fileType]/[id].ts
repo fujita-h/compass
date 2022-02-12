@@ -1,9 +1,9 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@lib/prisma/prismaClient'
-import { getAsString } from "@lib/utils"
+import { getAsString } from '@lib/utils'
 import { validateUserSession, validateAdminSession } from '@lib/session'
 import * as CryptoJs from 'crypto-js'
-import Identicon from "identicon.js"
+import Identicon from 'identicon.js'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userSession = await validateUserSession(req, res)
@@ -39,26 +39,22 @@ const getFile = async (fileType: string, id: string) => {
 }
 const getAttachmentFile = async (id: string) => {
   const data = await prisma.attachment.findUnique({ where: { id } })
-  return data ? ({ mimeType: data.mimeType, blob: data.blob }) : undefined
+  return data ? { mimeType: data.mimeType, blob: data.blob } : undefined
 }
 
 const getUserIconFile = async (id: string) => {
   const data = await prisma.user_icon.findUnique({ where: { userId: id } })
-  return data ?
-    ({ mimeType: data.mimeType, blob: data.blob }) :
-    ({ mimeType: "image/svg+xml", blob: denticon(id).render().getDump() })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
 }
 
 const getGroupIconFile = async (id: string) => {
   const data = await prisma.group_icon.findUnique({ where: { groupId: id } })
-  return data ?
-    ({ mimeType: data.mimeType, blob: data.blob }) :
-    ({ mimeType: "image/svg+xml", blob: denticon(id).render().getDump() })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
 }
 
 const denticon = (id: string) => {
   return new Identicon(CryptoJs.MD5(id.toUpperCase()).toString(), {
     size: 128,
-    format: 'svg'
+    format: 'svg',
   })
 }

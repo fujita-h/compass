@@ -103,7 +103,7 @@ mutation CreateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $i
 }
 
 mutation UpdateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $isAdmin: Int) {
-  updateMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId,  isAdmin: $isAdmin) {
+  updateMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId, isAdmin: $isAdmin) {
     groupId
     userId
     isAdmin

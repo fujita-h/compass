@@ -14,7 +14,6 @@ mutation CreateStockCategory($auth: Auth!, $userId: String!, $name: String!) {
   }
 }
 
-
 query Stocks($auth: Auth!, $userId: String, $documentId: String) {
   stocks(auth: $auth, userId: $userId, documentId: $documentId) {
     userId
@@ -24,7 +23,7 @@ query Stocks($auth: Auth!, $userId: String, $documentId: String) {
       id
       userId
       name
-    }  
+    }
   }
 }
 
@@ -84,7 +83,6 @@ mutation DeleteStock($auth: Auth!, $userId: String!, $documentId: String!, $stoc
     stockCategoryId
   }
 }
-
 
 query StockCategoriesAndStocks($auth: Auth!, $userId: String!, $documentId: String!) {
   stockCategories(auth: $auth, userId: $userId) {

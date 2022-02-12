@@ -1,15 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextApiRequest, NextApiResponse } from 'next'
 import { validateAdminSession } from '@lib/session'
 import { prisma } from '@lib/prisma/prismaClient'
-import { esClient } from "@lib/elasticsearch/esClient"
-
+import { esClient } from '@lib/elasticsearch/esClient'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const adminSession = await validateAdminSession(req, res)
   if (!adminSession?.admin) return res.status(401).end()
 
   const docs = await prisma.document.findMany({
-    include: { paper: { include: { user: true, group: true } } }
+    include: { paper: { include: { user: true, group: true } } },
   })
 
   for (let i = 0; i < docs.length; i++) {
@@ -29,11 +28,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         updatedAt: doc.paper.updatedAt,
         title: doc.paper.title,
         tags: doc.paper.tags.split(',').filter((tag) => tag !== ''),
-        body: doc.paper.body
-      }
+        body: doc.paper.body,
+      },
     })
   }
-
 
   const groups = await prisma.group.findMany()
 
@@ -45,14 +43,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: group.name,
         displayName: group.displayName,
         description: group.description,
-        type: group.type
-      }
+        type: group.type,
+      },
     })
   }
 
   const users = await prisma.user.findMany()
 
-  for(let i=0; i<users.length; i++) {
+  for (let i = 0; i < users.length; i++) {
     const user = users[i]
     await esClient.upsertUser({
       id: user.id,
@@ -61,10 +59,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: user.email,
         displayName: user.displayName,
         description: user.description,
-      }
+      },
     })
   }
 
   return res.json({ state: 'ok' })
-
 }

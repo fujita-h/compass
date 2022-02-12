@@ -14,7 +14,6 @@ import { samlStrategy, findUser, createUser, getSamlIdp } from '@lib/auth'
     https://__host__/simplesaml/module.php/core/authenticate.php?as=example-ldap&logout
 */
 
-
 async function handler(req, res) {
   removeUserSession(res)
   //samlStrategy.logout(req, (err, url)=>{console.log(err, url)})
@@ -23,7 +22,6 @@ async function handler(req, res) {
 }
 
 export default handler
-
 
 //export default nextConnect()
 //  .use(passport.initialize())

@@ -1,16 +1,16 @@
 query adminAuthPage {
-  configuration(auth:admin) {
+  configuration(auth: admin) {
     authEnableEmailVerificationForLocalUsers
     authEnableSamlLogin
     groupEnableCreateGroupForUsers
   }
-  samls(auth:admin) {
+  samls(auth: admin) {
     id
     name
   }
 }
 query adminGetUsersCP($cursor: String) {
-  usersCP(auth: admin, first:10, after:$cursor) {
+  usersCP(auth: admin, first: 10, after: $cursor) {
     edges {
       cursor
       node {
@@ -32,7 +32,7 @@ query adminGroupsIndexPage {
   }
 }
 query adminGroupPage($id: String!) {
-  group(auth:admin, id:$id) {
+  group(auth: admin, id: $id) {
     id
     name
     displayName

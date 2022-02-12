@@ -7,14 +7,22 @@ import { Strategy } from 'passport-local'
 const saltRounds = 12
 const REGEX_USERNAME_RULE = /^[a-z][a-z0-9-_]{2,}$/
 
-export const validateUsername  = (username: string) : boolean => {
+export const validateUsername = (username: string): boolean => {
   if (username.match(REGEX_USERNAME_RULE) == null) return false
   return true
 }
 
-export async function createUser({ uuid: _uuid, username: _username, email: _email, password }: { uuid?: string, username?: string, email?: string, password?: string })
-  : Promise<{ id: string, uuid: string, username: string, email: string } | null> {
-
+export async function createUser({
+  uuid: _uuid,
+  username: _username,
+  email: _email,
+  password,
+}: {
+  uuid?: string
+  username?: string
+  email?: string
+  password?: string
+}): Promise<{ id: string; uuid: string; username: string; email: string } | null> {
   // ユーザー名ルール適合チェック
   if (_username && !validateUsername(_username)) {
     return Promise.reject('Invalid username')
@@ -34,13 +42,23 @@ export async function createUser({ uuid: _uuid, username: _username, email: _ema
       uuid: true,
       username: true,
       email: true,
-    }
+    },
   })
 }
 
-export async function findUser({ id, uuid, username, email, includeHash = false }: { id?: string, uuid?: string, username?: string, email?: string, includeHash?: boolean })
-  : Promise<{ id: string, uuid: string, username: string, email: string, hash?: string } | null> {
-
+export async function findUser({
+  id,
+  uuid,
+  username,
+  email,
+  includeHash = false,
+}: {
+  id?: string
+  uuid?: string
+  username?: string
+  email?: string
+  includeHash?: boolean
+}): Promise<{ id: string; uuid: string; username: string; email: string; hash?: string } | null> {
   const select = {
     id: true,
     uuid: true,
@@ -68,7 +86,6 @@ export function validatePassword(hash: string, password: string) {
 }
 
 export const localStrategy = new Strategy((username: string, password: string, done) => {
-
   // username がメールアドレスである可能性を考慮する
   //   xxx の形式 -> ユーザー名
   //   @xxx の形式 -> @を取り除いてユーザー名
@@ -93,7 +110,8 @@ export const localStrategy = new Strategy((username: string, password: string, d
       } else {
         done(new Error('ユーザー名/メールアドレスとパスワードに誤りがあるか、ログインできない状態です'))
       }
-    }).catch((error) => {
+    })
+    .catch((error) => {
       done(error)
     })
 })
@@ -105,15 +123,22 @@ export const samlStrategy = new MultiSamlStrategy(
       const id = req.query.id as string | undefined
       const idp = await prisma.saml_idp.findUnique({ where: { id } })
       if (!idp) return done(new Error('Idp not found'))
-      return done(null, { path: '/api/auth/user/saml/idps/' + idp.id + '/callback', entryPoint: idp.entryPoint, issuer: idp.issuer, cert: idp.cert })
-    }
-  }, (req, profile, done) => {
+      return done(null, {
+        path: '/api/auth/user/saml/idps/' + idp.id + '/callback',
+        entryPoint: idp.entryPoint,
+        issuer: idp.issuer,
+        cert: idp.cert,
+      })
+    },
+  },
+  (req, profile, done) => {
     const { id } = req.query
     return done(null, { id, profile })
-  })
+  }
+)
 
 export async function getSamlIdp({ id }: { id: string }) {
   return await prisma.saml_idp.findUnique({
-    where: { id }
+    where: { id },
   })
 }

@@ -1,13 +1,13 @@
-import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
-import { relayStylePagination } from "@apollo/client/utilities"
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
+import { relayStylePagination } from '@apollo/client/utilities'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
-import "yakuhanjp"
+import 'yakuhanjp'
 import '../styles/global.css'
 import 'react-toastify/dist/ReactToastify.css'
 
 const client = new ApolloClient({
-  uri: "/api/graphql",
+  uri: '/api/graphql',
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -16,37 +16,34 @@ const client = new ApolloClient({
           usersCP: relayStylePagination(),
           myTimelineCP: relayStylePagination(),
           documentsCP: relayStylePagination(),
-        }
+        },
       },
       Document: {
         fields: {
           paper: {
-            merge: true
-          }
-        }
-      }
-    }
+            merge: true,
+          },
+        },
+      },
+    },
   }),
   defaultOptions: {
     query: {
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
     },
     watchQuery: {
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-and-network',
     },
     mutate: {
-      fetchPolicy: 'network-only'
-    }
-  }
-});
+      fetchPolicy: 'network-only',
+    },
+  },
+})
 
 const App = ({ Component, pageProps }: AppProps) => (
   <>
     <Head>
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, shrink-to-fit=no"
-      />
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       <title key="title">compass</title>
       {/* <link rel="icon" href="/favicon.ico" /> */}
       {/* <link rel="apple-touch-icon" type="image/png" href="/apple-touch-icon-180x180.png" /> */}

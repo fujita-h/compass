@@ -3,18 +3,18 @@ import Router from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { SignupForm } from '@components/forms/auth'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify'
 
-const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+const sleep = (msec) => new Promise((resolve) => setTimeout(resolve, msec))
 
 const Signup = () => {
   useSession({ redirectTo: '/', redirectIfFound: true })
-  const processing = useRef(false);
+  const processing = useRef(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     console.log(processing.current)
-    if(processing.current) return
+    if (processing.current) return
 
     const body = {
       username: e.target.username.value,
@@ -34,7 +34,7 @@ const Signup = () => {
       toast.error('パスワードが一致していません')
       return
     }
-    
+
     processing.current = true
     try {
       const res = await fetch('/api/auth/user/signup', {
@@ -65,7 +65,7 @@ const Signup = () => {
   return (
     <Layout>
       <ToastContainer pauseOnFocusLoss={false} pauseOnHover={false} autoClose={5000} />
-      <div className="w-96 mx-auto my-16">
+      <div className="mx-auto my-16 w-96">
         <SignupForm onSubmit={handleSubmit} />
       </div>
     </Layout>

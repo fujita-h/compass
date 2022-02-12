@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react'
 import Image from 'next/image'
 import { UserSettingLayout } from '@components/layouts'
 import { FullCard } from '@components/elements'
@@ -6,19 +6,20 @@ import { Auth, useMyProfileQuery, useUpdateMyProfileMutation } from '@graphql/ge
 
 const uploadUserIcon = async (files) => {
   const body = new FormData()
-  files.map((file) => { body.append('file', file) })
-  const res = await fetch("/api/files/usericons", { method: "POST", body })
+  files.map((file) => {
+    body.append('file', file)
+  })
+  const res = await fetch('/api/files/usericons', { method: 'POST', body })
   return res.json()
 }
 
 export default function Page() {
-
-  const { data, loading } = useMyProfileQuery({ fetchPolicy: "network-only" })
-  const imageSelectForm = useRef(null);
+  const { data, loading } = useMyProfileQuery({ fetchPolicy: 'network-only' })
+  const imageSelectForm = useRef(null)
   const [iconFile, setIconFile] = useState(null)
   const [iconImage, setIconImage] = useState(null)
   const [formState, setFormState] = useState(data?.myProfile)
-  const [updateMyProfile, { }] = useUpdateMyProfileMutation({})
+  const [updateMyProfile, {}] = useUpdateMyProfileMutation({})
 
   useEffect(() => {
     if (!data?.myProfile) return
@@ -26,13 +27,13 @@ export default function Page() {
   }, [data])
 
   const handleSubmit = async () => {
-
     if (iconFile) {
       uploadUserIcon([iconFile])
         .then((res) => {
           setIconImage(null)
           imageSelectForm.current.value = ''
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error(error)
         })
     }
@@ -41,7 +42,7 @@ export default function Page() {
       variables: {
         auth: 'user',
         ...formState,
-      }
+      },
     }).then((res) => {
       setFormState(res.data.updateMyProfile)
     })
@@ -51,13 +52,12 @@ export default function Page() {
     setFormState({ ...formState, [e.target.name]: e.target.value })
   }
 
-
   const handleImageSelected = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files === null || files.length === 0) {
       setIconFile(null)
       setIconImage(null)
-      return;
+      return
     }
     const file = files[0]
     setIconFile(file)
@@ -73,66 +73,84 @@ export default function Page() {
     return `/api/files/usericons/${src}?rand=${rand}`
   }
 
-  if (loading) return (<UserSettingLayout></UserSettingLayout>)
+  if (loading) return <UserSettingLayout></UserSettingLayout>
 
-  return (<UserSettingLayout>
-    <div>
-
-
-      <FullCard>
-        <h2 className='text-lg font-bold'>アイコン</h2>
-        <div className='mt-4 ml-4 mb-8 flex'>
-          <div className='w-60'>
-            <div>現在のアイコン</div>
-            <div className='inline-block'>
-              <Image loader={iconLoader}
-                src={encodeURIComponent(data.myProfile.id)}
-                width={128} height={128} alt={data.myProfile.username} className='object-cover h-32 w-32 rounded-full' />
-            </div>
-          </div>
-          <div>
-            <div>
-              <div>新しいアイコン</div>
-              <div className='border inline-block'>
-                {iconImage ?
-                  <img src={iconImage} alt="new-icon" className='object-cover h-32 w-32 rounded-full' /> :
-                  <svg viewBox="0 0 128 128" width="128" height="128" />}
+  return (
+    <UserSettingLayout>
+      <div>
+        <FullCard>
+          <h2 className="text-lg font-bold">アイコン</h2>
+          <div className="mt-4 ml-4 mb-8 flex">
+            <div className="w-60">
+              <div>現在のアイコン</div>
+              <div className="inline-block">
+                <Image
+                  loader={iconLoader}
+                  src={encodeURIComponent(data.myProfile.id)}
+                  width={128}
+                  height={128}
+                  alt={data.myProfile.username}
+                  className="h-32 w-32 rounded-full object-cover"
+                />
               </div>
             </div>
-            <input type="file" accept='image/jpg, image/png' onChange={handleImageSelected} ref={imageSelectForm}></input>
-          </div>
-        </div>
-
-        <h2 className='text-lg font-bold'>ユーザー設定</h2>
-        <div className='ml-4'>
-          <div className="relative">
-            <label className="text-gray-700">id</label>
-            <div className="py-2 px-4 text-gray-700 border-gray-300 rounded-lg  border hover:cursor-not-allowed">{data.myProfile.id}</div>
-          </div>
-          <div className="relative">
-            <label className="text-gray-700">username</label>
-            <div className="py-2 px-4 text-gray-700 border-gray-300 rounded-lg  border hover:cursor-not-allowed">{data.myProfile.username}</div>
-          </div>
-          <div className="relative">
-            <label className="text-gray-700">displayName</label>
-            <input type="text" name="displayName" placeholder="Dispaly Name"
-              defaultValue={formState?.displayName || ''} onChange={handleFormValueChanged}
-              className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" />
-          </div>
-          <div>
-            <div className="text-gray-700">自己紹介</div>
-            <textarea name="description" placeholder='所属や自己紹介、アピールポイント'
-              className='border border-gray-300 rounded-lg p-2 w-full' 
-              defaultValue={formState?.description} onChange={handleFormValueChanged} />
+            <div>
+              <div>
+                <div>新しいアイコン</div>
+                <div className="inline-block border">
+                  {iconImage ? (
+                    <img src={iconImage} alt="new-icon" className="h-32 w-32 rounded-full object-cover" />
+                  ) : (
+                    <svg viewBox="0 0 128 128" width="128" height="128" />
+                  )}
+                </div>
+              </div>
+              <input type="file" accept="image/jpg, image/png" onChange={handleImageSelected} ref={imageSelectForm}></input>
+            </div>
           </div>
 
-          <div className='mt-2'>
-            <button className='border rounded-md h-10 w-40 bg-blue-100' onClick={handleSubmit}>
-              <span>更新</span></button>
-          </div>
-        </div>
-      </FullCard>
-    </div>
+          <h2 className="text-lg font-bold">ユーザー設定</h2>
+          <div className="ml-4">
+            <div className="relative">
+              <label className="text-gray-700">id</label>
+              <div className="rounded-lg border border-gray-300 py-2 px-4  text-gray-700 hover:cursor-not-allowed">{data.myProfile.id}</div>
+            </div>
+            <div className="relative">
+              <label className="text-gray-700">username</label>
+              <div className="rounded-lg border border-gray-300 py-2 px-4  text-gray-700 hover:cursor-not-allowed">
+                {data.myProfile.username}
+              </div>
+            </div>
+            <div className="relative">
+              <label className="text-gray-700">displayName</label>
+              <input
+                type="text"
+                name="displayName"
+                placeholder="Dispaly Name"
+                defaultValue={formState?.displayName || ''}
+                onChange={handleFormValueChanged}
+                className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
+            <div>
+              <div className="text-gray-700">自己紹介</div>
+              <textarea
+                name="description"
+                placeholder="所属や自己紹介、アピールポイント"
+                className="w-full rounded-lg border border-gray-300 p-2"
+                defaultValue={formState?.description}
+                onChange={handleFormValueChanged}
+              />
+            </div>
 
-  </UserSettingLayout>)
+            <div className="mt-2">
+              <button className="h-10 w-40 rounded-md border bg-blue-100" onClick={handleSubmit}>
+                <span>更新</span>
+              </button>
+            </div>
+          </div>
+        </FullCard>
+      </div>
+    </UserSettingLayout>
+  )
 }
