@@ -17,7 +17,7 @@ export default function Page() {
   return <InnerPage userId={session.id} groupName={groupName} userTemplateId={userTemplateId} />
 }
 
-const InnerPage = ({ userId, groupName, userTemplateId }: { userId: string; groupName: string, userTemplateId: string }) => {
+const InnerPage = ({ userId, groupName, userTemplateId }: { userId: string; groupName: string; userTemplateId: string }) => {
   const { data, loading } = useGroupQuery({ variables: { auth: 'user', name: groupName } })
   const groupId = useMemo(() => data?.group?.id, [data])
 
@@ -57,7 +57,7 @@ const InnerPage = ({ userId, groupName, userTemplateId }: { userId: string; grou
   )
 }
 
-const BlankEditForm = ({ groupId, submitButtonMap }: { groupId: string, submitButtonMap: Array<SubmitButtonSetting> }) => {
+const BlankEditForm = ({ groupId, submitButtonMap }: { groupId: string; submitButtonMap: Array<SubmitButtonSetting> }) => {
   return (
     <EditorForm
       data={{ title: '', body: '', tags: [] }}
@@ -69,13 +69,25 @@ const BlankEditForm = ({ groupId, submitButtonMap }: { groupId: string, submitBu
   )
 }
 
-const UserTemplateEditForm = ({ groupId, submitButtonMap, userTemplateId }: { groupId: string, submitButtonMap: Array<SubmitButtonSetting>, userTemplateId: string }) => {
+const UserTemplateEditForm = ({
+  groupId,
+  submitButtonMap,
+  userTemplateId,
+}: {
+  groupId: string
+  submitButtonMap: Array<SubmitButtonSetting>
+  userTemplateId: string
+}) => {
   const { data, loading } = useUserTemplateQuery({ variables: { auth: 'user', id: userTemplateId } })
-  if (loading) return (<BlankEditForm groupId={groupId} submitButtonMap={submitButtonMap} />)
-  if (!data) return (<BlankEditForm groupId={groupId} submitButtonMap={submitButtonMap} />)
+  if (loading) return <BlankEditForm groupId={groupId} submitButtonMap={submitButtonMap} />
+  if (!data) return <BlankEditForm groupId={groupId} submitButtonMap={submitButtonMap} />
   return (
     <EditorForm
-      data={{ title: data.userTemplate.title, body: data.userTemplate.body, tags: data.userTemplate.tags.split(',').filter((tag) => tag !== '') }}
+      data={{
+        title: data.userTemplate.title,
+        body: data.userTemplate.body,
+        tags: data.userTemplate.tags.split(',').filter((tag) => tag !== ''),
+      }}
       meta={{ groupId }}
       submitButtonMap={submitButtonMap}
       submitType="new"
