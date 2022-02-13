@@ -90,7 +90,6 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                     {navigation.map((item) => (
                       <NextLink
                         href={item.href}
-                        passHref
                         key={item.name}
                         className="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:text-white"
                         aria-current={item.current ? 'page' : undefined}
@@ -133,7 +132,6 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                             {({ active }) => (
                               <NextLink
                                 href={item.href}
-                                passHref
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                               >
                                 {item.name}
