@@ -5,9 +5,186 @@ import { BsSearch } from 'react-icons/bs'
 import { FaUserCircle, FaRegBell } from 'react-icons/fa'
 import { BiDownArrow } from 'react-icons/bi'
 import { getPageViews } from '@lib/localStorage/pageViews'
+import { classNames } from '@lib/utils'
+import Image from 'next/image'
+import { userIconLoader } from '@components/imageLoaders'
+import { NextLink } from '@components/nextLink'
+import { Fragment } from 'react'
+import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { SearchIcon } from '@heroicons/react/solid'
+import { MenuAlt1Icon, XIcon } from '@heroicons/react/outline'
 
 export type MyProfile = {
   id: String
+}
+
+export const Header = ({ searchText = '' }: { searchText?: string }) => {
+  const navigation = [
+    { name: 'Groups', href: '/groups', current: false },
+    { name: 'Tags', href: '/tags', current: false },
+    { name: 'Stocks', href: '/stocks', current: false },
+  ]
+
+  const userNavigation = [
+    { name: 'プロファイル', href: '/profile' },
+    { name: '設定', href: '/settings/profile' },
+    { name: 'ログアウト', href: '/logout' },
+  ]
+
+  const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
+
+  return (
+    <Disclosure as="nav" className="flex-shrink-0 bg-gray-800">
+      {({ open }) => (
+        <>
+          <div className="mx-auto px-4 ">
+            <div className="relative flex h-16 items-center justify-between">
+              {/* Logo section */}
+              <div className="flex items-center px-0">
+                <div className="flex-shrink-0">
+                  <Link href="/" passHref>
+                    <a className="rounded-md px-1 py-1 align-middle text-xl font-medium text-gray-200 hover:text-white">Compass</a>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Search section */}
+              <div className="flex flex-1 justify-center lg:justify-end">
+                <div className="relative w-full px-2 lg:px-6">
+                  <label htmlFor="search" className="sr-only">
+                    Search
+                  </label>
+                  <div className="relative text-gray-200 focus-within:text-gray-400">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <SearchIcon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <form method="GET" action="/search">
+                      <input
+                        id="search"
+                        name="q"
+                        className="block w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 text-gray-100 placeholder-gray-200 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:text-sm"
+                        placeholder="Search"
+                        type="search"
+                        autoComplete="off"
+                        defaultValue={searchText}
+                      />
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div className="flex lg:hidden">
+                {/* Mobile menu button */}
+                <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-600">
+                  <span className="sr-only">Open main menu</span>
+                  {open ? (
+                    <XIcon className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <MenuAlt1Icon className="block h-6 w-6" aria-hidden="true" />
+                  )}
+                </Disclosure.Button>
+              </div>
+              {/* Links section */}
+              <div className="hidden lg:block lg:w-80">
+                <div className="flex items-center justify-end">
+                  <div className="flex">
+                    {navigation.map((item) => (
+                      <NextLink
+                        href={item.href}
+                        passHref
+                        key={item.name}
+                        className="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:text-white"
+                        aria-current={item.current ? 'page' : undefined}
+                      >
+                        {item.name}
+                      </NextLink>
+                    ))}
+                  </div>
+                  {/* Profile dropdown */}
+                  <Menu as="div" className="relative ml-4 flex-shrink-0">
+                    <div>
+                      <Menu.Button className="flex rounded-full bg-gray-700 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-700">
+                        <span className="sr-only">Open user menu</span>
+                        {!loading && data?.session?.userSession?.id ? (
+                          <Image
+                            loader={userIconLoader}
+                            src={data?.session?.userSession?.id.toLowerCase()}
+                            width={32}
+                            height={32}
+                            alt="usericon"
+                            className="rounded-full"
+                          />
+                        ) : (
+                          <FaUserCircle className="h-8 w-8" />
+                        )}
+                      </Menu.Button>
+                    </div>
+                    <Transition
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        {userNavigation.map((item) => (
+                          <Menu.Item key={item.name}>
+                            {({ active }) => (
+                              <NextLink
+                                href={item.href}
+                                passHref
+                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                              >
+                                {item.name}
+                              </NextLink>
+                            )}
+                          </Menu.Item>
+                        ))}
+                      </Menu.Items>
+                    </Transition>
+                  </Menu>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Disclosure.Panel className="lg:hidden">
+            <div className="space-y-1 px-2 pt-2 pb-3">
+              {navigation.map((item) => (
+                <Disclosure.Button
+                  key={item.name}
+                  as="a"
+                  href={item.href}
+                  className={classNames(
+                    item.current ? 'bg-gray-800 text-white' : 'text-gray-200 hover:bg-gray-600 hover:text-gray-100',
+                    'block rounded-md px-3 py-2 text-base font-medium'
+                  )}
+                  aria-current={item.current ? 'page' : undefined}
+                >
+                  {item.name}
+                </Disclosure.Button>
+              ))}
+            </div>
+            <div className="border-t border-gray-500 pt-4 pb-3">
+              <div className="space-y-1 px-2">
+                {userNavigation.map((item) => (
+                  <Disclosure.Button
+                    key={item.name}
+                    as="a"
+                    href={item.href}
+                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-200 hover:bg-gray-600 hover:text-gray-100"
+                  >
+                    {item.name}
+                  </Disclosure.Button>
+                ))}
+              </div>
+            </div>
+          </Disclosure.Panel>
+        </>
+      )}
+    </Disclosure>
+  )
 }
 
 const BlankHeader = ({ children }: { children?: JSX.Element }) => (
@@ -18,7 +195,7 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (
   </>
 )
 
-export const Header = ({ searchText = '' }: { searchText?: string }) => {
+export const Header_02 = ({ searchText = '' }: { searchText?: string }) => {
   const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
