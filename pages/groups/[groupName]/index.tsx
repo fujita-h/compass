@@ -24,7 +24,8 @@ import { useEffect, useMemo } from 'react'
 import { updatePageViews } from '@lib/localStorage/pageViews'
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/solid'
+import { ChevronDownIcon, BadgeCheckIcon } from '@heroicons/react/solid'
+import { DocListItem } from '@components/docListItem'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: '/login' })
@@ -55,41 +56,65 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
   const isGroupAdmin = Boolean(data.group.user_group_map.find((x) => x.user.id == data.session.userSession.id)?.isAdmin)
 
   return (
-    <div className="mx-auto mt-4 mb-2 max-w-7xl bg-white">
-      <div className="flex">
-        <div className="m-2 flex-none md:w-72">
-          <div className="rounded-lg border px-2 py-4">
-            <div className="break-words text-center">
-              <Image loader={groupIconLoader} src={data.group.id} width={96} height={96} alt={data.group.name} className="rounded-lg" />
-              <h3 className="text-lg font-bold">
-                {data.group.displayName || data.group.name}
-                {Boolean(data.group.type === 'private') && <RiLock2Fill className="ml-1 inline-block" />}
-              </h3>
-              <h4 className="text-md font-bold text-gray-600">{data.group.name}</h4>
-            </div>
-
-            {isGroupAdmin && (
-              <div className="mt-3">
-                <Link href={`${encodeURIComponent(data.group.name)}/${encodeURIComponent(data.group.id.toLowerCase())}/manage`}>
-                  <a>
-                    <div className="w-full rounded-lg border bg-orange-100 p-1 text-center">Manage This Group</div>
-                  </a>
-                </Link>
+    <>
+      {/* 3 column wrapper */}
+      <div className="mx-auto w-full max-w-7xl flex-grow lg:flex">
+        {/* Pane-1 & Pane-2 wrapper */}
+        <div className="min-w-0 flex-1 bg-white xl:flex">
+          {/* Pane-1 */}
+          <div className="bg-white pt-1 xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
+            <div className="mt-6 xl:flex">
+              <div className="m-2 mx-6 xl:mx-4 xl:flex-1">
+                <div className="flex items-center space-x-2">
+                  <div>
+                    <Image
+                      loader={groupIconLoader}
+                      src={data.group.id}
+                      width={96}
+                      height={96}
+                      alt={data.group.name}
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="break-words text-center">
+                    <h3 className="text-lg font-bold">
+                      {data.group.displayName || data.group.name}
+                      {Boolean(data.group.type === 'private') && <RiLock2Fill className="ml-1 inline-block" />}
+                    </h3>
+                    <h4 className="text-md font-bold text-gray-600">{data.group.name}</h4>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between xl:block">
+                  {isGroupAdmin ? (
+                    <div>
+                      <Link href={`${encodeURIComponent(data.group.name)}/${encodeURIComponent(data.group.id.toLowerCase())}/manage`}>
+                        <a className="flex items-center space-x-2">
+                          <BadgeCheckIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                          <span className="text-sm font-medium text-gray-500">Group Admin</span>
+                        </a>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div></div>
+                  )}
+                  <div className="my-4 w-60 xl:w-full">
+                    <WatchBadge userId={userId} groupId={groupId} />
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-        <div className="m-4 w-full flex-auto">
-          <div className="mt-2 border-b text-lg font-bold">Documents</div>
-          <div>
-            <GroupDocuments groupId={groupId} />
-          </div>
-        </div>
-        <div className="m-2 w-60 flex-none">
-          <div>
-            <div className="mb-4">
-              <WatchBadge userId={userId} groupId={groupId} />
             </div>
+          </div>
+          {/* Pane-2 */}
+          <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
+            <div className="mt-2 mb-4 border-b text-2xl font-bold">Documents</div>
+            <div>
+              <GroupDocuments groupId={groupId} />
+            </div>
+          </div>
+        </div>
+        {/* Pane-3 */}
+        <div className="hidden bg-white p-4 pt-8 sm:pr-6 lg:block lg:flex-shrink-0 lg:border-l lg:border-gray-200 lg:pr-8 xl:pr-6">
+          <div>
             <div>
               <CreateDocumentButton groupName={groupName} />
             </div>
@@ -99,7 +124,7 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
           <MyGroupDrafts groupId={groupId} />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -172,23 +197,25 @@ const GroupDocuments = ({ groupId }: { groupId: string }) => {
 
   return (
     <div className="m-2 p-2">
-      {nodes.map((doc) => (
-        <div key={`docs-${doc.id}`}>
-          <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
-            <a className="hover:text-blue-500">
-              <div key={doc.id} className="m-2 border bg-white p-2">
-                <div className="text-black">
-                  <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
-                  <div className="ml-2 inline-block">が{new Date(doc.paper.updatedAt).toLocaleString()} に投稿</div>
-                </div>
-                <div className="text-lg font-bold">{doc.paper.title || 'UNTITLED'}</div>
-              </div>
-            </a>
-          </Link>
-        </div>
-      ))}
+      <ul role="list" className="relative z-0 divide-y divide-gray-200 border-b border-t border-gray-200">
+        {nodes.map((doc) => (
+          <DocListItem
+            key={doc.id}
+            id={doc.id}
+            title={doc.paper.title}
+            href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`}
+            groupName={doc.paper.group.displayName || doc.paper.group.name}
+            userId={doc.paper.user.id}
+            userName={doc.paper.user.username}
+            userHref={`/users/${encodeURIComponent(doc.paper.user.id)}`}
+            groupHref={`/groups/${encodeURIComponent(doc.paper.group.name.toLowerCase())}`}
+            updatedAt={doc.paper.updatedAt}
+          />
+        ))}
+      </ul>
+
       {pageInfo.hasNextPage && (
-        <div className="text-center">
+        <div className="mt-6 text-center">
           <button
             className="rounded-md border bg-gray-100 px-4 py-2"
             onClick={() => {
@@ -236,24 +263,17 @@ const WatchBadge = ({ userId, groupId }: { userId: string; groupId: string }) =>
     }
   }
 
-  if (loading || !data)
-    return (
-      <div className="inline-block rounded-xl px-3 py-1 text-center text-indigo-600 outline-indigo-600 hover:cursor-pointer hover:outline">
-        <span className="text-sm font-bold"> Watch </span>
-        <BsEye className="mx-auto block h-7 w-7" />
-        <span className="text-sm font-bold">&nbsp;</span>
-      </div>
-    )
+  if (loading || !data) return <div></div>
 
   return (
     <div
-      className="inline-block rounded-xl px-3 py-1 text-center text-indigo-600 outline-indigo-600 hover:cursor-pointer hover:outline"
+      className={classNames(
+        isWatched ? 'bg-red-100' : 'bg-blue-100',
+        'mx-auto w-full rounded-lg border p-1 text-center hover:cursor-pointer '
+      )}
       onClick={handleClick}
-      data-isliked={isWatched}
     >
-      <span className="text-sm font-bold"> Watch </span>
-      {isWatched ? <BsEyeFill className="mx-auto block h-7 w-7" /> : <BsEye className="mx-auto block h-7 w-7" />}
-      <span className="text-sm font-bold">{countWatches}</span>
+      <span>{isWatched ? 'ウォッチ解除' : 'ウォッチする'}</span>
     </div>
   )
 }
