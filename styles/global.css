@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  .tooltip {
+    @apply invisible absolute transition-all delay-0;
+  }
+  .has-tooltip:hover .tooltip {
+    @apply visible z-30 delay-500;
+  }
   .markdown {
     @apply p-2 text-lg leading-8 text-zinc-800;
   }

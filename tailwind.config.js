@@ -51,6 +51,10 @@ module.exports = {
         100: '25rem',
         104: '26rem',
       },
+      transitionDelay: {
+        0: '0ms',
+        2000: '2000ms',
+      },
     },
   },
   variants: {
