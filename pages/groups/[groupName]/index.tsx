@@ -106,21 +106,20 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
           </div>
           {/* Pane-2 */}
           <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
-            <div className="mt-2 mb-4 border-b text-2xl font-bold">Documents</div>
+            <div className="mx-4 flex items-center justify-between">
+              <div className="text-2xl font-bold">Documents</div>
+              <div className="z-30">
+                <CreateDocumentButton groupName={groupName} />
+              </div>
+            </div>
             <div>
               <GroupDocuments groupId={groupId} />
             </div>
           </div>
         </div>
         {/* Pane-3 */}
-        <div className="hidden bg-white p-4 pt-8 sm:pr-6 lg:block lg:flex-shrink-0 lg:border-l lg:border-gray-200 lg:pr-8 xl:pr-6">
-          <div>
-            <div>
-              <CreateDocumentButton groupName={groupName} />
-            </div>
-          </div>
-
-          <div className="mt-8 border-b text-lg font-bold">Your Drafts</div>
+        <div className="hidden w-60 bg-white p-4 pt-8 sm:pr-6 lg:block lg:flex-shrink-0 lg:border-l lg:border-gray-200 lg:pr-8 xl:pr-6">
+          <div className="border-b text-lg font-bold">Your Drafts</div>
           <MyGroupDrafts groupId={groupId} />
         </div>
       </div>
@@ -190,7 +189,7 @@ const GroupDocuments = ({ groupId }: { groupId: string }) => {
     fetchPolicy: 'network-only',
   })
 
-  if (loading) return <></>
+  if (loading) return <div className="m-2 p-2"></div>
 
   const nodes = data.documentsCP.edges.map((edge) => edge.node)
   const pageInfo = data.documentsCP.pageInfo
@@ -207,7 +206,7 @@ const GroupDocuments = ({ groupId }: { groupId: string }) => {
             groupName={doc.paper.group.displayName || doc.paper.group.name}
             userId={doc.paper.user.id}
             userName={doc.paper.user.username}
-            userHref={`/users/${encodeURIComponent(doc.paper.user.id)}`}
+            userHref={`/users/${encodeURIComponent(doc.paper.user.username)}`}
             groupHref={`/groups/${encodeURIComponent(doc.paper.group.name.toLowerCase())}`}
             updatedAt={doc.paper.updatedAt}
           />
