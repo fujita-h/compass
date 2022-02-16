@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { useSessionQuery, useHeaderQuery, Auth } from '@graphql/generated/react-apollo'
+import { useSessionQuery } from '@graphql/generated/react-apollo'
 import { BsSearch } from 'react-icons/bs'
 import { FaUserCircle, FaRegBell } from 'react-icons/fa'
-import { BiDownArrow } from 'react-icons/bi'
 import { getPageViews } from '@lib/localStorage/pageViews'
 import { classNames } from '@lib/utils'
 import Image from 'next/image'
@@ -20,9 +19,10 @@ export type MyProfile = {
 
 export const Header = ({ searchText = '' }: { searchText?: string }) => {
   const navigation = [
-    { name: 'Groups', href: '/groups', current: false },
-    { name: 'Tags', href: '/tags', current: false },
-    { name: 'Stocks', href: '/stocks', current: false },
+    { name: 'グループ', href: '/groups', current: false },
+    { name: 'タグ', href: '/tags', current: false },
+    { name: 'ユーザー', href: '/users', current: false },
+    { name: 'ストック', href: '/stocks', current: false },
   ]
 
   const userNavigation = [
@@ -52,7 +52,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
               <div className="flex flex-1 justify-center lg:justify-end">
                 <div className="relative w-full px-2 lg:px-6">
                   <label htmlFor="search" className="sr-only">
-                    Search
+                    ドキュメント検索
                   </label>
                   <div className="relative text-gray-200 focus-within:text-gray-400">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -63,7 +63,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                         id="search"
                         name="q"
                         className="block w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 text-gray-100 placeholder-gray-200 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:text-sm"
-                        placeholder="Search"
+                        placeholder="ドキュメントを検索"
                         type="search"
                         autoComplete="off"
                         defaultValue={searchText}
@@ -84,7 +84,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                 </Disclosure.Button>
               </div>
               {/* Links section */}
-              <div className="hidden lg:block lg:w-80">
+              <div className="lg:w-92 hidden lg:block">
                 <div className="flex items-center justify-end">
                   <div className="flex">
                     {navigation.map((item) => (
@@ -101,7 +101,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-4 flex-shrink-0">
                     <div>
-                      <Menu.Button className="flex rounded-full bg-gray-700 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-700">
+                      <Menu.Button className="flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white focus:ring-offset-1 focus:ring-offset-gray-700">
                         <span className="sr-only">Open user menu</span>
                         {!loading && data?.session?.userSession?.id ? (
                           <Image
@@ -113,7 +113,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                             className="rounded-full"
                           />
                         ) : (
-                          <FaUserCircle className="h-8 w-8" />
+                          <div className="h-8 w-8" />
                         )}
                       </Menu.Button>
                     </div>
