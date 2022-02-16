@@ -19,7 +19,7 @@ export default function Page() {
   const [iconFile, setIconFile] = useState(null)
   const [iconImage, setIconImage] = useState(null)
   const [formState, setFormState] = useState(data?.myProfile)
-  const [updateMyProfile, {}] = useUpdateMyProfileMutation({})
+  const [updateMyProfile] = useUpdateMyProfileMutation()
 
   useEffect(() => {
     if (!data?.myProfile) return
@@ -45,6 +45,7 @@ export default function Page() {
       },
     }).then((res) => {
       setFormState(res.data.updateMyProfile)
+      rand.current = Date.now().toString()
     })
   }
 
@@ -68,9 +69,10 @@ export default function Page() {
     reader.readAsDataURL(file)
   }
 
-  const rand = useMemo(() => Date.now().toString(), [data])
+  //const rand = useMemo(() => Date.now().toString(), [data])
+  const rand = useRef(Date.now().toString())
   const iconLoader = ({ src, width, quality }) => {
-    return `/api/files/usericons/${src}?rand=${rand}`
+    return `/api/files/usericons/${src}?rand=${rand.current}`
   }
 
   if (loading) return <UserSettingLayout></UserSettingLayout>
