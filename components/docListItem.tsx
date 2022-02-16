@@ -1,8 +1,7 @@
-import { classNames } from '@lib/utils'
+import Image from 'next/image'
 import { UserGroupIcon } from '@heroicons/react/solid'
 import { userIconLoader } from '@components/imageLoaders'
-import Image from 'next/image'
-import Link from 'next/link'
+import { NextLink } from '@components/nextLink'
 
 type Prop = {
   id: string
@@ -26,37 +25,37 @@ type Prop = {
 
 export const DocListItem = (item: Prop) => {
   return (
-    <li key={item.id} className="relative py-6 pl-4 pr-6 hover:bg-gray-50 sm:py-4 sm:pl-6 lg:pl-8 xl:pl-6">
+    <li key={item.id} className="relative py-4 pl-4 pr-2 hover:bg-gray-50 sm:pl-2">
       {/* エリア全体をリンク対象にする */}
-      <a href={item.href}>
+      <NextLink href={item.href}>
         <span className="absolute inset-0" aria-hidden="true" />
-      </a>
+      </NextLink>
 
       <div className="flex items-center">
         {/* image */}
         <div className="flex-none">
-          <a href={item.userHref}>
+          <NextLink href={item.userHref}>
             <div className="has-tooltip hidden sm:block">
               <span className="tooltip  mt-10 rounded-lg bg-gray-100 px-2 py-1 text-sm shadow-lg">@{item.userName}</span>
-              <div className="relative mr-2 h-12 w-12 rounded-full border-1 border-gray-300">
+              <div className="mr-2 h-12 w-12 rounded-full border-1 border-gray-300">
                 <Image
                   loader={userIconLoader}
                   src={item.userId.toUpperCase()}
                   alt={item.userName}
-                  layout="fill"
-                  objectFit="contain"
-                  className="rounded-full "
+                  width={64}
+                  height={64}
+                  className="rounded-full object-cover"
                 />
               </div>
             </div>
-          </a>
+          </NextLink>
         </div>
         <div className="flex-1">
           {/* A area */}
           <div>
             {/* Mini-User */}
             <div className="flex items-center space-x-3 sm:hidden">
-              <a href={item.userHref} className="group relative flex items-center space-x-2.5">
+              <NextLink href={item.userHref} className="group relative flex items-center space-x-2.5">
                 <span className="truncate text-sm font-medium text-gray-500 group-hover:text-gray-900 ">
                   <div className="mr-1 inline-block h-4 w-4 align-middle">
                     <Image
@@ -68,18 +67,15 @@ export const DocListItem = (item: Prop) => {
                       className="rounded-full"
                     />
                   </div>
-                  {item.userName}
+                  @{item.userName}
                 </span>
-              </a>
+              </NextLink>
             </div>
             {/* title */}
             <div className="flex items-center space-x-3">
               <span className="block">
                 <h2 className="text-base font-bold text-gray-700">
-                  <a href={item.href}>
-                    {/*<span className="absolute inset-0" aria-hidden="true" />*/}
-                    {item.title}
-                  </a>
+                  <NextLink href={item.href}>{item.title}</NextLink>
                 </h2>
               </span>
             </div>
