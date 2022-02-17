@@ -3,8 +3,6 @@ import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
 import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import gfm from 'remark-gfm'
 import Link from 'next/link'
 import { GrEdit } from 'react-icons/gr'
 import { BsBookmark, BsBookmarkCheckFill, BsThreeDots, BsTags } from 'react-icons/bs'
@@ -12,7 +10,6 @@ import { IoReturnUpForward } from 'react-icons/io5'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import {
-  Auth,
   CommentsDocument,
   DocumentQuery,
   LikesDocument,
@@ -37,14 +34,11 @@ import { UserIconNameLinkSmall } from '@components/elements'
 import { XIcon } from '@heroicons/react/solid'
 import { updatePageViews } from '@lib/localStorage/pageViews'
 
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
-import rehypeStringify from 'rehype-stringify'
+import dynamic from 'next/dynamic'
 
-const CONTENT_ANCHOR_PREFIX = 'content-line'
-const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
+const MarkdownParser = dynamic(() => import('@components/markdown/markdownParser'))
+const MarkdownReactiveTocParser = dynamic(() => import('@components/markdown/markdownReactiveTocParser'))
+const MarkdownTextParser = dynamic(() => import('@components/markdown/markdownTextParser'))
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -63,23 +57,6 @@ export default function Page() {
 const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; sessionUserId: string; documentId: string }) => {
   const { data, loading } = useDocumentQuery({ variables: { documentId } })
 
-  const H1 = useCallback(
-    ({ node, ...props }) => (
-      <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>
-        {props.children}
-      </h1>
-    ),
-    []
-  )
-  const H2 = useCallback(
-    ({ node, ...props }) => (
-      <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>
-        {props.children}
-      </h2>
-    ),
-    []
-  )
-
   useEffect(() => {
     if (!data?.document?.paper?.group?.name) return
     updatePageViews('group', data?.document?.paper?.group?.name)
@@ -88,7 +65,7 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
   const [subMenuOpen, setSubMenuOpen] = useState(false)
   const [deleteModalState, setDeleteModalState] = useState(false)
 
-  const [deleteDocument, {}] = useDeleteDocumentMutation({
+  const [deleteDocument] = useDeleteDocumentMutation({
     onCompleted: (data) => {
       const groupName = data.deleteDocument?.paper?.group?.name
       router.push(`/groups/${encodeURIComponent(groupName)}`)
@@ -220,9 +197,7 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
             </div>
           </div>
           <div className="p-2">
-            <ReactMarkdown className="markdown" remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>
-              {data.document.paper.body}
-            </ReactMarkdown>
+            <MarkdownParser addHeaderAnchor={true}>{data.document.paper.body}</MarkdownParser>
           </div>
         </div>
         <div className="mt-8 mb-8 bg-white p-4">
@@ -245,7 +220,7 @@ const RightPane = ({ userId, documentQuery }: { userId: string; documentQuery: D
         <LikeBadge userId={userId} documentId={documentQuery.document.id} />
       </div>
       <div className="mt-2">
-        <ReactiveToC>{documentQuery.document.paper.body}</ReactiveToC>
+        <MarkdownReactiveTocParser>{documentQuery.document.paper.body}</MarkdownReactiveTocParser>
       </div>
     </div>
   )
@@ -256,10 +231,10 @@ const StockBadge = ({ userId, documentId }: { userId: string; documentId: string
   const { data, loading } = useStockCategoriesAndStocksQuery({ variables: { auth: 'user', userId: userId, documentId: documentId } })
 
   // ストックの更新用
-  const [createStock, {}] = useCreateStockMutation({
+  const [createStock] = useCreateStockMutation({
     refetchQueries: [StockCategoriesAndStocksDocument],
   })
-  const [deleteStock, {}] = useDeleteStockMutation({
+  const [deleteStock] = useDeleteStockMutation({
     refetchQueries: [StockCategoriesAndStocksDocument],
   })
   const handleStockCheckboxCanged = (e) => {
@@ -287,7 +262,7 @@ const StockBadge = ({ userId, documentId }: { userId: string; documentId: string
 
   // 新規のカテゴリ作成用
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [createStockCategory, {}] = useCreateStockCategoryMutation({
+  const [createStockCategory] = useCreateStockCategoryMutation({
     refetchQueries: [StockCategoriesAndStocksDocument],
   })
   const handleNewCategoryNameChanged = (e) => {
@@ -353,10 +328,10 @@ const StockBadge = ({ userId, documentId }: { userId: string; documentId: string
 
 const LikeBadge = ({ userId, documentId }: { userId: string; documentId: string }) => {
   const { data, loading } = useLikesQuery({ variables: { auth: 'user', documentId: documentId } })
-  const [createLike, {}] = useCreateLikeMutation({
+  const [createLike] = useCreateLikeMutation({
     refetchQueries: [LikesDocument],
   })
-  const [deleteLike, {}] = useDeleteLikeMutation({
+  const [deleteLike] = useDeleteLikeMutation({
     refetchQueries: [LikesDocument],
   })
 
@@ -384,68 +359,6 @@ const LikeBadge = ({ userId, documentId }: { userId: string; documentId: string 
       {isLiked ? <AiFillLike className="mx-auto block h-7 w-7" /> : <AiOutlineLike className="mx-auto block h-7 w-7" />}
       <span className="text-sm font-bold">{countLikes}</span>
     </div>
-  )
-}
-
-const ReactiveToC = ({ children }) => {
-  const [scrollMarker, setScrollMarker] = useState('')
-  const throrttleTimer = useRef(Date.now())
-  const throttle = useCallback((fn, delay) => {
-    if (throrttleTimer.current + delay < Date.now()) {
-      throrttleTimer.current = Date.now()
-      return fn()
-    }
-  }, [])
-
-  const handleScroll = useCallback((e) => {
-    throttle(() => updateScrollMarker(), 100)
-  }, [])
-
-  const updateScrollMarker = useCallback(() => {
-    const elements = Array.from(document.getElementsByClassName(CONTENT_ANCHOR_CLASS_NAME))
-    const targets = elements
-      .map((element) => {
-        const rect = element.getBoundingClientRect()
-        return { id: element.id, top: rect.top - 1 }
-      })
-      .sort((a, b) => b.top - a.top)
-    const target = targets.find((x) => x.top < 0) ?? targets.slice(-1)[0]
-    setScrollMarker(target?.id ?? '')
-  }, [])
-
-  useEffect(() => {
-    document.addEventListener('scroll', handleScroll, { passive: true })
-    updateScrollMarker()
-  }, [])
-
-  const H1 = useCallback(
-    ({ node, ...props }) => {
-      const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 py-1' : 'py-1'
-      return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
-        </div>
-      )
-    },
-    [scrollMarker]
-  )
-  const H2 = useCallback(
-    ({ node, ...props }) => {
-      const className =
-        `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 pl-3 py-1' : 'pl-3 py-1'
-      return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
-        </div>
-      )
-    },
-    [scrollMarker]
-  )
-
-  return (
-    <ReactMarkdown className="text-sm text-zinc-700" allowedElements={['h1', 'h2']} components={{ h1: H1, h2: H2 }}>
-      {children}
-    </ReactMarkdown>
   )
 }
 
@@ -523,11 +436,11 @@ const CommentView = ({
   const [deleteModalState, setDeleteModalState] = useState(false)
   const [subMenuOpen, setSubMenuOpen] = useState(false)
   const [bodyText, setBodyText] = useState(body)
-  const [updateComment, {}] = useUpdateCommentMutation({
+  const [updateComment] = useUpdateCommentMutation({
     refetchQueries: [CommentsDocument],
     onCompleted: () => setEditorModeState(false),
   })
-  const [deleteComment, {}] = useDeleteCommentMutation({
+  const [deleteComment] = useDeleteCommentMutation({
     refetchQueries: [CommentsDocument],
     onCompleted: () => setDeleteModalState(false),
   })
@@ -618,9 +531,7 @@ const CommentView = ({
           </div>
         </div>
         <div>
-          <ReactMarkdown className="markdown" remarkPlugins={[gfm]} unwrapDisallowed={false}>
-            {body}
-          </ReactMarkdown>
+          <MarkdownParser>{body}</MarkdownParser>
         </div>
       </div>
 
@@ -679,7 +590,7 @@ const PostComment = ({
   setRefCommentId?: Dispatch<SetStateAction<string>>
 }) => {
   const [bodyText, setBodyText] = useState('')
-  const [postComment, {}] = useCreateCommentMutation({
+  const [postComment] = useCreateCommentMutation({
     refetchQueries: [CommentsDocument],
   })
 
@@ -785,9 +696,7 @@ const CommentEditForm = ({
         </div>
         <div hidden={selectedTab !== 1}>
           <div className="m-1 inline-block h-full min-h-[80px] w-full border p-0">
-            <ReactMarkdown className="markdown" remarkPlugins={[gfm]} unwrapDisallowed={false}>
-              {bodyText}
-            </ReactMarkdown>
+            <MarkdownParser>{bodyText}</MarkdownParser>
           </div>
         </div>
       </div>
@@ -834,15 +743,14 @@ const CommentSummary = ({ commentId }) => {
   if (loading) return <span></span>
   if (!data) return <span>削除されたコメント</span>
 
-  const file = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify).processSync(data.comment.comment_raw.body)
-  const html = String(file)
-
   return (
     <div className="line-clamp-1">
       <div className="mr-2 inline-block">
         <UserIconNameLinkSmall userId={data.comment.user.id} username={data.comment.user.username} />
       </div>
-      <span className="from-neutral-700 text-sm">{html.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '').slice(0, 300)}</span>
+      <span className="from-neutral-700 text-sm">
+        <MarkdownTextParser slice={300}>{data.comment.comment_raw.body}</MarkdownTextParser>
+      </span>
     </div>
   )
 }

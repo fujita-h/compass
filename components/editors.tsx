@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Markdown } from '@components/markdown'
 import { TagForm } from './forms/tagForm'
 import { Auth, useCreateDraftMutation, useUpdateDraftMutation, useUpdateUserTemplateMutation } from '@graphql/generated/react-apollo'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
+
+const MarkdownParser = dynamic(() => import('@components/markdown/markdownParser'))
 
 export type EditorData = {
   title: string
@@ -61,9 +63,9 @@ export const EditorForm = ({
   const [docMeta, setDocMeta] = useState<EditorMeta>(meta)
   const [selectionPosition, setSelectionPosition] = useState(0)
   const isFormValueChangedByUser = useRef(false)
-  const [createDraft, {}] = useCreateDraftMutation()
-  const [updateDraft, {}] = useUpdateDraftMutation()
-  const [updateUserTemplate, {}] = useUpdateUserTemplateMutation()
+  const [createDraft] = useCreateDraftMutation()
+  const [updateDraft] = useUpdateDraftMutation()
+  const [updateUserTemplate] = useUpdateUserTemplateMutation()
   const paperIdRef = useRef(meta.paperId)
 
   // re-set when initDocData provided.
@@ -312,8 +314,8 @@ export const EditorForm = ({
               </div>
             )}
           </div>
-          <div style={{ height: 'calc(100% - 2.4rem)', overflowWrap: 'anywhere' }} className="markdown w-full overflow-auto p-2">
-            <Markdown>{docData.body}</Markdown>
+          <div style={{ height: 'calc(100% - 2.4rem)', overflowWrap: 'anywhere' }} className="w-full overflow-auto p-2">
+            <MarkdownParser>{docData.body}</MarkdownParser>
           </div>
         </div>
       </div>

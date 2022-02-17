@@ -1,5 +1,5 @@
 import { NextRouter, useRouter } from 'next/router'
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
@@ -7,14 +7,13 @@ import { MyModal } from '@components/modals'
 import { getAsString } from '@lib/utils'
 import { DraftQuery, useDeleteDraftMutation, useDraftQuery } from '@graphql/generated/react-apollo'
 import { UserIconNameLinkSmall } from '@components/elements'
-import ReactMarkdown from 'react-markdown'
-import gfm from 'remark-gfm'
-import { BsBookmark, BsBookmarkCheckFill, BsThreeDots, BsTags } from 'react-icons/bs'
+import { BsThreeDots, BsTags } from 'react-icons/bs'
 import { GrEdit } from 'react-icons/gr'
 import { RiDeleteBin6Line } from 'react-icons/ri'
+import dynamic from 'next/dynamic'
 
-const CONTENT_ANCHOR_PREFIX = 'content-line'
-const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
+const MarkdownParser = dynamic(() => import('@components/markdown/markdownParser'))
+const MarkdownReactiveTocParser = dynamic(() => import('@components/markdown/markdownReactiveTocParser'))
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -34,27 +33,10 @@ export default function Page() {
 const InnerPage = ({ router, sessionUserId, paperId }: { router: NextRouter; sessionUserId: string; paperId: string }) => {
   const { data, loading } = useDraftQuery({ variables: { auth: 'user', id: paperId } })
 
-  const H1 = useCallback(
-    ({ node, ...props }) => (
-      <h1 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>
-        {props.children}
-      </h1>
-    ),
-    []
-  )
-  const H2 = useCallback(
-    ({ node, ...props }) => (
-      <h2 id={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} className={CONTENT_ANCHOR_CLASS_NAME}>
-        {props.children}
-      </h2>
-    ),
-    []
-  )
-
   const [subMenuOpen, setSubMenuOpen] = useState(false)
   const [deleteModalState, setDeleteModalState] = useState(false)
 
-  const [deleteDraft, {}] = useDeleteDraftMutation()
+  const [deleteDraft] = useDeleteDraftMutation()
 
   const handleDelete = (e) => {
     deleteDraft({
@@ -191,9 +173,7 @@ const InnerPage = ({ router, sessionUserId, paperId }: { router: NextRouter; ses
               </div>
             </div>
             <div className="p-2">
-              <ReactMarkdown className="markdown" remarkPlugins={[gfm]} unwrapDisallowed={false} components={{ h1: H1, h2: H2 }}>
-                {data.draft.body}
-              </ReactMarkdown>
+              <MarkdownParser addHeaderAnchor={true}>{data.draft.body}</MarkdownParser>
             </div>
           </div>
         </div>
@@ -209,69 +189,8 @@ const RightPane = ({ userId, draftQuery }: { userId: string; draftQuery: DraftQu
   return (
     <div className="sticky top-16">
       <div className="mt-2">
-        <ReactiveToC>{draftQuery.draft.body}</ReactiveToC>
+        <MarkdownReactiveTocParser>{draftQuery.draft.body}</MarkdownReactiveTocParser>
       </div>
     </div>
-  )
-}
-
-const ReactiveToC = ({ children }) => {
-  const [scrollMarker, setScrollMarker] = useState('')
-  const throrttleTimer = useRef(Date.now())
-  const throttle = useCallback((fn, delay) => {
-    if (throrttleTimer.current + delay < Date.now()) {
-      throrttleTimer.current = Date.now()
-      return fn()
-    }
-  }, [])
-
-  const handleScroll = useCallback((e) => {
-    throttle(() => updateScrollMarker(), 100)
-  }, [])
-
-  const updateScrollMarker = useCallback(() => {
-    const elements = Array.from(document.getElementsByClassName(CONTENT_ANCHOR_CLASS_NAME))
-    const targets = elements
-      .map((element) => {
-        const rect = element.getBoundingClientRect()
-        return { id: element.id, top: rect.top }
-      })
-      .sort((a, b) => b.top - a.top)
-    const target = targets.find((x) => x.top < 0) ?? targets.slice(-1)[0]
-    setScrollMarker(target?.id ?? '')
-  }, [])
-
-  useEffect(() => {
-    document.addEventListener('scroll', handleScroll, { passive: true })
-    updateScrollMarker()
-  }, [])
-
-  const H1 = useCallback(
-    ({ node, ...props }) => {
-      const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200' : ''
-      return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
-        </div>
-      )
-    },
-    [scrollMarker]
-  )
-  const H2 = useCallback(
-    ({ node, ...props }) => {
-      const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 pl-4' : 'pl-4'
-      return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
-        </div>
-      )
-    },
-    [scrollMarker]
-  )
-
-  return (
-    <ReactMarkdown allowedElements={['h1', 'h2']} components={{ h1: H1, h2: H2 }}>
-      {children}
-    </ReactMarkdown>
   )
 }
