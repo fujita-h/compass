@@ -3,7 +3,7 @@ import { Dispatch, Fragment, SetStateAction, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
 
-export function SimpleAlertModal({
+export default function SimpleAlertModal({
   open,
   setOpen,
   title,

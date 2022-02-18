@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import Link from 'next/link'
+import dynamic from 'next/dynamic'
+import { useSession } from '@lib/hooks'
 import { UserSettingLayout } from '@components/layouts'
 import {
   useCreateUserTemplateMutation,
@@ -6,11 +10,9 @@ import {
   useUpdateUserTemplateMutation,
   useUserTemplatesQuery,
 } from '@graphql/generated/react-apollo'
-import { useSession } from '@lib/hooks'
-import Link from 'next/link'
-import { SimpleAlertModal } from '@components/modals/simpleAlert'
-import { useState } from 'react'
-import { PencilIcon } from '@heroicons/react/outline'
+import { doNothing } from '@lib/utils'
+
+const SimpleAlertModal = dynamic(() => import('@components/modals/simpleAlert'))
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -117,9 +119,7 @@ const TemplateItem = ({ id, name, title }: { id: string; name: string; title: st
         buttonFunc={() => {
           deleteUserTemplate({ variables: { auth: 'user', id }, refetchQueries: [UserTemplatesDocument] })
         }}
-        cancelFunc={() => {
-          /* nothoing to do */
-        }}
+        cancelFunc={doNothing}
       />
     </div>
   )
