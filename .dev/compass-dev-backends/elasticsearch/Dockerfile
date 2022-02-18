@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.17.0
 
 # install analysis-icu
 RUN elasticsearch-plugin install analysis-icu
@@ -9,7 +9,7 @@ RUN elasticsearch-plugin install analysis-kuromoji
 # build and install analysis-sudachi 
 ENV BRANCH acf55354a8e39c89f54066baffeb544a060e8b89
 ENV VERSION 2.1.1
-ENV ES_VERSION 7.16.3
+ENV ES_VERSION 7.17.0
 RUN mkdir -p /sudachi && \
     cd /sudachi && \
     curl -LO https://github.com/WorksApplications/elasticsearch-sudachi/archive/$BRANCH.zip && \
