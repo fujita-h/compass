@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { Toggle, Pagination } from '@components/elements'
 import { MyModal } from '@components/modals'
 import Image from 'next/image'
-
+import { doNothing } from '@lib/utils'
 import {
   Auth,
   useGroupQuery,
@@ -52,9 +52,7 @@ export const EditGroupForm = ({
   const imageSelectForm = useRef(null)
   const [iconFile, setIconFile] = useState(null)
   const [iconImage, setIconImage] = useState(null)
-  const [updateGroup, {}] = useUpdateGroupMutation({
-    //refetchさせる必要があるか。updateに失敗した場合の処理があれば不要なはず
-    //refetchQueries: [GetGroupDocument]
+  const [updateGroup] = useUpdateGroupMutation({
     refetchQueries: refetchQueries,
   })
   const handleSubmit = async () => {
@@ -107,7 +105,7 @@ export const EditGroupForm = ({
   }
 
   const rand = useMemo(() => Date.now().toString(), [data])
-  const iconLoader = ({ src, width, quality }) => {
+  const iconLoader = ({ src }) => {
     return `/api/files/groupicons/${src}?rand=${rand}`
   }
 
@@ -222,7 +220,7 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth; groupId: s
   const [deleteModalState, setDeleteModalState] = useState({ show: false, group: undefined, user: undefined })
   const [addModalState, setAddModalState] = useState({ show: false })
 
-  const [updateMember, {}] = useUpdateGroupMemberMutation({
+  const [updateMember] = useUpdateGroupMemberMutation({
     refetchQueries: [GetGroupWithMembersDocument],
   })
 
@@ -314,7 +312,7 @@ export const DangerZoneForm = ({ auth, groupId }: { auth: Auth; groupId: string 
           <span>グループを削除</span>
         </button>
       </div>
-      <DeleteGroupModal auth={auth} group={data.group} state={deleteModalState} setState={setDeleteModalState} onExited={() => {}} />
+      <DeleteGroupModal auth={auth} group={data.group} state={deleteModalState} setState={setDeleteModalState} onExited={doNothing} />
     </>
   )
 }
@@ -328,7 +326,7 @@ const AddUserModal = ({ auth, state, setState, group }: { auth: Auth; state; set
 }
 
 const DeleteUserModal = ({ auth, state, setState }) => {
-  const [deleteMember, {}] = useDeleteGroupMemberMutation({
+  const [deleteMember] = useDeleteGroupMemberMutation({
     refetchQueries: [GetGroupWithMembersDocument],
     onCompleted: (data) => {
       closeModal()
@@ -471,7 +469,7 @@ const SearchUserForm = ({
   const { data, loading, error } = useGetUsersQuery({
     variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE },
   })
-  const [createGroupMember, {}] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })
+  const [createGroupMember] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })
   const handlePaginationChanged = (index) => {
     setPageIndex(index)
   }
@@ -515,7 +513,7 @@ const SearchUserForm = ({
           {users.map((user) => {
             const isCurrent = currentMembers.find((x) => x.userId == user.id)
             const checked = isCurrent ? true : selectedUsers[user.id] ?? false
-            const onChange = isCurrent ? () => {} : handleCeckboxChanged
+            const onChange = isCurrent ? doNothing : handleCeckboxChanged
             return (
               <tr key={user.id}>
                 <td className="whitespace-nowrap px-6 py-1">

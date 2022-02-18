@@ -5,3 +5,7 @@ export function getAsString(value: string | string[]): string {
 export function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
+
+export function doNothing(...vals) {
+  return
+}

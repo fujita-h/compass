@@ -71,7 +71,7 @@ export default function Page() {
 
   //const rand = useMemo(() => Date.now().toString(), [data])
   const rand = useRef(Date.now().toString())
-  const iconLoader = ({ src, width, quality }) => {
+  const iconLoader = ({ src }) => {
     return `/api/files/usericons/${src}?rand=${rand.current}`
   }
 
