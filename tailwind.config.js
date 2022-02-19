@@ -11,6 +11,7 @@ module.exports = {
       fontFamily: {
         sans: [
           'YakuHanJPs',
+          'Noto Sans JP',
           '-apple-system',
           'BlinkMacSystemFont',
           'Segoe UI',
