@@ -18,17 +18,6 @@ model like {
   @@index([userId])
 }
 
-model watch {
-  userId  String @db.VarChar(26)
-  groupId String @db.VarChar(26)
-  group   group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, groupId])
-  @@index([groupId])
-  @@index([userId])
-}
-
 model attachment {
   id       String @id @db.VarChar(26)
   userId   String @db.VarChar(26)
@@ -105,11 +94,11 @@ model group {
   displayName    String?          @db.VarChar(127)
   description    String?          @db.VarChar(500)
   type           group_type       @default(normal)
+  followed       follow_group[]
   group_icon     group_icon?
   group_template group_template[]
   paper          paper[]
   user_group_map user_group_map[]
-  watch          watch[]
 
   @@index([type])
 }
@@ -225,6 +214,7 @@ model user {
   attachment      attachment[]
   comment         comment[]
   comment_raw     comment_raw[]
+  follow_group    follow_group[]
   follow          follow_user[]    @relation("follow_user_fromUserIdTouser")
   followed        follow_user[]    @relation("follow_user_toUserIdTouser")
   like            like[]
@@ -235,7 +225,6 @@ model user {
   user_group_map  user_group_map[]
   user_icon       user_icon?
   user_template   user_template[]
-  watch           watch[]
 }
 
 model user_template {
@@ -279,6 +268,17 @@ model follow_user {
   @@id([fromUserId, toUserId])
   @@index([fromUserId])
   @@index([toUserId])
+}
+
+model follow_group {
+  userId  String @db.VarChar(26)
+  groupId String @db.VarChar(26)
+  group   group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@index([groupId])
+  @@index([userId])
 }
 
 enum configurations_ensureSingleRow {

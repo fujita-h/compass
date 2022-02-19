@@ -263,8 +263,8 @@ export const resolvers: Resolvers = {
       })
       const follower = followerResult && followerResult.followed ? followerResult.followed.map((x) => x.fromUserId) : []
 
-      const watches = (
-        await prisma.watch.findMany({
+      const groupsFollowing = (
+        await prisma.follow_group.findMany({
           where: { userId: _context.userSession.id.toUpperCase() },
           select: { groupId: true },
         })
@@ -277,7 +277,7 @@ export const resolvers: Resolvers = {
               OR: [
                 { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
                 { user: { id: { in: follower } } },
-                { group: { id: { in: watches } } },
+                { group: { id: { in: groupsFollowing } } },
               ],
               updatedAtNumber: { lt: Number(targetCursor) },
             },
@@ -640,7 +640,7 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!userId && !groupId) throw new UserInputError('UserInputError')
-        return await prisma.watch.findMany({
+        return await prisma.follow_group.findMany({
           where: {
             userId: userId ? userId.toUpperCase() : undefined,
             groupId: groupId ? groupId.toUpperCase() : undefined,
@@ -1787,7 +1787,7 @@ export const resolvers: Resolvers = {
         if (!userId) throw new UserInputError('UserInputError')
         if (!groupId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.watch.create({
+        return await prisma.follow_group.create({
           data: {
             userId: userId.toUpperCase(),
             groupId: groupId.toUpperCase(),
@@ -1810,7 +1810,7 @@ export const resolvers: Resolvers = {
         if (!userId) throw new UserInputError('UserInputError')
         if (!groupId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.watch.delete({
+        return await prisma.follow_group.delete({
           where: {
             userId_groupId: {
               userId: userId.toUpperCase(),
