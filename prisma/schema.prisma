@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model follow {
-  fromUserId String @db.VarChar(26)
-  toUserId   String @db.VarChar(26)
-  from       user   @relation("follow_fromUserIdTousers", fields: [fromUserId], references: [id], onDelete: Cascade)
-  to         user   @relation("follow_toUserIdTousers", fields: [toUserId], references: [id], onDelete: Cascade)
-
-  @@id([fromUserId, toUserId])
-  @@index([fromUserId])
-  @@index([toUserId])
-}
-
 model like {
   userId     String   @db.VarChar(26)
   documentId String   @db.VarChar(26)
@@ -236,8 +225,8 @@ model user {
   attachment      attachment[]
   comment         comment[]
   comment_raw     comment_raw[]
-  follow          follow[]         @relation("follow_fromUserIdTousers")
-  followed        follow[]         @relation("follow_toUserIdTousers")
+  follow          follow_user[]    @relation("follow_user_fromUserIdTouser")
+  followed        follow_user[]    @relation("follow_user_toUserIdTouser")
   like            like[]
   notification    notification[]
   paper           paper[]
@@ -279,6 +268,17 @@ model group_template {
   group           group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@index([groupId])
+}
+
+model follow_user {
+  fromUserId String @db.VarChar(26)
+  toUserId   String @db.VarChar(26)
+  from       user   @relation("follow_user_fromUserIdTouser", fields: [fromUserId], references: [id], onDelete: Cascade)
+  to         user   @relation("follow_user_toUserIdTouser", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@index([fromUserId])
+  @@index([toUserId])
 }
 
 enum configurations_ensureSingleRow {

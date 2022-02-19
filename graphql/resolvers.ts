@@ -619,7 +619,7 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!fromUserId && !toUserId) throw new UserInputError('UserInputError')
-        return await prisma.follow.findMany({
+        return await prisma.follow_user.findMany({
           where: {
             fromUserId: fromUserId ? fromUserId.toUpperCase() : undefined,
             toUserId: toUserId ? toUserId.toUpperCase() : undefined,
@@ -1739,7 +1739,7 @@ export const resolvers: Resolvers = {
         if (!fromUserId) throw new UserInputError('UserInputError')
         if (!toUserId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.follow.create({
+        return await prisma.follow_user.create({
           data: {
             fromUserId: fromUserId.toUpperCase(),
             toUserId: toUserId.toUpperCase(),
@@ -1762,7 +1762,7 @@ export const resolvers: Resolvers = {
         if (!fromUserId) throw new UserInputError('UserInputError')
         if (!toUserId) throw new UserInputError('UserInputError')
         if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.follow.delete({
+        return await prisma.follow_user.delete({
           where: {
             fromUserId_toUserId: {
               fromUserId: fromUserId.toUpperCase(),
