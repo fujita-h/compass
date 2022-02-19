@@ -16,16 +16,19 @@ import {
   useDeleteWatchMutation,
   useDraftsQuery,
   useTemplatesQuery,
+  useGroupsQuery,
 } from '@graphql/generated/react-apollo'
 import { RiLock2Fill } from 'react-icons/ri'
 import { BsFlag, BsFlagFill, BsSquare, BsCheck2Square, BsEye, BsEyeFill } from 'react-icons/bs'
 import { UserIconNameLinkSmall } from '@components/elements'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { updatePageViews } from '@lib/localStorage/pageViews'
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon, BadgeCheckIcon } from '@heroicons/react/solid'
+import { ChevronDownIcon, BadgeCheckIcon, SearchIcon, MailIcon, PhoneIcon, FilterIcon } from '@heroicons/react/solid'
 import { DocListItem } from '@components/docListItem'
+import { GroupsNav } from '@components/groupsNav'
+import ProfileHeader from '@components/profileHeader'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: '/login' })
@@ -55,72 +58,130 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
   const groupId = data.group.id
   const isGroupAdmin = Boolean(data.group.user_group_map.find((x) => x.user.id == data.session.userSession.id)?.isAdmin)
 
+  const tabs = [
+    { name: 'グループ概要', href: '#', current: true },
+    { name: 'メンバー', href: '#', count: '52', current: false },
+    { name: 'ドキュメント', href: '#', count: '6', current: false },
+    { name: 'グループ設定', href: '#', current: false },
+  ]
+
   return (
     <>
-      {/* 3 column wrapper */}
+      {/* 2-Pane wrapper */}
       <div className="mx-auto w-full max-w-7xl flex-grow lg:flex">
-        {/* Pane-1 & Pane-2 wrapper */}
-        <div className="min-w-0 flex-1 bg-white xl:flex">
-          {/* Pane-1 */}
-          <div className="bg-white pt-1 xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
-            <div className="mt-6 xl:flex">
-              <div className="m-2 mx-6 xl:mx-4 xl:flex-1">
-                <div className="flex items-center space-x-2">
-                  <div>
-                    <Image
-                      loader={groupIconLoader}
-                      src={data.group.id}
-                      width={96}
-                      height={96}
-                      alt={data.group.name}
-                      className="rounded-lg"
-                    />
-                  </div>
-                  <div className="break-words text-center">
-                    <h3 className="text-lg font-bold">
-                      {data.group.displayName || data.group.name}
-                      {Boolean(data.group.type === 'private') && <RiLock2Fill className="ml-1 inline-block" />}
-                    </h3>
-                    <h4 className="text-md font-bold text-gray-600">{data.group.name}</h4>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between xl:block">
-                  {isGroupAdmin ? (
-                    <div>
-                      <Link href={`${encodeURIComponent(data.group.name)}/${encodeURIComponent(data.group.id.toLowerCase())}/manage`}>
-                        <a className="flex items-center space-x-2">
-                          <BadgeCheckIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                          <span className="text-sm font-medium text-gray-500">Group Admin</span>
-                        </a>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
-                  <div className="my-4 w-60 xl:w-full">
-                    <WatchBadge userId={userId} groupId={groupId} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Pane-2 */}
-          <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
-            <div className="mx-4 flex items-center justify-between">
-              <div className="text-2xl font-bold">Documents</div>
-              <div className="z-30">
-                <CreateDocumentButton groupName={groupName} />
-              </div>
-            </div>
-            <div>
-              <GroupDocuments groupId={groupId} />
-            </div>
-          </div>
+        {/* Pane-1 */}
+        <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
+          <h2 className="mb-2 text-lg font-medium text-gray-900">Groups</h2>
+          <GroupsNav current={data.group?.name} />
         </div>
-        {/* Pane-3 */}
-        <div className="hidden w-60 bg-white p-4 pt-8 sm:pr-6 lg:block lg:flex-shrink-0 lg:border-l lg:border-gray-200 lg:pr-8 xl:pr-6">
-          <div className="border-b text-lg font-bold">Your Drafts</div>
-          <MyGroupDrafts groupId={groupId} />
+        {/* Pane-2 */}
+        <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
+          {/* Group header */}
+          <ProfileHeader
+            coverImageUrl="https://images.unsplash.com/photo-1444628838545-ac4016a5418a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            iconLoader={groupIconLoader}
+            iconSrc={data.group.id}
+            name={data.group.name}
+            displayName={data.group.displayName || ''}
+          >
+            <>
+              <button
+                type="button"
+                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+              >
+                <MailIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                <span>Message</span>
+              </button>
+              <button
+                type="button"
+                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+              >
+                <PhoneIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                <span>Call</span>
+              </button>
+
+              <WatchBadge userId={userId} groupId={groupId} />
+
+              {isGroupAdmin ? (
+                <div>
+                  <Link href={`/settings/groups/${encodeURIComponent(data.group.id.toLowerCase())}`}>
+                    <a className="flex items-center space-x-2">
+                      <BadgeCheckIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                      <span className="text-sm font-medium text-gray-500">Group Admin</span>
+                    </a>
+                  </Link>
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </>
+          </ProfileHeader>
+
+          <div className="mt-6"></div>
+
+          {/* Tabs */}
+          <div>
+            <div className="sm:hidden">
+              <label htmlFor="tabs" className="sr-only">
+                Select a tab
+              </label>
+              {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+              <select
+                id="tabs"
+                name="tabs"
+                className="form-select block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                defaultValue={tabs.find((tab) => tab.current).name}
+              >
+                {tabs.map((tab) => (
+                  <option key={tab.name}>{tab.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="hidden sm:block">
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8 first:pl-8" aria-label="Tabs">
+                  {tabs.map((tab) => (
+                    <a
+                      key={tab.name}
+                      href="#"
+                      className={classNames(
+                        tab.current
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700',
+                        'flex whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium'
+                      )}
+                      aria-current={tab.current ? 'page' : undefined}
+                    >
+                      {tab.name}
+                      {tab.count ? (
+                        <span
+                          className={classNames(
+                            tab.current ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-900',
+                            'ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block'
+                          )}
+                        >
+                          {tab.count}
+                        </span>
+                      ) : null}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </div>
+          {/* Tabs End */}
+
+          <div className="mt-6"></div>
+
+          <div className="mx-4 flex items-center justify-between">
+            <div className="text-2xl font-bold">Documents</div>
+            <div className="z-30">
+              <CreateDocumentButton groupName={groupName} />
+            </div>
+          </div>
+          <div>
+            <GroupDocuments groupId={groupId} />
+          </div>
         </div>
       </div>
     </>
@@ -265,14 +326,15 @@ const WatchBadge = ({ userId, groupId }: { userId: string; groupId: string }) =>
   if (loading || !data) return <div></div>
 
   return (
-    <div
-      className={classNames(
-        isWatched ? 'bg-red-100' : 'bg-blue-100',
-        'mx-auto w-full rounded-lg border p-1 text-center hover:cursor-pointer '
-      )}
+    <button
+      type="button"
       onClick={handleClick}
+      className={classNames(
+        isWatched ? 'bg-red-100' : 'bg-white',
+        'inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2'
+      )}
     >
       <span>{isWatched ? 'ウォッチ解除' : 'ウォッチする'}</span>
-    </div>
+    </button>
   )
 }
