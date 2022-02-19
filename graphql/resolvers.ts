@@ -257,12 +257,11 @@ export const resolvers: Resolvers = {
       const { first, after } = args
       if (!_context.userSession) throw new AuthenticationError('Unauthorized')
       const targetCursor: string = after ? Buffer.from(after, 'base64').toString() : Number.MAX_SAFE_INTEGER.toString()
-      const followerResult = await prisma.user.findUnique({
+      const usersFollowingResult = await prisma.user.findUnique({
         where: { id: _context.userSession.id },
-        include: { followed: true },
+        include: { follow: true },
       })
-      const follower = followerResult && followerResult.followed ? followerResult.followed.map((x) => x.fromUserId) : []
-
+      const usersFollowing = usersFollowingResult && usersFollowingResult.follow ? usersFollowingResult.follow.map((x) => x.toUserId) : []
       const groupsFollowing = (
         await prisma.follow_group.findMany({
           where: { userId: _context.userSession.id.toUpperCase() },
@@ -274,11 +273,7 @@ export const resolvers: Resolvers = {
         await prisma.document.findMany({
           where: {
             paper: {
-              OR: [
-                { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
-                { user: { id: { in: follower } } },
-                { group: { id: { in: groupsFollowing } } },
-              ],
+              OR: [{ user: { id: { in: usersFollowing } } }, { group: { id: { in: groupsFollowing } } }],
               updatedAtNumber: { lt: Number(targetCursor) },
             },
           },
