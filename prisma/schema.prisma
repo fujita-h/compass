@@ -215,6 +215,7 @@ model user {
   comment         comment[]
   comment_raw     comment_raw[]
   follow_group    follow_group[]
+  follow_tag      follow_tag[]
   follow          follow_user[]    @relation("follow_user_fromUserIdTouser")
   followed        follow_user[]    @relation("follow_user_toUserIdTouser")
   like            like[]
@@ -278,6 +279,15 @@ model follow_group {
 
   @@id([userId, groupId])
   @@index([groupId])
+  @@index([userId])
+}
+
+model follow_tag {
+  userId String @db.VarChar(26)
+  tag    String @db.VarChar(63)
+  user   user   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, tag])
   @@index([userId])
 }
 
