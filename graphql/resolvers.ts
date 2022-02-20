@@ -1819,6 +1819,38 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    read: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, documentId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!documentId) throw new UserInputError('UserInputError')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        const doc = await prisma.document.findUnique({
+          where: { id: documentId.toUpperCase() },
+        })
+        if (!doc) throw new ApolloError('NotFound')
+        return prisma.read.upsert({
+          where: {
+            userId_documentId_paperId: { userId: _userId.toUpperCase(), documentId: doc.id, paperId: doc.paperId },
+          },
+          update: {},
+          create: {
+            userId: _userId.toUpperCase(),
+            documentId: doc.id,
+            paperId: doc.paperId,
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     createUserTemplate: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId } = args
       if (auth == 'admin') {

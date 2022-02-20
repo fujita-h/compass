@@ -26,6 +26,7 @@ import {
   useDeleteStockMutation,
   useDocumentQuery,
   useLikesQuery,
+  useReadMutation,
   useStockCategoriesAndStocksQuery,
   useUpdateCommentMutation,
 } from '@graphql/generated/react-apollo'
@@ -56,6 +57,14 @@ export default function Page() {
 
 const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; sessionUserId: string; documentId: string }) => {
   const { data, loading } = useDocumentQuery({ variables: { documentId } })
+
+  const [read] = useReadMutation()
+
+  useEffect(() => {
+    if (documentId) {
+      read({ variables: { auth: 'user', documentId: documentId } })
+    }
+  }, [documentId])
 
   useEffect(() => {
     if (!data?.document?.paper?.group?.name) return

@@ -198,6 +198,12 @@ type UserTemplate {
   body: String!
 }
 
+type Read {
+  userId: String!
+  documentId: String!
+  paperId: String!
+}
+
 type EsShards {
   total: Int
   successful: Int
@@ -427,6 +433,8 @@ type Mutation {
 
   createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
   deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+
+  read(auth: Auth!, userId: String, documentId: String!): Read
 
   createUserTemplate(auth: Auth!, userId: String): UserTemplate
   updateUserTemplate(auth: Auth!, id: String!, name: String, title: String, tags: String, body: String): UserTemplate

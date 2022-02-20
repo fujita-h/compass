@@ -1,0 +1,7 @@
+mutation Read($auth: Auth!, $userId: String, $documentId: String!) {
+  read(auth: $auth, userId: $userId, documentId: $documentId) {
+    userId
+    documentId
+    paperId
+  }
+}
