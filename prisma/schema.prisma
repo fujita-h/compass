@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model like {
-  userId     String   @db.VarChar(26)
-  documentId String   @db.VarChar(26)
-  document   document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, documentId])
-  @@index([documentId])
-  @@index([userId])
-}
-
 model attachment {
   id       String @id @db.VarChar(26)
   userId   String @db.VarChar(26)
@@ -75,17 +64,41 @@ model document {
   paper           paper     @relation(fields: [paperId], references: [id])
   comment         comment[]
   like            like[]
+  read            read[]
   stock           stock[]
 
   @@index([paperId])
 }
 
-model group_icon {
-  id       String @id @db.VarChar(26)
-  groupId  String @unique @db.VarChar(26)
-  mimeType String @db.VarChar(63)
-  blob     Bytes? @db.Blob
-  group    group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+model follow_group {
+  userId  String @db.VarChar(26)
+  groupId String @db.VarChar(26)
+  group   group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model follow_user {
+  fromUserId String @db.VarChar(26)
+  toUserId   String @db.VarChar(26)
+  from       user   @relation("follow_user_fromUserIdTouser", fields: [fromUserId], references: [id], onDelete: Cascade)
+  to         user   @relation("follow_user_toUserIdTouser", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@index([fromUserId])
+  @@index([toUserId])
+}
+
+model follow_tag {
+  userId String @db.VarChar(26)
+  tag    String @db.VarChar(63)
+  user   user   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, tag])
+  @@index([userId])
 }
 
 model group {
@@ -96,11 +109,55 @@ model group {
   type           group_type       @default(normal)
   followed       follow_group[]
   group_icon     group_icon?
+  group_image    group_image?
   group_template group_template[]
   paper          paper[]
   user_group_map user_group_map[]
 
   @@index([type])
+}
+
+model group_icon {
+  id       String @id @db.VarChar(26)
+  groupId  String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  group    group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model group_image {
+  id       String @id @db.VarChar(26)
+  groupId  String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  group    group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model group_template {
+  id              String @id @db.VarChar(26)
+  groupId         String @db.VarChar(26)
+  name            String @db.VarChar(255)
+  title           String @db.VarChar(255)
+  tags            String @db.Text
+  body            String @db.LongText
+  createdAt       String @db.VarChar(50)
+  createdAtNumber BigInt @default(0) @db.UnsignedBigInt
+  updatedAt       String @db.VarChar(50)
+  updatedAtNumber BigInt @default(0) @db.UnsignedBigInt
+  group           group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+}
+
+model like {
+  userId     String   @db.VarChar(26)
+  documentId String   @db.VarChar(26)
+  document   document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+  @@index([documentId])
+  @@index([userId])
 }
 
 model notification {
@@ -134,6 +191,7 @@ model paper {
   group             group        @relation(fields: [groupId], references: [id])
   user              user         @relation(fields: [userId], references: [id])
   document          document[]
+  read              read[]
 
   @@index([createdAtNumber])
   @@index([documentIdLazy])
@@ -157,16 +215,6 @@ model saml_idp {
   attributeMappingForEmail    String?              @db.VarChar(255)
 }
 
-model stock_category {
-  id     String  @id @db.VarChar(26)
-  userId String  @db.VarChar(26)
-  name   String  @db.VarChar(127)
-  user   user    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stock  stock[]
-
-  @@index([userId])
-}
-
 model stock {
   userId          String         @db.VarChar(26)
   documentId      String         @db.VarChar(26)
@@ -181,24 +229,14 @@ model stock {
   @@index([userId])
 }
 
-model user_group_map {
-  userId  String @db.VarChar(26)
-  groupId String @db.VarChar(26)
-  isAdmin Int    @default(0) @db.UnsignedTinyInt
-  group   group  @relation(fields: [groupId], references: [id])
-  user    user   @relation(fields: [userId], references: [id])
+model stock_category {
+  id     String  @id @db.VarChar(26)
+  userId String  @db.VarChar(26)
+  name   String  @db.VarChar(127)
+  user   user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock  stock[]
 
-  @@id([userId, groupId])
-  @@index([groupId])
   @@index([userId])
-}
-
-model user_icon {
-  id       String @id @db.VarChar(26)
-  userId   String @unique @db.VarChar(26)
-  mimeType String @db.VarChar(63)
-  blob     Bytes? @db.Blob
-  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user {
@@ -221,11 +259,41 @@ model user {
   like            like[]
   notification    notification[]
   paper           paper[]
+  read            read[]
   stock           stock[]
   stock_category  stock_category[]
   user_group_map  user_group_map[]
   user_icon       user_icon?
+  user_image      user_image?
   user_template   user_template[]
+}
+
+model user_group_map {
+  userId  String @db.VarChar(26)
+  groupId String @db.VarChar(26)
+  isAdmin Int    @default(0) @db.UnsignedTinyInt
+  group   group  @relation(fields: [groupId], references: [id])
+  user    user   @relation(fields: [userId], references: [id])
+
+  @@id([userId, groupId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model user_icon {
+  id       String @id @db.VarChar(26)
+  userId   String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_image {
+  id       String @id @db.VarChar(26)
+  userId   String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user_template {
@@ -244,51 +312,17 @@ model user_template {
   @@index([userId])
 }
 
-model group_template {
-  id              String @id @db.VarChar(26)
-  groupId         String @db.VarChar(26)
-  name            String @db.VarChar(255)
-  title           String @db.VarChar(255)
-  tags            String @db.Text
-  body            String @db.LongText
-  createdAt       String @db.VarChar(50)
-  createdAtNumber BigInt @default(0) @db.UnsignedBigInt
-  updatedAt       String @db.VarChar(50)
-  updatedAtNumber BigInt @default(0) @db.UnsignedBigInt
-  group           group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+model read {
+  userId     String   @db.VarChar(26)
+  documentId String   @db.VarChar(26)
+  paperId    String   @db.VarChar(26)
+  document   document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  paper      paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([groupId])
-}
-
-model follow_user {
-  fromUserId String @db.VarChar(26)
-  toUserId   String @db.VarChar(26)
-  from       user   @relation("follow_user_fromUserIdTouser", fields: [fromUserId], references: [id], onDelete: Cascade)
-  to         user   @relation("follow_user_toUserIdTouser", fields: [toUserId], references: [id], onDelete: Cascade)
-
-  @@id([fromUserId, toUserId])
-  @@index([fromUserId])
-  @@index([toUserId])
-}
-
-model follow_group {
-  userId  String @db.VarChar(26)
-  groupId String @db.VarChar(26)
-  group   group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, groupId])
-  @@index([groupId])
-  @@index([userId])
-}
-
-model follow_tag {
-  userId String @db.VarChar(26)
-  tag    String @db.VarChar(63)
-  user   user   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([userId, tag])
-  @@index([userId])
+  @@id([userId, documentId, paperId])
+  @@index([documentId])
+  @@index([paperId])
 }
 
 enum configurations_ensureSingleRow {
