@@ -1,0 +1,52 @@
+query Templates($auth: Auth!, $userId: String) {
+  userTemplates(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+    title
+  }
+}
+
+query UserTemplates($auth: Auth!, $userId: String) {
+  userTemplates(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+    title
+  }
+}
+
+query UserTemplate($auth: Auth!, $id: String!) {
+  userTemplate(auth: $auth, id: $id) {
+    id
+    userId
+    name
+    title
+    tags
+    body
+  }
+}
+mutation CreateUserTemplate($auth: Auth!, $userId: String) {
+  createUserTemplate(auth: $auth, userId: $userId) {
+    id
+    userId
+    name
+  }
+}
+mutation UpdateUserTemplate($auth: Auth!, $id: String!, $name: String, $title: String, $tags: String, $body: String) {
+  updateUserTemplate(auth: $auth, id: $id, name: $name, title: $title, tags: $tags, body: $body) {
+    id
+    userId
+    name
+    title
+    tags
+    body
+  }
+}
+
+mutation DeleteUserTemplate($auth: Auth!, $id: String!) {
+  deleteUserTemplate(auth: $auth, id: $id) {
+    id
+    userId
+  }
+}

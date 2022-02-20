@@ -5,7 +5,7 @@ import { useAdminIndexPageQuery } from '@graphql/generated/react-apollo'
 const Index = () => {
   const session = useAdminSession({ redirectTo: '/admin/login' })
 
-  if(!session?.admin) return (<></>)
+  if (!session?.admin) return <></>
 
   return (
     <AdminLayout withMenu>

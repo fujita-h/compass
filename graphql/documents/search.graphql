@@ -34,7 +34,7 @@ query EsSearch($auth: Auth!, $query: String, $index: String!, $from: Int, $size:
         }
       }
     }
-    Groups{
+    Groups {
       took
       timed_out
       _shards {

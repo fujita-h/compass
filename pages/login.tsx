@@ -4,14 +4,13 @@ import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { LoginForm } from '@components/forms/auth'
 import { LoginPageQuery, useLoginPageQuery } from '@graphql/generated/react-apollo'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify'
 
 const Login = () => {
   const session = useSession({ redirectTo: '/', redirectIfFound: true })
   const router = useRouter()
 
   const { data, loading } = useLoginPageQuery()
-
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -54,35 +53,49 @@ const Login = () => {
     }
   }
 
-  if (!router.isReady) return (<></>)
-  if (loading) return (<></>)
+  if (!router.isReady) return <></>
+  if (loading) return <></>
 
   return (
     <Layout>
       <ToastContainer pauseOnFocusLoss={false} pauseOnHover={false} autoClose={5000} />
-      <div className="max-w-4xl mx-auto my-20 flex justify-center bg-white">
-        <div className="w-96 mx-3">
+      <div className="mx-auto my-20 flex max-w-4xl justify-center bg-white">
+        <div className="mx-3 w-96">
           <LoginForm onSubmit={handleSubmit} />
         </div>
-        {data?.samls?.length ?
-          <div className="w-96 mx-3">
+        {data?.samls?.length ? (
+          <div className="mx-3 w-96">
             <SamlLoginButtons idps={data?.samls} onClick={handleSaml} />
-          </div> : <></>}
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </Layout>
   )
 }
 
-
-export const SamlLoginButtons = ({ idps, onClick }: { idps: LoginPageQuery['samls'], onClick: MouseEventHandler }) => (<>
-  {idps && <>{idps.map(idp =>
-    <div key={'SamlLoginButtons-' + idp.id}>
-      <button type="button"
-        className="py-2 px-4 m-1 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
-        key={idp.id} name={idp.name} value={idp.id} onClick={onClick}>Login with {idp.name}</button>
-    </div>)}</>}
-</>)
-
+export const SamlLoginButtons = ({ idps, onClick }: { idps: LoginPageQuery['samls']; onClick: MouseEventHandler }) => (
+  <>
+    {idps && (
+      <>
+        {idps.map((idp) => (
+          <div key={'SamlLoginButtons-' + idp.id}>
+            <button
+              type="button"
+              className="m-1 rounded-lg bg-indigo-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2  focus:ring-offset-indigo-200 "
+              key={idp.id}
+              name={idp.name}
+              value={idp.id}
+              onClick={onClick}
+            >
+              Login with {idp.name}
+            </button>
+          </div>
+        ))}
+      </>
+    )}
+  </>
+)
 
 export default Login
-

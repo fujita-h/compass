@@ -1,16 +1,16 @@
 query adminAuthPage {
-  configuration(auth:admin) {
+  configuration(auth: admin) {
     authEnableEmailVerificationForLocalUsers
     authEnableSamlLogin
     groupEnableCreateGroupForUsers
   }
-  samls(auth:admin) {
+  samls(auth: admin) {
     id
     name
   }
 }
 query adminGetUsersCP($cursor: String) {
-  usersCP(auth: admin, first:10, after:$cursor) {
+  usersCP(auth: admin, first: 10, after: $cursor) {
     edges {
       cursor
       node {
@@ -32,7 +32,7 @@ query adminGroupsIndexPage {
   }
 }
 query adminGroupPage($id: String!) {
-  group(auth:admin, id:$id) {
+  group(auth: admin, id: $id) {
     id
     name
     displayName
@@ -101,14 +101,6 @@ query draftPage($paperId: String!) {
   }
 }
 query groupIndexPage($groupName: String!) {
-  session {
-    userSession {
-      ...userSessionFragment
-    }
-    adminSession {
-      ...adminSessionFragment
-    }
-  }
   group(auth: user, name: $groupName) {
     id
     name
@@ -124,6 +116,26 @@ query groupIndexPage($groupName: String!) {
       }
     }
   }
+  countDocuments(auth: user, groupName: $groupName)
+}
+
+query groupPageLayout($auth: Auth!, $groupName: String!) {
+  group(auth: $auth, name: $groupName) {
+    id
+    name
+    displayName
+    description
+    type
+    user_group_map {
+      isAdmin
+      user {
+        id
+        username
+        displayName
+      }
+    }
+  }
+  countDocuments(auth: $auth, groupName: $groupName)
 }
 query groupsPage {
   groups(auth: user) {

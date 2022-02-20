@@ -1,0 +1,20 @@
+query GroupFollows($auth: Auth!, $userId: String, $groupId: String) {
+  groupFollows(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}
+
+mutation CreateGroupFollow($auth: Auth!, $userId: String, $groupId: String!) {
+  createGroupFollow(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}
+
+mutation DeleteGroupFollow($auth: Auth!, $userId: String, $groupId: String!) {
+  deleteGroupFollow(auth: $auth, userId: $userId, groupId: $groupId) {
+    userId
+    groupId
+  }
+}

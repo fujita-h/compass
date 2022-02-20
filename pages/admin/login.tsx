@@ -5,7 +5,6 @@ import { AdminLayout } from '@components/layouts'
 import { useSessionQuery } from '@graphql/generated/react-apollo'
 
 const Login = () => {
-  
   const session = useAdminSession({ redirectTo: '/admin', redirectIfFound: true })
 
   async function handleSubmit(e) {
@@ -28,7 +27,6 @@ const Login = () => {
       } else {
         throw new Error(await res.text())
       }
-
     } catch (error) {
       console.error('An unexpected error happened occurred:', error)
       setErrorMsg(error.message)
@@ -39,10 +37,24 @@ const Login = () => {
   return (
     <AdminLayout>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="password" className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" placeholder="Admin Password" />
-        <button type="submit" className="py-2 px-4  bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg ">Login</button>
+        <input
+          type="text"
+          name="password"
+          className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+          placeholder="Admin Password"
+        />
+        <button
+          type="submit"
+          className="w-full rounded-lg  bg-indigo-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2  focus:ring-offset-indigo-200 "
+        >
+          Login
+        </button>
       </form>
-      {errorMsg && <div className="mt-2"><p className="text-danger">{errorMsg}</p></div>}
+      {errorMsg && (
+        <div className="mt-2">
+          <p className="text-danger">{errorMsg}</p>
+        </div>
+      )}
     </AdminLayout>
   )
 }

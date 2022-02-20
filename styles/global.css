@@ -1,30 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  .tooltip {
+    @apply invisible absolute transition-all delay-0;
+  }
+  .has-tooltip:hover .tooltip {
+    @apply visible z-30 delay-500;
+  }
   .markdown {
-    @apply p-2 text-lg
+    @apply p-2 text-lg leading-8 text-zinc-800;
   }
   .markdown h1 {
-    @apply pl-2 mb-2 text-4xl font-bold border-b-1
+    @apply mt-8 mb-6 border-b-1 border-l-6 border-l-blue-700 py-2 pl-2 text-4xl font-bold;
   }
   .markdown h2 {
-    @apply pl-2 mb-2 text-3xl font-bold border-b-1
+    @apply my-6 ml-3 border-b-1 border-l-3 border-l-blue-700 py-1 pl-2 text-3xl font-bold;
   }
   .markdown h3 {
-    @apply pl-2 mb-2 text-2xl font-bold border-b-1
+    @apply my-4 ml-6 border-b-1 pl-2 text-2xl font-bold;
   }
-  .markdown h4, .markdown h5 {
-    @apply pl-2 mb-2 text-xl font-bold border-b-1
+  .markdown h4,
+  .markdown h5 {
+    @apply my-4 ml-6 border-b-1 pl-2 text-xl font-bold;
   }
   .markdown p {
-    @apply pl-2 mb-2
-  } 
+    @apply my-4 ml-6;
+  }
+  .markdown img {
+    @apply my-4 border-1 border-gray-300;
+  }
   .markdown ul {
-    @apply pl-3 list-disc ml-4
+    @apply ml-6 list-disc;
   }
   .markdown ol {
-    @apply pl-3 list-decimal ml-4
+    @apply ml-6 list-decimal;
+  }
+  .markdown > ul {
+    @apply pl-6;
+  }
+  .markdown > ol {
+    @apply pl-6;
   }
 }

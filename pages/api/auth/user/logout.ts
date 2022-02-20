@@ -14,16 +14,15 @@ import { samlStrategy, findUser, createUser, getSamlIdp } from '@lib/auth'
     https://__host__/simplesaml/module.php/core/authenticate.php?as=example-ldap&logout
 */
 
-
 async function handler(req, res) {
   removeUserSession(res)
   //samlStrategy.logout(req, (err, url)=>{console.log(err, url)})
-  res.writeHead(302, { Location: '/' })
-  res.end()
+  //res.writeHead(302, { Location: '/' })
+  //res.end()
+  res.status(200).send({ done: true })
 }
 
 export default handler
-
 
 //export default nextConnect()
 //  .use(passport.initialize())

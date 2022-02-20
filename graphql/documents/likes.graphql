@@ -1,4 +1,3 @@
-
 query Likes($auth: Auth!, $userId: String, $documentId: String) {
   likes(auth: $auth, userId: $userId, documentId: $documentId) {
     userId

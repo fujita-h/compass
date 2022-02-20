@@ -1,3 +1,24 @@
+query Groups($auth: Auth!, $offset: Int, $limit: Int) {
+  groups(auth: $auth, offset: $offset, limit: $limit) {
+    id
+    name
+    displayName
+    description
+    type
+    user_group_map {
+      userId
+      groupId
+      isAdmin
+      group {
+        id
+        name
+        displayName
+        description
+        type
+      }
+    }
+  }
+}
 query Group($auth: Auth!, $id: String, $name: String) {
   group(auth: $auth, id: $id, name: $name) {
     id
@@ -82,7 +103,7 @@ mutation CreateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $i
 }
 
 mutation UpdateGroupMember($auth: Auth!, $userId: String!, $groupId: String!, $isAdmin: Int) {
-  updateMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId,  isAdmin: $isAdmin) {
+  updateMapUserGroup(auth: $auth, userId: $userId, groupId: $groupId, isAdmin: $isAdmin) {
     groupId
     userId
     isAdmin

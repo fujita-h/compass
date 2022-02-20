@@ -1,18 +1,18 @@
 enum Auth {
-  user,
-  admin,
-  none,
+  user
+  admin
+  none
 }
 
 enum GroupType {
-  public,
-  normal,
-  private,
+  public
+  normal
+  private
 }
 
 type PageInfo {
-    endCursor: String
-    hasNextPage: Boolean
+  endCursor: String
+  hasNextPage: Boolean
 }
 
 type UserSession {
@@ -76,6 +76,7 @@ type Group {
   displayName: String
   description: String
   type: GroupType!
+  user_group_map: [MapUserGroup]!
 }
 
 type GroupEdge {
@@ -88,22 +89,12 @@ type GroupConnection {
   pageInfo: PageInfo
 }
 
-
 type MapUserGroup {
   userId: String!
   groupId: String!
   isAdmin: Int!
   user: User
   group: Group
-}
-
-type GroupWithMember {
-  id: String!
-  name: String!
-  displayName: String
-  description: String
-  type: GroupType!
-  user_group_map: [MapUserGroup]!
 }
 
 type Paper {
@@ -148,6 +139,8 @@ type Stock {
   userId: String!
   documentId: String!
   stockCategoryId: String!
+  stock_category: StockCategory!
+  document: Document!
 }
 
 type Like {
@@ -179,7 +172,7 @@ type Follow {
   toUserId: String!
 }
 
-type Watch {
+type GroupFollow {
   userId: String!
   groupId: String!
 }
@@ -196,6 +189,20 @@ type MapPaperTag {
   tag: Tag
 }
 
+type UserTemplate {
+  id: String!
+  userId: String!
+  name: String!
+  title: String!
+  tags: String!
+  body: String!
+}
+
+type Read {
+  userId: String!
+  documentId: String!
+  paperId: String!
+}
 
 type EsShards {
   total: Int
@@ -237,19 +244,19 @@ type EsSearchUser {
   description: String
 }
 
-type EsSearchDocumentResult{
+type EsSearchDocumentResult {
   _id: String
   _score: Float
   _source: EsSearchDocument
 }
 
-type EsSearchGroupResult{
+type EsSearchGroupResult {
   _id: String
   _score: Float
   _source: EsSearchGroup
 }
 
-type EsSearchUserResult{
+type EsSearchUserResult {
   _id: String
   _score: Float
   _source: EsSearchUser
@@ -258,19 +265,19 @@ type EsSearchUserResult{
 type EsSearchDocumentsHits {
   max_score: Float
   total: EsTotal
-  hits:[EsSearchDocumentResult]
+  hits: [EsSearchDocumentResult]
 }
 
 type EsSearchGroupsHits {
   max_score: Float
   total: EsTotal
-  hits:[EsSearchGroupResult]
+  hits: [EsSearchGroupResult]
 }
 
 type EsSearchUsersHits {
   max_score: Float
   total: EsTotal
-  hits:[EsSearchUserResult]
+  hits: [EsSearchUserResult]
 }
 
 type EsSearchDocmentsResponse {
@@ -311,29 +318,44 @@ type EsCountResponses {
   Users: EsCountResponse
 }
 
+type EsBucket {
+  key: String
+  doc_count: Int
+}
+type EsTags {
+  buckets: [EsBucket]
+}
+type EsTagsAggregations {
+  tags: EsTags
+}
+type EsTagsResponse {
+  aggregations: EsTagsAggregations
+}
+
 type Query {
   session: Session
 
   configuration(auth: Auth!): Configuration!
   samls(auth: Auth!): [Saml!]
 
-  groups(auth: Auth!): [Group!]
-  group(auth: Auth!, id: String, name: String): GroupWithMember
+  groups(auth: Auth!, offset: Int, limit: Int): [Group!]
+  group(auth: Auth!, id: String, name: String): Group
 
   joinedGroups(userId: String!): [Group!]
   myJoinedGroups: [Group!]
-  myJoinedGroupsCP(first: Int!, after:String): GroupConnection
+  myJoinedGroupsCP(first: Int!, after: String): GroupConnection
 
   users(auth: Auth!, offset: Int, limit: Int): [User]
-  usersCP(auth: Auth!, first: Int!, after:String): UserConnection
+  usersCP(auth: Auth!, first: Int!, after: String): UserConnection
   countUsers(auth: Auth!): Int!
   user(auth: Auth!, id: String, uuid: String, username: String, email: String): User
 
   myProfile: User
-  myTimelineCP(first: Int!, after:String): DocumentConnection
+  myTimelineCP(first: Int!, after: String): DocumentConnection
 
   documents(auth: Auth!, userId: String, groupId: String): [Document]!
-  documentsCP(auth: Auth!, userId: String, groupId: String, first: Int!, after:String): DocumentConnection
+  countDocuments(auth: Auth!, userId: String, groupId: String, groupName: String): Int!
+  documentsCP(auth: Auth!, userId: String, groupId: String, groupName: String, first: Int!, after: String): DocumentConnection
   document(auth: Auth!, id: String!): Document
 
   drafts(auth: Auth!, groupId: String, documentId: String): [Paper]!
@@ -350,31 +372,45 @@ type Query {
   comment(auth: Auth!, id: String!): Comment
 
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
-  watches(auth: Auth!, userId: String, groupId: String): [Watch]!
+  groupFollows(auth: Auth!, userId: String, groupId: String): [GroupFollow]!
+
+  userTemplates(auth: Auth!, userId: String): [UserTemplate]
+  userTemplate(auth: Auth!, id: String!): UserTemplate
 
   esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
+  esTags(auth: Auth!, size: Int): EsTagsResponse
 }
 
 type Mutation {
-  updateConfiguration(auth: Auth!, 
-    authEnableEmailVerificationForLocalUsers: Int, 
-    authEnableSamlLogin: Int, 
-    groupEnableCreateGroupForUsers: Int 
+  updateConfiguration(
+    auth: Auth!
+    authEnableEmailVerificationForLocalUsers: Int
+    authEnableSamlLogin: Int
+    groupEnableCreateGroupForUsers: Int
   ): Configuration!
 
   createGroup(auth: Auth!, name: String!, displayName: String, description: String, type: GroupType): Group
-  updateGroup(auth: Auth!, id:String!, name: String, displayName: String, description: String, type: GroupType): Group
-  deleteGroup(auth: Auth!, id:String!): Group
+  updateGroup(auth: Auth!, id: String!, name: String, displayName: String, description: String, type: GroupType): Group
+  deleteGroup(auth: Auth!, id: String!): Group
 
   createMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   updateMapUserGroup(auth: Auth!, userId: String!, groupId: String!, isAdmin: Int): MapUserGroup
   deleteMapUserGroup(auth: Auth!, userId: String!, groupId: String!): MapUserGroup
-  
-  createPaper(auth: Auth!, userId: String, groupId: String!, title: String!, tags: String!, body: String!, documentId: String, isPosted: Int): Paper
+
+  createPaper(
+    auth: Auth!
+    userId: String
+    groupId: String!
+    title: String!
+    tags: String!
+    body: String!
+    documentId: String
+    isPosted: Int
+  ): Paper
   updatePaper(auth: Auth!, paperId: String!, title: String!, tags: String!, body: String!, isPosted: Int): Paper
   deletePaper(auth: Auth!, id: String!): Paper
-  
+
   deleteDocument(auth: Auth!, id: String!): Document
 
   updateMyProfile(auth: Auth!, username: String, displayName: String, description: String): User
@@ -396,7 +432,12 @@ type Mutation {
   createFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
   deleteFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
 
-  createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
-  deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+  createGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
+  deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
 
+  read(auth: Auth!, userId: String, documentId: String!): Read
+
+  createUserTemplate(auth: Auth!, userId: String): UserTemplate
+  updateUserTemplate(auth: Auth!, id: String!, name: String, title: String, tags: String, body: String): UserTemplate
+  deleteUserTemplate(auth: Auth!, id: String!): UserTemplate
 }

@@ -16,8 +16,6 @@ const authenticate = (method, req, res) =>
     })(req, res)
   })
 
-
-
 passport.use(localStrategy)
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -25,7 +23,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const result: any = await authenticate('local', req, res)
 
     // session is the payload to save in the token, it may contain basic info about the user
-    const session = { method: 'local', provider: '', id:result.id, uuid: result.uuid }
+    const session = { method: 'local', provider: '', id: result.id, uuid: result.uuid }
     //await setLoginSession(res, session)
     await setUserSession(res, session)
 
@@ -35,7 +33,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     res.status(401).send(error.message)
   }
 }
-
 
 export default nextConnect()
   .use(passport.initialize())

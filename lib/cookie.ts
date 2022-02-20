@@ -2,7 +2,6 @@ import { serialize, parse } from 'cookie'
 import { IncomingMessage, OutgoingMessage } from 'http'
 import { NextApiRequest, NextApiResponse } from 'next'
 
-
 export function parseCookies(req: NextApiRequest) {
   // For API Routes we don't need to parse the cookies.
   if (req.cookies) return req.cookies
