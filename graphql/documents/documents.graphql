@@ -1,5 +1,5 @@
-query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $userId: String, $after: String) {
-  documentsCP(auth: $auth, first: $first, groupId: $groupId, userId: $userId, after: $after) {
+query DocumentsCP($auth: Auth!, $first: Int!, $groupId: String, $groupName: String, $userId: String, $after: String) {
+  documentsCP(auth: $auth, first: $first, groupId: $groupId, groupName: $groupName, userId: $userId, after: $after) {
     edges {
       node {
         id

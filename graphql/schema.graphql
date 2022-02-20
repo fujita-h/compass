@@ -354,7 +354,8 @@ type Query {
   myTimelineCP(first: Int!, after: String): DocumentConnection
 
   documents(auth: Auth!, userId: String, groupId: String): [Document]!
-  documentsCP(auth: Auth!, userId: String, groupId: String, first: Int!, after: String): DocumentConnection
+  countDocuments(auth: Auth!, userId: String, groupId: String, groupName: String): Int!
+  documentsCP(auth: Auth!, userId: String, groupId: String, groupName: String, first: Int!, after: String): DocumentConnection
   document(auth: Auth!, id: String!): Document
 
   drafts(auth: Auth!, groupId: String, documentId: String): [Paper]!

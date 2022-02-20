@@ -323,8 +323,31 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    countDocuments: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, groupId, groupName } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        return await prisma.document.count({
+          where: {
+            paper: {
+              userId: userId ? userId.toUpperCase() : undefined,
+              groupId: groupId ? groupId.toUpperCase() : undefined,
+              group: { name: groupName },
+            },
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     documentsCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, groupId, first, after } = args
+      const { auth, userId, groupId, groupName, first, after } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -344,6 +367,7 @@ export const resolvers: Resolvers = {
               paper: {
                 userId: userId ? userId.toUpperCase() : undefined,
                 groupId: groupId ? groupId.toUpperCase() : undefined,
+                group: { name: groupName ?? undefined },
                 OR: [
                   { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
                   { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
