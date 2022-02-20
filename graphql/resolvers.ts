@@ -626,7 +626,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    watches: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    groupFollows: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1771,7 +1771,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    createWatch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    createGroupFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1779,12 +1779,12 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!userId) throw new UserInputError('UserInputError')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         if (!groupId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         return await prisma.follow_group.create({
           data: {
-            userId: userId.toUpperCase(),
+            userId: _userId.toUpperCase(),
             groupId: groupId.toUpperCase(),
           },
         })
@@ -1794,7 +1794,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    deleteWatch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    deleteGroupFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId, groupId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1802,13 +1802,13 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!userId) throw new UserInputError('UserInputError')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         if (!groupId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== userId.toUpperCase()) throw new ForbiddenError('Forbidden')
         return await prisma.follow_group.delete({
           where: {
             userId_groupId: {
-              userId: userId.toUpperCase(),
+              userId: _userId.toUpperCase(),
               groupId: groupId.toUpperCase(),
             },
           },

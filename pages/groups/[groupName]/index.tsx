@@ -10,10 +10,10 @@ import {
   GroupIndexPageQuery,
   useDocumentsCpQuery,
   Auth,
-  useWatchesQuery,
-  useCreateWatchMutation,
-  WatchesDocument,
-  useDeleteWatchMutation,
+  useGroupFollowsQuery,
+  useCreateGroupFollowMutation,
+  GroupFollowsDocument,
+  useDeleteGroupFollowMutation,
   useDraftsQuery,
   useTemplatesQuery,
   useGroupsQuery,
@@ -100,7 +100,7 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
                 <span>Call</span>
               </button>
 
-              <WatchBadge userId={userId} groupId={groupId} />
+              <FollowGroupButton userId={userId} groupId={groupId} />
 
               {isGroupAdmin ? (
                 <div>
@@ -307,13 +307,13 @@ const MyGroupDrafts = ({ groupId }: { groupId: string }) => {
   )
 }
 
-const WatchBadge = ({ userId, groupId }: { userId: string; groupId: string }) => {
-  const { data, loading } = useWatchesQuery({ variables: { auth: 'user', groupId: groupId } })
-  const [createWatch] = useCreateWatchMutation({ refetchQueries: [WatchesDocument] })
-  const [deleteWatch] = useDeleteWatchMutation({ refetchQueries: [WatchesDocument] })
+const FollowGroupButton = ({ userId, groupId }: { userId: string; groupId: string }) => {
+  const { data, loading } = useGroupFollowsQuery({ variables: { auth: 'user', groupId: groupId } })
+  const [createWatch] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
+  const [deleteWatch] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
 
-  const isWatched = useMemo(() => data?.watches?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
-  const countWatches = useMemo(() => data?.watches.length, [data])
+  const isWatched = useMemo(() => data?.groupFollows?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countWatches = useMemo(() => data?.groupFollows.length, [data])
 
   const handleClick = (e) => {
     if (isWatched) {
@@ -334,7 +334,7 @@ const WatchBadge = ({ userId, groupId }: { userId: string; groupId: string }) =>
         'inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2'
       )}
     >
-      <span>{isWatched ? 'ウォッチ解除' : 'ウォッチする'}</span>
+      <span>{isWatched ? 'フォロー解除' : 'フォローする'}</span>
     </button>
   )
 }

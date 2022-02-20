@@ -172,7 +172,7 @@ type Follow {
   toUserId: String!
 }
 
-type Watch {
+type GroupFollow {
   userId: String!
   groupId: String!
 }
@@ -371,7 +371,7 @@ type Query {
   comment(auth: Auth!, id: String!): Comment
 
   follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
-  watches(auth: Auth!, userId: String, groupId: String): [Watch]!
+  groupFollows(auth: Auth!, userId: String, groupId: String): [GroupFollow]!
 
   userTemplates(auth: Auth!, userId: String): [UserTemplate]
   userTemplate(auth: Auth!, id: String!): UserTemplate
@@ -431,8 +431,8 @@ type Mutation {
   createFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
   deleteFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
 
-  createWatch(auth: Auth!, userId: String!, groupId: String!): Watch
-  deleteWatch(auth: Auth!, userId: String!, groupId: String!): Watch
+  createGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
+  deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
 
   read(auth: Auth!, userId: String, documentId: String!): Read
 
