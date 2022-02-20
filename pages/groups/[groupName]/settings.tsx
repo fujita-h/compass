@@ -20,8 +20,8 @@ export default function Page(props) {
 
 const InnerPage = ({ userId, groupName }: { userId: string; groupName: string }) => {
   return (
-    <GroupPageLayout currentUrl="" userId={userId} groupName={groupName}>
-      <div>Group Details</div>
+    <GroupPageLayout currentUrl="/settings" userId={userId} groupName={groupName}>
+      <div>Settings</div>
     </GroupPageLayout>
   )
 }
