@@ -43,7 +43,7 @@ export default function NavTab(props: Props) {
       </div>
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 first:pl-8" aria-label="Tabs">
+          <nav className="-mb-px flex space-x-8 first:pl-6" aria-label="Tabs">
             {props.tabs.map((tab) => (
               <Link href={tab.href} passHref>
                 <a
