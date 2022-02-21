@@ -2,6 +2,7 @@ import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
 import Link from 'next/link'
 import { useGroupsQuery } from '@graphql/generated/react-apollo'
+import { GroupsNav } from '@components/groupsNav'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -27,17 +28,7 @@ export default function Page() {
           </div>
         </div>
         <div className="mt-8">
-          <div className="flex flex-wrap gap-2">
-            {data.groups.map((group) => (
-              <Link key={`groups-${group.id}`} href={`/groups/${encodeURIComponent(group.name)}`}>
-                <div className="w-80 rounded-md border hover:cursor-pointer hover:bg-orange-50">
-                  <div className="flex justify-between px-2 py-1">
-                    <div>{group.displayName || group.name}</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <GroupsNav current={''} />
         </div>
       </div>
     </Layout>
