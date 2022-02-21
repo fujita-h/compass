@@ -43,7 +43,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
               <div className="flex items-center px-0">
                 <div className="flex-shrink-0">
                   <Link href="/" passHref>
-                    <a className="rounded-md px-1 py-1 align-middle text-xl font-medium text-gray-200 hover:text-white">Compass</a>
+                    <a className="rounded-md px-1 py-1 align-middle text-lg font-medium text-gray-200 hover:text-white">Compass</a>
                   </Link>
                 </div>
               </div>
@@ -91,7 +91,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                       <NextLink
                         href={item.href}
                         key={item.name}
-                        className="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:text-white"
+                        className="rounded-md px-3 py-2 text-sm font-normal text-gray-200 hover:text-white"
                         aria-current={item.current ? 'page' : undefined}
                       >
                         {item.name}
@@ -156,7 +156,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                   href={item.href}
                   className={classNames(
                     item.current ? 'bg-gray-800 text-white' : 'text-gray-200 hover:bg-gray-600 hover:text-gray-100',
-                    'block rounded-md px-3 py-2 text-base font-medium'
+                    'block rounded-md px-3 py-2 text-base font-normal'
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >
@@ -171,7 +171,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                     key={item.name}
                     as="a"
                     href={item.href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-200 hover:bg-gray-600 hover:text-gray-100"
+                    className="block rounded-md px-3 py-2 text-base font-normal text-gray-200 hover:bg-gray-600 hover:text-gray-100"
                   >
                     {item.name}
                   </Disclosure.Button>
