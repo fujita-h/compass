@@ -15,7 +15,7 @@ import Link from 'next/link'
 import NavTab from '@components/navTab'
 
 type Props = {
-  children: JSX.Element
+  children?: JSX.Element
   currentUrl?: string
   userId: string
   groupName: string
