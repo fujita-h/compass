@@ -45,30 +45,31 @@ export default function NavTab(props: Props) {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 first:pl-6" aria-label="Tabs">
             {props.tabs.map((tab) => (
-              <Link href={tab.href} passHref>
-                <a
-                  key={tab.name}
-                  className={classNames(
-                    tab.current
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700',
-                    'flex whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium'
-                  )}
-                  aria-current={tab.current ? 'page' : undefined}
-                >
-                  {tab.name}
-                  {tab.count ? (
-                    <span
-                      className={classNames(
-                        tab.current ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-900',
-                        'ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block'
-                      )}
-                    >
-                      {tab.count}
-                    </span>
-                  ) : null}
-                </a>
-              </Link>
+              <span key={tab.name}>
+                <Link href={tab.href} passHref>
+                  <a
+                    className={classNames(
+                      tab.current
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700',
+                      'flex whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium'
+                    )}
+                    aria-current={tab.current ? 'page' : undefined}
+                  >
+                    {tab.name}
+                    {tab.count ? (
+                      <span
+                        className={classNames(
+                          tab.current ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-900',
+                          'ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block'
+                        )}
+                      >
+                        {tab.count}
+                      </span>
+                    ) : null}
+                  </a>
+                </Link>
+              </span>
             ))}
           </nav>
         </div>
