@@ -33,7 +33,7 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
     <GroupPageLayout currentUrl="/documents" userId={userId} groupName={groupName}>
       <div>
         <div className="mx-4 flex items-center justify-between">
-          <div className="text-2xl font-bold">Documents</div>
+          <div className="text-xl font-medium">Documents</div>
           <div className="z-30">
             <CreateDocumentButton groupName={groupName} />
           </div>
