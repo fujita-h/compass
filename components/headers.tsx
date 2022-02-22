@@ -6,7 +6,6 @@ import { FaUserCircle, FaRegBell } from 'react-icons/fa'
 import { getPageViews } from '@lib/localStorage/pageViews'
 import { classNames } from '@lib/utils'
 import Image from 'next/image'
-import { userIconLoader } from '@components/imageLoaders'
 import { NextLink } from '@components/nextLink'
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
@@ -105,9 +104,8 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                         <span className="sr-only">Open user menu</span>
                         {!loading && data?.session?.userSession?.id ? (
                           <Image
-                            loader={userIconLoader}
-                            layout='fixed'
-                            src={data?.session?.userSession?.id.toLowerCase()}
+                            layout="fixed"
+                            src={`/api/files/usericons/${encodeURIComponent(data?.session?.userSession?.id.toLowerCase())}`}
                             width={32}
                             height={32}
                             alt="usericon"

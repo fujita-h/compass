@@ -1,9 +1,7 @@
 import Image, { ImageLoader } from 'next/image'
-import { Children } from 'react'
 
 type Props = {
   coverImageUrl: string
-  iconLoader: ImageLoader
   iconSrc: string
   name: string
   displayName: string
@@ -20,7 +18,7 @@ export default function ProfileHeader(props: Props) {
         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
           <div className="flex">
             <div className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32">
-              <Image loader={props.iconLoader} src={props.iconSrc} width={128} height={128} alt={props.name} className="rounded-full " />
+              <Image src={props.iconSrc} width={128} height={128} alt={props.name} className="rounded-full bg-white" />
             </div>
           </div>
           <div className="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">

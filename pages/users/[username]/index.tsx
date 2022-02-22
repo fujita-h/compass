@@ -14,7 +14,6 @@ import {
 } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import Image from 'next/image'
-import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { UserIconNameLinkSmall } from '@components/elements'
@@ -45,8 +44,7 @@ const InnerPage = ({ sessionUserId, userData }: { sessionUserId: string; userDat
           <div className="m-4 rounded-lg border px-2 py-4">
             <div className="break-words text-center">
               <Image
-                loader={userIconLoader}
-                src={userData.user.id}
+                src={`/api/files/usericons/${encodeURIComponent(userData.user.id.toLowerCase())}`}
                 width={96}
                 height={96}
                 alt={userData.user.username}

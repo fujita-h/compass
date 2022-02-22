@@ -3,7 +3,7 @@ import { prisma } from '@lib/prisma/prismaClient'
 import { getAsString } from '@lib/utils'
 import { validateUserSession, validateAdminSession } from '@lib/session'
 import * as CryptoJs from 'crypto-js'
-import Identicon from 'identicon.js'
+import * as jdenticon from 'jdenticon'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userSession = await validateUserSession(req, res)
@@ -44,17 +44,10 @@ const getAttachmentFile = async (id: string) => {
 
 const getUserIconFile = async (id: string) => {
   const data = await prisma.user_icon.findUnique({ where: { userId: id } })
-  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: jdenticon.toPng(id, 256) }
 }
 
 const getGroupIconFile = async (id: string) => {
   const data = await prisma.group_icon.findUnique({ where: { groupId: id } })
-  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
-}
-
-const denticon = (id: string) => {
-  return new Identicon(CryptoJs.MD5(id.toUpperCase()).toString(), {
-    size: 128,
-    format: 'svg',
-  })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 256) }
 }

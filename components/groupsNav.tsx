@@ -2,7 +2,6 @@ import { useGroupsQuery } from '@graphql/generated/react-apollo'
 import { FilterIcon } from '@heroicons/react/solid'
 import { classNames } from '@lib/utils'
 import { useState } from 'react'
-import { groupIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
 
 /* group nav */
@@ -53,7 +52,13 @@ export const GroupsNav = ({ current }: { current?: string }) => {
                     )}
                   >
                     <div className="flex-shrink-0">
-                      <Image loader={groupIconLoader} src={group.id} width={32} height={32} alt={group.name} className="rounded-lg" />
+                      <Image
+                        src={`/api/files/groupicons/${encodeURIComponent(group.id.toLowerCase())}`}
+                        width={32}
+                        height={32}
+                        alt={group.name}
+                        className="rounded-lg"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <a href={`/groups/${encodeURIComponent(group.name)}`} className="focus:outline-none">

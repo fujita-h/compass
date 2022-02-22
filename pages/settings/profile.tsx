@@ -71,9 +71,6 @@ export default function Page() {
 
   //const rand = useMemo(() => Date.now().toString(), [data])
   const rand = useRef(Date.now().toString())
-  const iconLoader = ({ src }) => {
-    return `/api/files/usericons/${src}?rand=${rand.current}`
-  }
 
   if (loading) return <UserSettingLayout></UserSettingLayout>
 
@@ -87,8 +84,7 @@ export default function Page() {
               <div>現在のアイコン</div>
               <div className="inline-block">
                 <Image
-                  loader={iconLoader}
-                  src={encodeURIComponent(data.myProfile.id)}
+                  src={`/api/files/usericons/${encodeURIComponent(data.myProfile.id.toLowerCase())}?rand=${rand.current}`}
                   width={128}
                   height={128}
                   alt={data.myProfile.username}

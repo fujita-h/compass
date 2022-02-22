@@ -105,9 +105,6 @@ export const EditGroupForm = ({
   }
 
   const rand = useMemo(() => Date.now().toString(), [data])
-  const iconLoader = ({ src }) => {
-    return `/api/files/groupicons/${src}?rand=${rand}`
-  }
 
   if (loading) return <></>
   if (!data) return <></>
@@ -120,8 +117,7 @@ export const EditGroupForm = ({
           <div>現在のアイコン</div>
           <div className="inline-block">
             <Image
-              loader={iconLoader}
-              src={encodeURIComponent(data.group.id)}
+              src={`/api/files/groupicons/${encodeURIComponent(data.group.id.toLowerCase())}?rand=${rand}`}
               width={128}
               height={128}
               alt={data.group.name}

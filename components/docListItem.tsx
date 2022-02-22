@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { UserGroupIcon } from '@heroicons/react/solid'
-import { userIconLoader } from '@components/imageLoaders'
 import { NextLink } from '@components/nextLink'
 
 type Prop = {
@@ -39,8 +38,7 @@ export const DocListItem = (item: Prop) => {
               <span className="tooltip  mt-10 rounded-lg bg-gray-100 px-2 py-1 text-sm shadow-lg">@{item.userName}</span>
               <div className="mr-2 h-12 w-12 rounded-full border-1 border-gray-300">
                 <Image
-                  loader={userIconLoader}
-                  src={item.userId.toUpperCase()}
+                  src={`/api/files/usericons/${encodeURIComponent(item.userId.toLowerCase())}`}
                   alt={item.userName}
                   width={64}
                   height={64}
@@ -59,8 +57,7 @@ export const DocListItem = (item: Prop) => {
                 <span className="truncate text-sm font-medium text-gray-500 group-hover:text-gray-900 ">
                   <div className="mr-1 inline-block h-4 w-4 align-middle">
                     <Image
-                      loader={userIconLoader}
-                      src={item.userId.toUpperCase()}
+                      src={`/api/files/usericons/${encodeURIComponent(item.userId.toLowerCase())}`}
                       width={16}
                       height={16}
                       alt={item.userName}
