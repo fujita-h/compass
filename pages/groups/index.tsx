@@ -6,11 +6,7 @@ import { GroupsNav } from '@components/groupsNav'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
-  const { data, loading } = useGroupsQuery({ variables: { auth: 'user' } })
-
   if (!session) return <></>
-  if (loading) return <></>
-  if (!data) return <></>
 
   return (
     <Layout>
