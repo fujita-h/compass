@@ -106,6 +106,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                         {!loading && data?.session?.userSession?.id ? (
                           <Image
                             loader={userIconLoader}
+                            layout='fixed'
                             src={data?.session?.userSession?.id.toLowerCase()}
                             width={32}
                             height={32}
