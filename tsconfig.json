@@ -8,9 +8,15 @@
       "esnext"
     ],
     "paths": {
-      "@lib/*": ["lib/*"],
-      "@components/*": ["components/*"],
-      "@graphql/*":["graphql/*"],
+      "@lib/*": [
+        "lib/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@graphql/*": [
+        "graphql/*"
+      ],
     },
     "allowJs": true,
     "skipLibCheck": true,
