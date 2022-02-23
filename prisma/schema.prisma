@@ -108,8 +108,8 @@ model group {
   description    String?          @db.VarChar(500)
   type           group_type       @default(normal)
   followed       follow_group[]
+  group_cover    group_cover?
   group_icon     group_icon?
-  group_image    group_image?
   group_template group_template[]
   paper          paper[]
   user_group_map user_group_map[]
@@ -117,7 +117,7 @@ model group {
   @@index([type])
 }
 
-model group_icon {
+model group_cover {
   id       String @id @db.VarChar(26)
   groupId  String @unique @db.VarChar(26)
   mimeType String @db.VarChar(63)
@@ -125,7 +125,7 @@ model group_icon {
   group    group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
-model group_image {
+model group_icon {
   id       String @id @db.VarChar(26)
   groupId  String @unique @db.VarChar(26)
   mimeType String @db.VarChar(63)
@@ -262,10 +262,18 @@ model user {
   read            read[]
   stock           stock[]
   stock_category  stock_category[]
+  user_cover      user_cover?
   user_group_map  user_group_map[]
   user_icon       user_icon?
-  user_image      user_image?
   user_template   user_template[]
+}
+
+model user_cover {
+  id       String @id @db.VarChar(26)
+  userId   String @unique @db.VarChar(26)
+  mimeType String @db.VarChar(63)
+  blob     Bytes? @db.Blob
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user_group_map {
@@ -281,14 +289,6 @@ model user_group_map {
 }
 
 model user_icon {
-  id       String @id @db.VarChar(26)
-  userId   String @unique @db.VarChar(26)
-  mimeType String @db.VarChar(63)
-  blob     Bytes? @db.Blob
-  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model user_image {
   id       String @id @db.VarChar(26)
   userId   String @unique @db.VarChar(26)
   mimeType String @db.VarChar(63)
