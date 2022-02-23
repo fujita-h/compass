@@ -33,6 +33,9 @@ const ReactiveToC = ({ children }) => {
   useEffect(() => {
     document.addEventListener('scroll', handleScroll, { passive: true })
     updateScrollMarker()
+    return () => {
+      document.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const H1 = useCallback(
