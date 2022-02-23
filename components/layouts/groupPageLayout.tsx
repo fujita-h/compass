@@ -1,5 +1,5 @@
 import { ChevronDownIcon, BadgeCheckIcon, SearchIcon, MailIcon, PhoneIcon, FilterIcon } from '@heroicons/react/solid'
-import { GroupsNav } from '@components/groupsNav'
+import { NavGroups } from '@components/navGroups'
 import ProfileHeader from '@components/profileHeader'
 import { getAsString, classNames } from '@lib/utils'
 import {
@@ -47,7 +47,7 @@ export default function GroupPageLayout(props: Props) {
         {/* Pane-1 */}
         <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
           <h2 className="mb-2 text-lg font-medium text-gray-900">Groups</h2>
-          <GroupsNav current={props.groupName} />
+          <NavGroups current={props.groupName} />
         </div>
         {/* Pane-2 */}
         <div className="bg-white p-3 lg:min-w-0 lg:flex-1">

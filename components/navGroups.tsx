@@ -5,7 +5,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 
 /* group nav */
-export const GroupsNav = ({ current }: { current?: string }) => {
+export const NavGroups = ({ current }: { current?: string }) => {
   const { data, loading } = useGroupsQuery({ variables: { auth: 'user' } })
   const [filter, setFilter] = useState('')
 

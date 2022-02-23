@@ -1,8 +1,7 @@
 import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
 import Link from 'next/link'
-import { useGroupsQuery } from '@graphql/generated/react-apollo'
-import { GroupsNav } from '@components/groupsNav'
+import { NavGroups } from '@components/navGroups'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -24,7 +23,7 @@ export default function Page() {
           </div>
         </div>
         <div className="mt-8">
-          <GroupsNav current={''} />
+          <NavGroups current={''} />
         </div>
       </div>
     </Layout>
