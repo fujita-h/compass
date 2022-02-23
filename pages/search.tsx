@@ -130,7 +130,7 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                           <UserIconNameLinkSmall userId={d._source.userId} username={d._source.userName} />
                           <div className="ml-2 inline-block">が{new Date(d._source.updatedAt).toLocaleString()} に投稿</div>
                         </div>
-                        <div className="text-lg font-bold">{d._source.title || 'UNTITLED'}</div>
+                        <div className="text-lg font-meduim">{d._source.title || 'UNTITLED'}</div>
                       </div>
                     </a>
                   </Link>
@@ -156,11 +156,11 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                         />
                         <div className="ml-2 flex-1 break-words">
                           <div className="border-b-1">
-                            <h3 className="mr-2 inline-block text-lg font-bold">
+                            <h3 className="mr-2 inline-block text-lg font-meduim">
                               {d._source.displayName || d._source.name}
                               {Boolean(d._source.type === 'private') && <RiLock2Fill className="ml-1 inline-block" />}
                             </h3>
-                            <h4 className="inline-block text-md font-bold text-gray-600">{d._source.name}</h4>
+                            <h4 className="inline-block text-md font-meduim text-gray-600">{d._source.name}</h4>
                           </div>
                           <div className="mt-2 text-sm">{d._source.description}</div>
                         </div>
@@ -189,8 +189,8 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                         />
                         <div className="ml-2 flex-1 break-words">
                           <div className="border-b-1">
-                            <h3 className="mr-2 inline-block text-lg font-bold">{d._source.displayName || d._source.username}</h3>
-                            <h4 className="inline-block text-md font-bold text-gray-600">{d._source.username}</h4>
+                            <h3 className="mr-2 inline-block text-lg font-meduim">{d._source.displayName || d._source.username}</h3>
+                            <h4 className="inline-block text-md font-meduim text-gray-600">{d._source.username}</h4>
                           </div>
                           <div className="mt-2 text-sm">{d._source.description}</div>
                         </div>

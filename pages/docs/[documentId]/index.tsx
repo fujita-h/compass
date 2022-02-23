@@ -192,7 +192,7 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
                 )}
               </div>
             </div>
-            <h1 className="mt-1 mb-4 text-3xl font-bold">{data.document.paper.title}</h1>
+            <h1 className="mt-1 mb-4 text-3xl font-medium">{data.document.paper.title}</h1>
             <div>
               <BsTags className="mr-2 inline-block h-5 w-5 text-gray-600" />
               {data.document.paper.tags
@@ -210,11 +210,11 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
           </div>
         </div>
         <div className="mt-8 mb-8 bg-white p-4">
-          <h2 className="mb-4 border-b text-2xl font-bold">コメント</h2>
+          <h2 className="mb-4 border-b text-2xl font-meduim">コメント</h2>
           <CommentsView userId={sessionUserId} documentId={documentId} />
         </div>
       </div>
-      <div className="ml-4 w-60 flex-none">
+      <div className="ml-4 w-60 flex-none hidden lg:block">
         <RightPane userId={sessionUserId} documentQuery={data} />
       </div>
     </div>
@@ -292,13 +292,13 @@ const StockBadge = ({ userId, documentId }: { userId: string; documentId: string
           setModalState({ ...modalState, show: true })
         }}
       >
-        <span className="text-sm font-bold">Stock</span>
+        <span className="text-sm font-meduim">Stock</span>
         {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ? (
           <BsBookmarkCheckFill className="mx-auto block h-7 w-7" />
         ) : (
           <BsBookmark className="mx-auto block h-7 w-7" />
         )}
-        <span className="text-sm font-bold">{data.countStocks}</span>
+        <span className="text-sm font-meduim">{data.countStocks}</span>
       </div>
       <MyModal
         show={modalState.show}
@@ -364,9 +364,9 @@ const LikeBadge = ({ userId, documentId }: { userId: string; documentId: string 
       onClick={handleClick}
       data-isliked={isLiked}
     >
-      <span className="text-sm font-bold"> Like </span>
+      <span className="text-sm font-meduim"> Like </span>
       {isLiked ? <AiFillLike className="mx-auto block h-7 w-7" /> : <AiOutlineLike className="mx-auto block h-7 w-7" />}
-      <span className="text-sm font-bold">{countLikes}</span>
+      <span className="text-sm font-meduim">{countLikes}</span>
     </div>
   )
 }

@@ -71,7 +71,7 @@ export const DocListItem = (item: Prop) => {
             {/* title */}
             <div className="flex items-center space-x-3">
               <span className="block">
-                <h2 className="text-base font-bold text-gray-700">
+                <h2 className="text-base font-medium text-gray-700">
                   <NextLink href={item.href}>{item.title}</NextLink>
                 </h2>
               </span>

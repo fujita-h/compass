@@ -329,7 +329,7 @@ export const EditorForm = ({
         <div className="flex h-full w-full items-center justify-center">
           <div>
             <div className="h-16 w-16 animate-spin rounded-full border-8 border-blue-500 border-t-transparent" />
-            <div className="mt-2 text-center font-bold text-gray-700">Loading..</div>
+            <div className="mt-2 text-center font-meduim text-gray-700">Loading..</div>
           </div>
         </div>
       </div>

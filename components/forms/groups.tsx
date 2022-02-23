@@ -415,7 +415,7 @@ const DeleteGroupModal = ({
     <MyModal show={state.show} close={closeModal} title="グループの削除">
       <div>
         <p>
-          グループ <span className="font-bold">{group?.name}</span> を削除しようとしています。
+          グループ <span className="font-meduim">{group?.name}</span> を削除しようとしています。
         </p>
         <ul className="mx-8 list-disc">
           <li>グループに属しているメンバーは自動的にメンバーから削除されます</li>
@@ -438,7 +438,7 @@ const DeleteGroupModal = ({
           onClick={deleteSubmit}
         >
           <span>
-            グループ <span className="font-bold">{group?.name}</span> を削除
+            グループ <span className="font-meduim">{group?.name}</span> を削除
           </span>
         </button>
       </div>

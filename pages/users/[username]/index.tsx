@@ -68,7 +68,7 @@ const UserDocuments = ({ userId }: { userId: string }) => {
                   <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
                   <div className="ml-2 inline-block">が{new Date(doc.paper.updatedAt).toLocaleString()} に投稿</div>
                 </div>
-                <div className="text-lg font-bold">{doc.paper.title || 'UNTITLED'}</div>
+                <div className="text-lg font-meduim">{doc.paper.title || 'UNTITLED'}</div>
               </div>
             </a>
           </Link>

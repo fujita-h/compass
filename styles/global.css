@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,20 +12,20 @@
     @apply visible z-30 delay-500;
   }
   .markdown {
-    @apply p-2 text-lg leading-8 text-zinc-800;
+    @apply p-2 text-base leading-7 text-zinc-800;
   }
   .markdown h1 {
-    @apply mt-8 mb-6 border-b-1 border-l-6 border-l-blue-700 py-2 pl-2 text-4xl font-bold;
+    @apply mt-8 mb-6 border-b-1 border-l-6 border-l-blue-700 py-2 pl-2 text-3xl font-medium;
   }
   .markdown h2 {
-    @apply my-6 ml-3 border-b-1 border-l-3 border-l-blue-700 py-1 pl-2 text-3xl font-bold;
+    @apply my-6 ml-3 border-b-1 border-l-3 border-l-blue-700 py-1 pl-2 text-2xl font-medium;
   }
   .markdown h3 {
-    @apply my-4 ml-6 border-b-1 pl-2 text-2xl font-bold;
+    @apply my-4 ml-6 border-b-1 pl-2 text-2xl font-medium;
   }
   .markdown h4,
   .markdown h5 {
-    @apply my-4 ml-6 border-b-1 pl-2 text-xl font-bold;
+    @apply my-4 ml-6 border-b-1 pl-2 text-xl font-medium;
   }
   .markdown p {
     @apply my-4 ml-6;

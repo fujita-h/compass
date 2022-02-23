@@ -17,7 +17,7 @@ export default function Page() {
           <div>
             <div>
               <RiCompasses2Line className="inline-block h-20 w-20" />
-              <span className="align-middle text-3xl font-bold">Compass</span>
+              <span className="align-middle text-3xl font-meduim">Compass</span>
             </div>
             <div className="mt-6">
               <Link href="/login" passHref>
@@ -78,7 +78,7 @@ const Timeline = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-lg font-bold">{doc.paper.title || 'UNTITLED'}</div>
+                  <div className="text-lg font-meduim">{doc.paper.title || 'UNTITLED'}</div>
                 </div>
               </a>
             </Link>
