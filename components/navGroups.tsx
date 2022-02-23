@@ -3,6 +3,7 @@ import { FilterIcon } from '@heroicons/react/solid'
 import { classNames } from '@lib/utils'
 import { useState } from 'react'
 import Image from 'next/image'
+import { NextLink } from './nextLink'
 
 /* group nav */
 export const NavGroups = ({ current }: { current?: string }) => {
@@ -61,12 +62,12 @@ export const NavGroups = ({ current }: { current?: string }) => {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <a href={`/groups/${encodeURIComponent(group.name)}`} className="focus:outline-none">
+                      <NextLink href={`/groups/${encodeURIComponent(group.name)}`} className="focus:outline-none">
                         {/* Extend touch target to entire panel */}
                         <span className="absolute inset-0" aria-hidden="true" />
                         <p className="text-sm font-medium text-gray-900">{group.name}</p>
                         <p className="truncate text-sm text-gray-500">{group.type}</p>
-                      </a>
+                      </NextLink>
                     </div>
                   </div>
                 </li>
