@@ -38,13 +38,11 @@ export default function Page(props) {
 
 const InnerPage = ({ sessionUserId, username }: { sessionUserId: string; username: string }) => {
   return (
-    <UserPageLayout currentUrl="" sessionUserId={sessionUserId} username={username} >
+    <UserPageLayout currentUrl="" sessionUserId={sessionUserId} username={username}>
       <div></div>
     </UserPageLayout>
-
   )
 }
-
 
 const UserDocuments = ({ userId }: { userId: string }) => {
   const { data, loading, fetchMore } = useDocumentsCpQuery({
@@ -68,7 +66,7 @@ const UserDocuments = ({ userId }: { userId: string }) => {
                   <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
                   <div className="ml-2 inline-block">が{new Date(doc.paper.updatedAt).toLocaleString()} に投稿</div>
                 </div>
-                <div className="text-lg font-meduim">{doc.paper.title || 'UNTITLED'}</div>
+                <div className="font-meduim text-lg">{doc.paper.title || 'UNTITLED'}</div>
               </div>
             </a>
           </Link>

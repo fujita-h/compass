@@ -93,7 +93,10 @@ const FollowUserButton = ({ fromUserId, toUserId }: { fromUserId: string; toUser
   const [createWatch] = useCreateFollowMutation({ refetchQueries: [FollowsDocument] })
   const [deleteWatch] = useDeleteFollowMutation({ refetchQueries: [FollowsDocument] })
 
-  const isWFollowing = useMemo(() => data?.userFollows?.find((follow) => follow.fromUserId.toUpperCase() === fromUserId.toUpperCase()), [data])
+  const isWFollowing = useMemo(
+    () => data?.userFollows?.find((follow) => follow.fromUserId.toUpperCase() === fromUserId.toUpperCase()),
+    [data]
+  )
   const countFollows = useMemo(() => data?.userFollows.length, [data])
 
   const handleClick = (e) => {

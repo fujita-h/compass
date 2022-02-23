@@ -371,7 +371,7 @@ export const AdminHeader = () => {
           <div>
             <Link href="/admin" passHref>
               <a className="flex-shrink-0 hover:text-current">
-                <span className="text-xl font-meduim">compass admin</span>
+                <span className="font-meduim text-xl">compass admin</span>
               </a>
             </Link>
           </div>

@@ -78,7 +78,7 @@ export default function Page() {
     <UserSettingLayout>
       <div>
         <FullCard>
-          <h2 className="text-lg font-meduim">アイコン</h2>
+          <h2 className="font-meduim text-lg">アイコン</h2>
           <div className="mt-4 ml-4 mb-8 flex">
             <div className="w-60">
               <div>現在のアイコン</div>
@@ -107,7 +107,7 @@ export default function Page() {
             </div>
           </div>
 
-          <h2 className="text-lg font-meduim">ユーザー設定</h2>
+          <h2 className="font-meduim text-lg">ユーザー設定</h2>
           <div className="ml-4">
             <div className="relative">
               <label className="text-gray-700">id</label>

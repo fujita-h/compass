@@ -39,13 +39,11 @@ export default function Page(props) {
 
 const InnerPage = ({ sessionUserId, username }: { sessionUserId: string; username: string }) => {
   return (
-    <UserPageLayout currentUrl="/documents" sessionUserId={sessionUserId} username={username} >
+    <UserPageLayout currentUrl="/documents" sessionUserId={sessionUserId} username={username}>
       <UserDocuments username={username} />
     </UserPageLayout>
-
   )
 }
-
 
 const UserDocuments = ({ username }: { username: string }) => {
   const { data, loading, fetchMore } = useDocumentsCpQuery({
