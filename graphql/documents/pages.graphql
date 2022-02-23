@@ -137,6 +137,24 @@ query groupPageLayout($auth: Auth!, $groupName: String!) {
   }
   countDocuments(auth: $auth, groupName: $groupName)
 }
+
+query userPageLayout($auth: Auth!, $username: String) {
+  user(auth: $auth, username: $username) {
+    id
+    uuid
+    username
+    email
+    displayName
+    follow {
+      toUserId
+    }
+    followed {
+      fromUserId
+    }
+  }
+  countDocuments(auth: $auth, username: $username)
+}
+
 query groupsPage {
   groups(auth: user) {
     id

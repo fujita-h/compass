@@ -17,6 +17,7 @@ import { useMemo } from 'react'
 import Link from 'next/link'
 import { UserIconNameLinkSmall } from '@components/elements'
 import UserPageLayout from '@components/layouts/userPageLayout'
+import { DocListItem } from '@components/docListItem'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: '/login' })
@@ -38,44 +39,46 @@ export default function Page(props) {
 
 const InnerPage = ({ sessionUserId, username }: { sessionUserId: string; username: string }) => {
   return (
-    <UserPageLayout currentUrl="" sessionUserId={sessionUserId} username={username} >
-      <div></div>
+    <UserPageLayout currentUrl="/documents" sessionUserId={sessionUserId} username={username} >
+      <UserDocuments username={username} />
     </UserPageLayout>
 
   )
 }
 
 
-const UserDocuments = ({ userId }: { userId: string }) => {
+const UserDocuments = ({ username }: { username: string }) => {
   const { data, loading, fetchMore } = useDocumentsCpQuery({
-    variables: { auth: 'user', userId: userId, first: 20 },
+    variables: { auth: 'user', username: username, first: 20 },
     fetchPolicy: 'network-only',
   })
 
-  if (loading) return <></>
+  if (loading) return <div className="m-2 p-2"></div>
 
   const nodes = data.documentsCP.edges.map((edge) => edge.node)
   const pageInfo = data.documentsCP.pageInfo
 
   return (
     <div className="m-2 p-2">
-      {nodes.map((doc) => (
-        <div key={`docs-${doc.id}`}>
-          <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
-            <a className="hover:text-blue-500">
-              <div key={doc.id} className="m-2 border bg-white p-2">
-                <div className="text-black">
-                  <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
-                  <div className="ml-2 inline-block">が{new Date(doc.paper.updatedAt).toLocaleString()} に投稿</div>
-                </div>
-                <div className="text-lg font-bold">{doc.paper.title || 'UNTITLED'}</div>
-              </div>
-            </a>
-          </Link>
-        </div>
-      ))}
+      <ul role="list" className="relative z-0 divide-y divide-gray-200 border-b border-t border-gray-200">
+        {nodes.map((doc) => (
+          <DocListItem
+            key={doc.id}
+            id={doc.id}
+            title={doc.paper.title}
+            href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`}
+            groupName={doc.paper.group.displayName || doc.paper.group.name}
+            userId={doc.paper.user.id}
+            userName={doc.paper.user.username}
+            userHref={`/users/${encodeURIComponent(doc.paper.user.username)}`}
+            groupHref={`/groups/${encodeURIComponent(doc.paper.group.name.toLowerCase())}`}
+            updatedAt={doc.paper.updatedAt}
+          />
+        ))}
+      </ul>
+
       {pageInfo.hasNextPage && (
-        <div className="text-center">
+        <div className="mt-6 text-center">
           <button
             className="rounded-md border bg-gray-100 px-4 py-2"
             onClick={() => {

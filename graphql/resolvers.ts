@@ -324,7 +324,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     countDocuments: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, groupId, groupName } = args
+      const { auth, userId, username, groupId, groupName } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -335,6 +335,7 @@ export const resolvers: Resolvers = {
           where: {
             paper: {
               userId: userId ? userId.toUpperCase() : undefined,
+              user: { username: username },
               groupId: groupId ? groupId.toUpperCase() : undefined,
               group: { name: groupName },
             },
@@ -347,7 +348,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     documentsCP: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, groupId, groupName, first, after } = args
+      const { auth, userId, username, groupId, groupName, first, after } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -366,6 +367,7 @@ export const resolvers: Resolvers = {
             where: {
               paper: {
                 userId: userId ? userId.toUpperCase() : undefined,
+                user: { username: username ?? undefined },
                 groupId: groupId ? groupId.toUpperCase() : undefined,
                 group: { name: groupName ?? undefined },
                 OR: [
@@ -629,7 +631,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    follows: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    userFollows: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, fromUserId, toUserId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1747,7 +1749,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    createFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    createUserFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, fromUserId, toUserId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1755,12 +1757,14 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!fromUserId) throw new UserInputError('UserInputError')
         if (!toUserId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+
+        const _fromUserId = fromUserId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+
         return await prisma.follow_user.create({
           data: {
-            fromUserId: fromUserId.toUpperCase(),
+            fromUserId: _fromUserId.toUpperCase(),
             toUserId: toUserId.toUpperCase(),
           },
         })
@@ -1770,7 +1774,7 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
-    deleteFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+    deleteUserFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, fromUserId, toUserId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
@@ -1778,13 +1782,15 @@ export const resolvers: Resolvers = {
       }
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
-        if (!fromUserId) throw new UserInputError('UserInputError')
         if (!toUserId) throw new UserInputError('UserInputError')
-        if (_context.userSession.id.toUpperCase() !== fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+
+        const _fromUserId = fromUserId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _fromUserId.toUpperCase()) throw new ForbiddenError('Forbidden')
+
         return await prisma.follow_user.delete({
           where: {
             fromUserId_toUserId: {
-              fromUserId: fromUserId.toUpperCase(),
+              fromUserId: _fromUserId.toUpperCase(),
               toUserId: toUserId.toUpperCase(),
             },
           },

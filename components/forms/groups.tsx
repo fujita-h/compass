@@ -15,7 +15,7 @@ import {
   GetGroupWithMembersQuery,
   useDeleteGroupMemberMutation,
   useDeleteGroupMutation,
-  useGetUsersQuery,
+  useUsersQuery,
   useCreateGroupMemberMutation,
 } from '@graphql/generated/react-apollo'
 import { InternalRefetchQueriesInclude } from '@apollo/client'
@@ -462,7 +462,7 @@ const SearchUserForm = ({
   const ITEMS_PER_PAGE = 10
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedUsers, setSelectedUsers] = useState({})
-  const { data, loading, error } = useGetUsersQuery({
+  const { data, loading, error } = useUsersQuery({
     variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE },
   })
   const [createGroupMember] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })
