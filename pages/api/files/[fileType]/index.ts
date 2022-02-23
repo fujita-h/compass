@@ -73,8 +73,12 @@ const storeFile = ({
       return storeAttachment({ userId, file, blob })
     case 'usericons':
       return storeUserIcon({ userId, file, blob })
+    case 'usercovers':
+      return storeUserCover({ userId, file, blob })
     case 'groupicons':
       return storeGroupIcon({ groupId, file, blob })
+    case 'groupcovers':
+      return storeGroupCover({ groupId, file, blob })
     default:
       throw 'Unknown fileType'
   }
@@ -121,8 +125,52 @@ const storeUserIcon = ({ userId, file, blob }: { userId: string; file: formidabl
   })
 }
 
+const storeUserCover = ({ userId, file, blob }: { userId: string; file: formidable.File; blob: Buffer }) => {
+  return prisma.user_cover.upsert({
+    where: { userId },
+    create: {
+      id: ulid(),
+      userId: userId.toUpperCase(),
+      mimeType: file.mimetype,
+      blob,
+    },
+    update: {
+      mimeType: file.mimetype,
+      blob,
+    },
+    select: {
+      id: true,
+      userId: true,
+      mimeType: true,
+      blob: false,
+    },
+  })
+}
+
 const storeGroupIcon = ({ groupId, file, blob }: { groupId: string; file: formidable.File; blob: Buffer }) => {
   return prisma.group_icon.upsert({
+    where: { groupId },
+    create: {
+      id: ulid(),
+      groupId: groupId.toUpperCase(),
+      mimeType: file.mimetype,
+      blob,
+    },
+    update: {
+      mimeType: file.mimetype,
+      blob,
+    },
+    select: {
+      id: true,
+      groupId: true,
+      mimeType: true,
+      blob: false,
+    },
+  })
+}
+
+const storeGroupCover = ({ groupId, file, blob }: { groupId: string; file: formidable.File; blob: Buffer }) => {
+  return prisma.group_cover.upsert({
     where: { groupId },
     create: {
       id: ulid(),

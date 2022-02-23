@@ -31,8 +31,12 @@ const getFile = async (fileType: string, id: string) => {
       return getAttachmentFile(id)
     case 'usericons':
       return getUserIconFile(id)
+    case 'usercovers':
+      return getUserCoverFile(id)
     case 'groupicons':
       return getGroupIconFile(id)
+    case 'groupcovers':
+      return getGroupCoverFile(id)
     default:
       throw 'Unknown fileType'
   }
@@ -44,10 +48,24 @@ const getAttachmentFile = async (id: string) => {
 
 const getUserIconFile = async (id: string) => {
   const data = await prisma.user_icon.findUnique({ where: { userId: id } })
+  jdenticon.configure({ backColor: '#ffffff' })
   return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: jdenticon.toPng(id, 256) }
+}
+
+const getUserCoverFile = async (id: string) => {
+  const data = await prisma.user_cover.findUnique({ where: { userId: id } })
+  jdenticon.configure({ backColor: '#88882220' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: jdenticon.toPng(id, 800) }
 }
 
 const getGroupIconFile = async (id: string) => {
   const data = await prisma.group_icon.findUnique({ where: { groupId: id } })
+  jdenticon.configure({ backColor: '#ffffff' })
   return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 256) }
+}
+
+const getGroupCoverFile = async (id: string) => {
+  const data = await prisma.group_cover.findUnique({ where: { groupId: id } })
+  jdenticon.configure({ backColor: '#22888820' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 800) }
 }

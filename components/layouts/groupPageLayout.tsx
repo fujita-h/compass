@@ -18,6 +18,7 @@ type Props = {
   currentUrl?: string
   userId: string
   groupName: string
+  directImageLoading?: boolean
 }
 
 export default function GroupPageLayout(props: Props) {
@@ -53,28 +54,14 @@ export default function GroupPageLayout(props: Props) {
         <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
           {/* Group header */}
           <ProfileHeader
-            coverImageUrl="https://images.unsplash.com/photo-1444628838545-ac4016a5418a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            coverSrc={`/api/files/groupcovers/${encodeURIComponent(groupId.toLowerCase())}`}
             iconSrc={`/api/files/groupicons/${encodeURIComponent(groupId.toLowerCase())}`}
             name={props.groupName}
             displayName={groupDisplayName || ''}
+            directImageLoading={props.directImageLoading}
           >
             <>
-              <button
-                type="button"
-                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
-              >
-                <MailIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                <span>Message</span>
-              </button>
-              <button
-                type="button"
-                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
-              >
-                <PhoneIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                <span>Call</span>
-              </button>
-
-              <FollowGroupButton userId={props.userId} groupId={groupId} />
+              <FollowGroupButton userId={props.userId} groupId={groupId} className="mr-6" />
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
@@ -87,7 +74,7 @@ export default function GroupPageLayout(props: Props) {
   )
 }
 
-const FollowGroupButton = ({ userId, groupId }: { userId: string; groupId: string }) => {
+const FollowGroupButton = ({ userId, groupId, className }: { userId: string; groupId: string; className?: string }) => {
   const { data, loading } = useGroupFollowsQuery({ variables: { auth: 'user', groupId: groupId } })
   const [createWatch] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
   const [deleteWatch] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
@@ -110,8 +97,9 @@ const FollowGroupButton = ({ userId, groupId }: { userId: string; groupId: strin
       type="button"
       onClick={handleClick}
       className={classNames(
-        isWatched ? 'bg-red-100' : 'bg-white',
-        'inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2'
+        isWatched ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+        className,
+        'focus:ring-indigo-500" inline-flex items-center rounded-lg border border-transparent px-6 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2'
       )}
     >
       <span>{isWatched ? 'フォロー解除' : 'フォローする'}</span>
