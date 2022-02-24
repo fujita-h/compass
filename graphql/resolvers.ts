@@ -833,6 +833,7 @@ export const resolvers: Resolvers = {
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
+        if (!validateUsername(name)) throw new ApolloError('Invalid name')
         const result = await prisma.group.create({
           data: { id: ulid(), name, displayName, description, type },
           include: { user_group_map: true },
@@ -857,6 +858,7 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         if (!name) throw new UserInputError('Invalid argument value', { argumentName: 'name' })
+        if (!validateUsername(name)) throw new ApolloError('Invalid name')
 
         const result = await prisma.group.create({
           data: {
@@ -895,6 +897,7 @@ export const resolvers: Resolvers = {
       const { auth, id, name, displayName, description, type } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        if (name && !validateUsername(name)) throw new ApolloError('Invalid name')
         const result = await prisma.group.update({
           data: { name, displayName, description, type },
           where: { id },
@@ -923,6 +926,7 @@ export const resolvers: Resolvers = {
         if (!check) throw new UserInputError('NotFound')
         const checkAdmin = check.user_group_map.find((x) => x.userId == _context.userSession.id)?.isAdmin || false
         if (!checkAdmin) throw new ForbiddenError('Forbidden')
+        if (name && !validateUsername(name)) throw new ApolloError('Invalid name')
         const result = await prisma.group.update({
           data: { name, displayName, description }, //restrict update type
           where: { id },
