@@ -30,7 +30,7 @@ export default function ProfileHeader(props: Props) {
               {props.directImageLoading ? (
                 <img
                   src={props.iconSrc}
-                  className={classNames(props.iconRounded ? 'rounded-full' : 'rounded-lg', 'w-24 h-24 bg-white sm:h-32 sm:w-32')}
+                  className={classNames(props.iconRounded ? 'rounded-full' : 'rounded-lg', 'h-24 w-24 bg-white sm:h-32 sm:w-32')}
                 />
               ) : (
                 <Image

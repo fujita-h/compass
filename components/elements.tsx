@@ -105,7 +105,7 @@ export const UserIconNameLinkSmall = ({ userId, username }: { userId: string; us
   return (
     <div className="inline-block">
       <Link href={`/users/${encodeURIComponent(username.toLowerCase())}`} passHref>
-        <div className="group font-meduim hover:cursor-pointer hover:underline">
+        <div className="font-meduim group hover:cursor-pointer hover:underline">
           <div className="mr-1 inline-block group-hover:brightness-90">
             <Image
               src={`/api/files/usericons/${encodeURIComponent(userId.toLowerCase())}`}
