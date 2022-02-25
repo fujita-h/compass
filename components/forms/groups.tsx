@@ -211,7 +211,7 @@ export const EditGroupForm = ({
 }
 
 export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth; groupId: string }) => {
-  const { data, loading, refetch } = useGetGroupWithMembersQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGetGroupWithMembersQuery({ variables: { auth, id: groupId } })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false, group: undefined, user: undefined })
   const [addModalState, setAddModalState] = useState({ show: false })
@@ -288,7 +288,7 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth; groupId: s
 }
 
 export const DangerZoneForm = ({ auth, groupId }: { auth: Auth; groupId: string }) => {
-  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false })
 

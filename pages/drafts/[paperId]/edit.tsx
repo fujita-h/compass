@@ -16,7 +16,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ paperId }: { paperId: string }) => {
-  const { data, loading } = useDraftPageQuery({ variables: { paperId }, fetchPolicy: 'network-only' })
+  const { data, loading } = useDraftPageQuery({ variables: { paperId } })
 
   const submitButtonMap: Array<SubmitButtonSetting> = [
     { key: 'publish', label: data?.draft?.documentIdLazy ? 'ドキュメントを更新' : '全体に公開' },

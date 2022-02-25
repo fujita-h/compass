@@ -44,7 +44,10 @@ export default function Page() {
 }
 
 const Timeline = () => {
-  const { data, loading, fetchMore } = useMyTimelineCpQuery({ variables: { first: 20 }, fetchPolicy: 'network-only' })
+  const { data, loading, fetchMore } = useMyTimelineCpQuery({
+    variables: { first: 20 },
+    fetchPolicy: 'network-only',
+  })
   if (loading) return <></>
   const nodes = data.myTimelineCP.edges.map((edge) => edge.node)
   const pageInfo = data.myTimelineCP.pageInfo

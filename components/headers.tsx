@@ -30,7 +30,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
     { name: 'ログアウト', href: '/logout' },
   ]
 
-  const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useSessionQuery()
 
   return (
     <Disclosure as="nav" className="flex-shrink-0 bg-gray-800">
@@ -193,7 +193,7 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (
 )
 
 export const Header_02 = ({ searchText = '' }: { searchText?: string }) => {
-  const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useSessionQuery()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
   const [currentSearchText, setCurrentSearchText] = useState(searchText)

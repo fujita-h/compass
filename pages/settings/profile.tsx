@@ -14,7 +14,7 @@ const uploadUserIcon = async (files) => {
 }
 
 export default function Page() {
-  const { data, loading } = useMyProfileQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useMyProfileQuery()
   const imageSelectForm = useRef(null)
   const [iconFile, setIconFile] = useState(null)
   const [iconImage, setIconImage] = useState(null)
