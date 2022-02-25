@@ -2,30 +2,34 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@lib/prisma/prismaClient'
 import { getAsString } from '@lib/utils'
 import { validateUserSession, validateAdminSession } from '@lib/session'
-import * as CryptoJs from 'crypto-js'
 import * as jdenticon from 'jdenticon'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userSession = await validateUserSession(req, res)
-  const adminSession = await validateAdminSession(req, res)
+  try {
+    const userSession = await validateUserSession(req, res)
+    const adminSession = await validateAdminSession(req, res)
 
-  if (!userSession?.id && !adminSession?.admin) return res.status(401).end()
+    if (!userSession?.id && !adminSession?.admin) return res.status(401).end()
 
-  const fileType = getAsString(req.query.fileType)
-  const id = getAsString(req.query.id)
+    const fileType = getAsString(req.query.fileType)
+    const id = getAsString(req.query.id)
 
-  if (!fileType) return res.status(400).end()
-  if (!id) return res.status(400).end()
+    if (!fileType) return res.status(400).end()
+    if (!id) return res.status(400).end()
 
-  const data = await getFile(fileType, id)
-  if (!data) return res.status(404).end()
+    const data = await getFile(fileType, id)
+    if (!data) return res.status(404).end()
 
-  res.setHeader('Content-Type', data.mimeType)
-  res.setHeader('Content-Length', data.blob.length)
-  res.status(200).send(data.blob)
+    res.setHeader('Content-Type', data.mimeType)
+    res.setHeader('Content-Length', data.blob.length)
+    res.status(200).send(data.blob)
+    res.end()
+  } catch (error) {
+    res.status(500).json({ error })
+  }
 }
 
-const getFile = async (fileType: string, id: string) => {
+const getFile = (fileType: string, id: string) => {
   switch (fileType) {
     case 'attachments':
       return getAttachmentFile(id)
