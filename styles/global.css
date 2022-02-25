@@ -5,6 +5,16 @@
 @tailwind utilities;
 
 @layer base {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #a0a0a8;
+  }
+  html {
+    @apply overflow-y-scroll;
+  }
   .tooltip {
     @apply invisible absolute transition-all delay-0;
   }
