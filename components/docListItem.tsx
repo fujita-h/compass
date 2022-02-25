@@ -82,12 +82,12 @@ export const DocListItem = (item: Prop) => {
             <div>
               {/* Group */}
               <div className="flex items-center space-x-3">
-                <a href={item.groupHref} className="group relative flex items-center space-x-2.5">
+                <NextLink href={item.groupHref} className="group relative flex items-center space-x-2.5">
                   <span className="truncate text-sm font-medium text-gray-500 group-hover:text-gray-900">
                     <UserGroupIcon className="mr-1 inline-block h-4 w-4" />
                     {item.groupName}
                   </span>
-                </a>
+                </NextLink>
               </div>
             </div>
             {/* C (down, right) area */}
