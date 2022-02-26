@@ -36,6 +36,7 @@ import { XIcon } from '@heroicons/react/solid'
 import { updatePageViews } from '@lib/localStorage/pageViews'
 
 import dynamic from 'next/dynamic'
+import { NextLink } from '@components/nextLink'
 
 const MarkdownParser = dynamic(() => import('@components/markdown/markdownParser'))
 const MarkdownReactiveTocParser = dynamic(() => import('@components/markdown/markdownReactiveTocParser'))
@@ -98,13 +99,11 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
           <div className="mt-3 p-4">
             <div className="flex place-content-between">
               <div>
-                <Link href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`} passHref>
-                  <a>
-                    <div className="mb-2 inline-block bg-red-200 px-3">
-                      {data.document.paper.group.displayName || data.document.paper.group.name}
-                    </div>
-                  </a>
-                </Link>
+                <NextLink href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`}>
+                  <div className="mb-2 inline-block bg-red-200 px-3">
+                    {data.document.paper.group.displayName || data.document.paper.group.name}
+                  </div>
+                </NextLink>
                 <div>
                   <UserIconNameLinkSmall userId={data.document.paper.user.id} username={data.document.paper.user.username} />
                 </div>
@@ -199,9 +198,11 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
                 .split(',')
                 .filter((tag) => tag !== '')
                 .map((tag) => (
-                  <span key={`tag-${tag}`} className="mx-1 rounded-md bg-blue-50 px-2 py-1">
-                    {tag}
-                  </span>
+                  <NextLink href={`/tags/${encodeURIComponent(tag)}`}>
+                    <span key={`tag-${tag}`} className="mx-1 rounded-md bg-blue-50 px-2 py-1">
+                      {tag}
+                    </span>
+                  </NextLink>
                 ))}
             </div>
           </div>
