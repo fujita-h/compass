@@ -3,7 +3,7 @@ import { FilterIcon } from '@heroicons/react/solid'
 import { classNames } from '@lib/utils'
 import { useState } from 'react'
 import Image from 'next/image'
-import { NextLink } from './nextLink'
+import { NextLink } from '@components/nextLink'
 
 /* group nav */
 export const NavGroups = ({ current }: { current?: string }) => {
