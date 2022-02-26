@@ -370,6 +370,7 @@ class ElasticsearchClient {
   }
 
   async tags({ filterGroupIds, size = 100 }: { filterGroupIds: string[]; size?: number }) {
+    if (size < 0) size = undefined
     const result = await this.client.search<TagsResponse>({
       index: 'documents',
       filter_path: 'aggregations',
