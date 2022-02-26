@@ -393,6 +393,55 @@ class ElasticsearchClient {
     return result.body
   }
 
+  private taggedDocumentsQuery(query: string, filterGroupIds: string[]) {
+    if (!query) {
+      return {
+        bool: {
+          filter: [{ terms: { groupId: filterGroupIds } }],
+        },
+      }
+    }
+    return {
+      bool: {
+        filter: [{ terms: { groupId: filterGroupIds } }],
+        must: [{ match: { tags: query } }],
+      },
+    }
+  }
+
+  async searchTaggedDocuments({
+    query,
+    filterGroupIds,
+    from = 0,
+    size = 100,
+  }: {
+    query: string
+    filterGroupIds: string[]
+    from: number
+    size: number
+  }): Promise<EsSearchDocmentsResponse> {
+    const result = await this.client.search<SearchResponse<Document>>({
+      index: 'documents',
+      body: {
+        from,
+        size,
+        query: this.taggedDocumentsQuery(query, filterGroupIds),
+        sort: [{ updatedAt: { order: 'desc' } }],
+      },
+    })
+    return result.body
+  }
+
+  async countTaggedDocuments({ query, filterGroupIds }: { query: string; filterGroupIds: string[] }) {
+    const result = await this.client.count<CountResponse>({
+      index: 'documents',
+      body: {
+        query: this.taggedDocumentsQuery(query, filterGroupIds),
+      },
+    })
+    return result.body
+  }
+
   upsertDocument({ id, document }: { id: string; document: Document }) {
     return this.client.index({
       index: 'documents',

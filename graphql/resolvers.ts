@@ -712,6 +712,25 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    tagMeta: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, tag } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!tag) throw new UserInputError('UserInputError')
+        return await prisma.tag_meta.findUnique({
+          where: { tag: tag },
+          select: { tag: true, description: true, user: true },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     esSearch: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, query, index, from, size } = args
       if (auth == 'admin') {
@@ -747,6 +766,35 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    esSearchDocumentsByTag: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, query, from, size } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const groups = await prisma.user_group_map.findMany({
+          where: {
+            OR: [
+              { group: { type: 'public' } },
+              { group: { type: 'normal' } },
+              {
+                group: { type: 'private' },
+                userId: _context.userSession.id.toUpperCase(),
+              },
+            ],
+          },
+          select: { groupId: true },
+        })
+        const result = await esClient.searchTaggedDocuments({ query, filterGroupIds: groups.map((x) => x.groupId), from, size })
+        return { Documents: result }
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     esCount: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, query } = args
       if (auth == 'admin') {
@@ -772,6 +820,35 @@ export const resolvers: Resolvers = {
         const groupsResult = await esClient.countGroups({ query: query })
         const usersResult = await esClient.countUsers({ query: query })
         return { Documents: documentsResult, Groups: groupsResult, Users: usersResult }
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    esCountDocumentsByTag: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, query } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const groups = await prisma.user_group_map.findMany({
+          where: {
+            OR: [
+              { group: { type: 'public' } },
+              { group: { type: 'normal' } },
+              {
+                group: { type: 'private' },
+                userId: _context.userSession.id.toUpperCase(),
+              },
+            ],
+          },
+          select: { groupId: true },
+        })
+        const result = await esClient.countTaggedDocuments({ query: query, filterGroupIds: groups.map((x) => x.groupId) })
+        return { Documents: result }
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

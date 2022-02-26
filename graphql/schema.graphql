@@ -177,16 +177,10 @@ type GroupFollow {
   groupId: String!
 }
 
-type Tag {
-  id: String!
-  text: String!
-}
-
-type MapPaperTag {
-  paperId: String!
-  tagId: String!
-  paper: Paper
-  tag: Tag
+type TagMeta {
+  tag: String!
+  description: String
+  user: User
 }
 
 type UserTemplate {
@@ -385,8 +379,12 @@ type Query {
   userTemplates(auth: Auth!, userId: String): [UserTemplate]
   userTemplate(auth: Auth!, id: String!): UserTemplate
 
+  tagMeta(auth: Auth!, tag: String!): TagMeta
+
   esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
+  esSearchDocumentsByTag(auth: Auth!, query: String, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
+  esCountDocumentsByTag(auth: Auth!, query: String): EsCountResponses
   esTags(auth: Auth!, size: Int): EsTagsResponse
 }
 

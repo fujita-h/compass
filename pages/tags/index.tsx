@@ -1,4 +1,5 @@
 import { Layout } from '@components/layouts'
+import { NavTags } from '@components/modals/NavTags'
 import { useTagsQuery } from '@graphql/generated/react-apollo'
 import { useSession } from '@lib/hooks'
 import Link from 'next/link'
@@ -14,22 +15,11 @@ export default function Page() {
   return (
     <Layout>
       <div className="mx-auto mt-4 mb-2 w-full max-w-7xl bg-white p-4">
-        <div>
+        <div className="flex justify-between">
           <div className="text-2xl">Tags</div>
         </div>
         <div className="mt-8">
-          <div className="flex flex-wrap gap-2">
-            {data.esTags.aggregations.tags.buckets.map((bucket) => (
-              <Link key={`tags-${bucket.key}`} href={`/tags/${encodeURIComponent(bucket.key)}`}>
-                <div className="w-60 rounded-md border hover:cursor-pointer hover:bg-orange-50">
-                  <div className="flex justify-between px-2 py-1">
-                    <div>{bucket.key}</div>
-                    <div className="rounded-lg border bg-gray-500 px-2 text-sm text-white">{bucket.doc_count}</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <NavTags current={''} />
         </div>
       </div>
     </Layout>
