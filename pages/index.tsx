@@ -17,7 +17,7 @@ export default function Page() {
           <div>
             <div>
               <RiCompasses2Line className="inline-block h-20 w-20" />
-              <span className="align-middle text-3xl font-bold">Compass</span>
+              <span className="font-meduim align-middle text-3xl">Compass</span>
             </div>
             <div className="mt-6">
               <Link href="/login" passHref>
@@ -44,7 +44,10 @@ export default function Page() {
 }
 
 const Timeline = () => {
-  const { data, loading, fetchMore } = useMyTimelineCpQuery({ variables: { first: 20 }, fetchPolicy: 'network-only' })
+  const { data, loading, fetchMore } = useMyTimelineCpQuery({
+    variables: { first: 20 },
+    fetchPolicy: 'network-only',
+  })
   if (loading) return <></>
   const nodes = data.myTimelineCP.edges.map((edge) => edge.node)
   const pageInfo = data.myTimelineCP.pageInfo
@@ -78,7 +81,7 @@ const Timeline = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-lg font-bold">{doc.paper.title || 'UNTITLED'}</div>
+                  <div className="font-meduim text-lg">{doc.paper.title || 'UNTITLED'}</div>
                 </div>
               </a>
             </Link>

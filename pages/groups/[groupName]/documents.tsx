@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
-import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
 import { getAsString, classNames } from '@lib/utils'
 import { useGroupIndexPageQuery, useDocumentsCpQuery, useDraftsQuery, useTemplatesQuery } from '@graphql/generated/react-apollo'
@@ -33,7 +32,7 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
     <GroupPageLayout currentUrl="/documents" userId={userId} groupName={groupName}>
       <div>
         <div className="mx-4 flex items-center justify-between">
-          <div className="text-2xl font-bold">Documents</div>
+          <div className="text-xl font-medium">Documents</div>
           <div className="z-30">
             <CreateDocumentButton groupName={groupName} />
           </div>

@@ -137,6 +137,24 @@ query groupPageLayout($auth: Auth!, $groupName: String!) {
   }
   countDocuments(auth: $auth, groupName: $groupName)
 }
+
+query userPageLayout($auth: Auth!, $username: String) {
+  user(auth: $auth, username: $username) {
+    id
+    uuid
+    username
+    email
+    displayName
+    follow {
+      toUserId
+    }
+    followed {
+      fromUserId
+    }
+  }
+  countDocuments(auth: $auth, username: $username)
+}
+
 query groupsPage {
   groups(auth: user) {
     id
@@ -149,4 +167,31 @@ query loginPage {
     id
     name
   }
+}
+
+query GroupMembersSettingPage($auth: Auth!, $name: String) {
+  group(auth: $auth, name: $name) {
+    id
+    name
+    displayName
+    description
+    type
+    user_group_map {
+      userId
+      isAdmin
+      user {
+        id
+        uuid
+        username
+        email
+        displayName
+      }
+    }
+  }
+  users(auth: $auth) {
+    id
+    username
+    displayName
+  }
+  countUsers(auth: $auth)
 }

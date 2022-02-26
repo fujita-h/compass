@@ -18,24 +18,17 @@ const client = new ApolloClient({
           documentsCP: relayStylePagination(),
         },
       },
-      Document: {
-        fields: {
-          paper: {
-            merge: true,
-          },
-        },
-      },
     },
   }),
   defaultOptions: {
     query: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'no-cache',
     },
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'no-cache',
     },
     mutate: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'no-cache',
     },
   },
 })

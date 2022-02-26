@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { Link as Scroll } from 'react-scroll'
+import { classNames } from '@lib/utils'
 
 const CONTENT_ANCHOR_PREFIX = 'content-line'
 const CONTENT_ANCHOR_CLASS_NAME = 'doc-content-lines'
@@ -33,14 +35,23 @@ const ReactiveToC = ({ children }) => {
   useEffect(() => {
     document.addEventListener('scroll', handleScroll, { passive: true })
     updateScrollMarker()
+    return () => {
+      document.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const H1 = useCallback(
     ({ node, ...props }) => {
-      const className = `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 py-1' : 'py-1'
       return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
+        <div
+          className={classNames(
+            `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200' : '',
+            'py-1 hover:cursor-pointer hover:bg-gray-300'
+          )}
+        >
+          <Scroll to={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} smooth={true} duration={600}>
+            {props.children}
+          </Scroll>
         </div>
       )
     },
@@ -48,11 +59,16 @@ const ReactiveToC = ({ children }) => {
   )
   const H2 = useCallback(
     ({ node, ...props }) => {
-      const className =
-        `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200 pl-3 py-1' : 'pl-3 py-1'
       return (
-        <div className={className}>
-          <a href={`#${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`}>{props.children}</a>
+        <div
+          className={classNames(
+            `${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}` == scrollMarker ? 'bg-gray-200' : '',
+            'py-1 pl-3 hover:cursor-pointer hover:bg-gray-300'
+          )}
+        >
+          <Scroll to={`${CONTENT_ANCHOR_PREFIX}-${node.position?.start.line.toString()}`} smooth={true} duration={600}>
+            {props.children}
+          </Scroll>
         </div>
       )
     },

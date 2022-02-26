@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { UserIconNameLinkSmall } from '@components/elements'
 import { useCallback, useMemo } from 'react'
 import Image from 'next/image'
-import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import { RiLock2Fill } from 'react-icons/ri'
 
 export default function Page() {
@@ -131,7 +130,7 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                           <UserIconNameLinkSmall userId={d._source.userId} username={d._source.userName} />
                           <div className="ml-2 inline-block">が{new Date(d._source.updatedAt).toLocaleString()} に投稿</div>
                         </div>
-                        <div className="text-lg font-bold">{d._source.title || 'UNTITLED'}</div>
+                        <div className="font-meduim text-lg">{d._source.title || 'UNTITLED'}</div>
                       </div>
                     </a>
                   </Link>
@@ -148,14 +147,20 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                   <Link href={`/groups/${encodeURIComponent(d._source.name.toLowerCase())}`} passHref>
                     <a className="hover:text-green-700">
                       <div className="m-4 flex rounded-lg border p-2">
-                        <Image loader={groupIconLoader} src={d._id} width={60} height={60} alt={d._source.name} className="rounded-lg" />
+                        <Image
+                          src={`/api/files/groupicons/${encodeURIComponent(d._id.toLowerCase())}`}
+                          width={60}
+                          height={60}
+                          alt={d._source.name}
+                          className="rounded-lg"
+                        />
                         <div className="ml-2 flex-1 break-words">
                           <div className="border-b-1">
-                            <h3 className="mr-2 inline-block text-lg font-bold">
+                            <h3 className="font-meduim mr-2 inline-block text-lg">
                               {d._source.displayName || d._source.name}
                               {Boolean(d._source.type === 'private') && <RiLock2Fill className="ml-1 inline-block" />}
                             </h3>
-                            <h4 className="inline-block text-md font-bold text-gray-600">{d._source.name}</h4>
+                            <h4 className="font-meduim inline-block text-md text-gray-600">{d._source.name}</h4>
                           </div>
                           <div className="mt-2 text-sm">{d._source.description}</div>
                         </div>
@@ -175,11 +180,17 @@ const InnerPage = ({ query, type }: { query: string; type: string }) => {
                   <Link href={`/users/${encodeURIComponent(d._source.username.toLowerCase())}`} passHref>
                     <a className="hover:text-green-700">
                       <div className="m-4 flex rounded-lg border p-2">
-                        <Image loader={userIconLoader} src={d._id} width={60} height={60} alt={d._source.username} className="rounded-lg" />
+                        <Image
+                          src={`/api/files/usericons/${encodeURIComponent(d._id.toLowerCase())}`}
+                          width={60}
+                          height={60}
+                          alt={d._source.username}
+                          className="rounded-lg"
+                        />
                         <div className="ml-2 flex-1 break-words">
                           <div className="border-b-1">
-                            <h3 className="mr-2 inline-block text-lg font-bold">{d._source.displayName || d._source.username}</h3>
-                            <h4 className="inline-block text-md font-bold text-gray-600">{d._source.username}</h4>
+                            <h3 className="font-meduim mr-2 inline-block text-lg">{d._source.displayName || d._source.username}</h3>
+                            <h4 className="font-meduim inline-block text-md text-gray-600">{d._source.username}</h4>
                           </div>
                           <div className="mt-2 text-sm">{d._source.description}</div>
                         </div>

@@ -56,8 +56,8 @@ type User {
   email: String!
   displayName: String
   description: String
-  follow: [Follow]
-  followed: [Follow]
+  follow: [UserFollow]
+  followed: [UserFollow]
 }
 
 type UserEdge {
@@ -167,7 +167,7 @@ type RawComment {
   createdAt: String!
 }
 
-type Follow {
+type UserFollow {
   fromUserId: String!
   toUserId: String!
 }
@@ -177,16 +177,10 @@ type GroupFollow {
   groupId: String!
 }
 
-type Tag {
-  id: String!
-  text: String!
-}
-
-type MapPaperTag {
-  paperId: String!
-  tagId: String!
-  paper: Paper
-  tag: Tag
+type TagMeta {
+  tag: String!
+  description: String
+  user: User
 }
 
 type UserTemplate {
@@ -354,8 +348,16 @@ type Query {
   myTimelineCP(first: Int!, after: String): DocumentConnection
 
   documents(auth: Auth!, userId: String, groupId: String): [Document]!
-  countDocuments(auth: Auth!, userId: String, groupId: String, groupName: String): Int!
-  documentsCP(auth: Auth!, userId: String, groupId: String, groupName: String, first: Int!, after: String): DocumentConnection
+  countDocuments(auth: Auth!, userId: String, username: String, groupId: String, groupName: String): Int!
+  documentsCP(
+    auth: Auth!
+    userId: String
+    username: String
+    groupId: String
+    groupName: String
+    first: Int!
+    after: String
+  ): DocumentConnection
   document(auth: Auth!, id: String!): Document
 
   drafts(auth: Auth!, groupId: String, documentId: String): [Paper]!
@@ -371,14 +373,18 @@ type Query {
   comments(auth: Auth!, userId: String, documentId: String): [Comment]!
   comment(auth: Auth!, id: String!): Comment
 
-  follows(auth: Auth!, fromUserId: String, toUserId: String): [Follow]!
+  userFollows(auth: Auth!, fromUserId: String, toUserId: String): [UserFollow]!
   groupFollows(auth: Auth!, userId: String, groupId: String): [GroupFollow]!
 
   userTemplates(auth: Auth!, userId: String): [UserTemplate]
   userTemplate(auth: Auth!, id: String!): UserTemplate
 
+  tagMeta(auth: Auth!, tag: String!): TagMeta
+
   esSearch(auth: Auth!, query: String, index: String!, from: Int, size: Int): EsSearchResponses
+  esSearchDocumentsByTag(auth: Auth!, query: String, from: Int, size: Int): EsSearchResponses
   esCount(auth: Auth!, query: String): EsCountResponses
+  esCountDocumentsByTag(auth: Auth!, query: String): EsCountResponses
   esTags(auth: Auth!, size: Int): EsTagsResponse
 }
 
@@ -429,8 +435,8 @@ type Mutation {
   updateComment(auth: Auth!, id: String!, body: String!): Comment
   deleteComment(auth: Auth!, id: String!): Comment
 
-  createFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
-  deleteFollow(auth: Auth!, fromUserId: String!, toUserId: String!): Follow
+  createUserFollow(auth: Auth!, fromUserId: String, toUserId: String!): UserFollow
+  deleteUserFollow(auth: Auth!, fromUserId: String, toUserId: String!): UserFollow
 
   createGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
   deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow

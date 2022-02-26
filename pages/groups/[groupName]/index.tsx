@@ -3,6 +3,7 @@ import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString, classNames } from '@lib/utils'
 import GroupPageLayout from '@components/layouts/groupPageLayout'
+import { useGroupQuery } from '@graphql/generated/react-apollo'
 
 export default function Page(props) {
   const session = useSession({ redirectTo: '/login' })
@@ -19,9 +20,16 @@ export default function Page(props) {
 }
 
 const InnerPage = ({ userId, groupName }: { userId: string; groupName: string }) => {
+  const { data, loading } = useGroupQuery({ variables: { auth: 'user', name: groupName } })
+  if (loading) return <GroupPageLayout currentUrl="" userId={userId} groupName={groupName} />
+  if (!data) return <div>Not Found</div>
+
   return (
     <GroupPageLayout currentUrl="" userId={userId} groupName={groupName}>
-      <div>Group Details</div>
+      <div className="ml-4">
+        <div className="text-xl font-medium">グループの説明</div>
+        <div className="ml-3">{data.group.description || '説明なし'}</div>
+      </div>
     </GroupPageLayout>
   )
 }

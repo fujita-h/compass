@@ -159,7 +159,7 @@ const InnerPage = ({ router, sessionUserId, paperId }: { router: NextRouter; ses
                   )}
                 </div>
               </div>
-              <h1 className="mt-1 mb-4 text-3xl font-bold">{data.draft.title}</h1>
+              <h1 className="font-meduim mt-1 mb-4 text-3xl">{data.draft.title}</h1>
               <div>
                 <BsTags className="mr-2 inline-block h-5 w-5 text-gray-600" />
                 {data.draft.tags

@@ -15,7 +15,7 @@ import {
   GetGroupWithMembersQuery,
   useDeleteGroupMemberMutation,
   useDeleteGroupMutation,
-  useGetUsersQuery,
+  useUsersQuery,
   useCreateGroupMemberMutation,
 } from '@graphql/generated/react-apollo'
 import { InternalRefetchQueriesInclude } from '@apollo/client'
@@ -105,9 +105,6 @@ export const EditGroupForm = ({
   }
 
   const rand = useMemo(() => Date.now().toString(), [data])
-  const iconLoader = ({ src }) => {
-    return `/api/files/groupicons/${src}?rand=${rand}`
-  }
 
   if (loading) return <></>
   if (!data) return <></>
@@ -120,8 +117,7 @@ export const EditGroupForm = ({
           <div>現在のアイコン</div>
           <div className="inline-block">
             <Image
-              loader={iconLoader}
-              src={encodeURIComponent(data.group.id)}
+              src={`/api/files/groupicons/${encodeURIComponent(data.group.id.toLowerCase())}?rand=${rand}`}
               width={128}
               height={128}
               alt={data.group.name}
@@ -215,7 +211,7 @@ export const EditGroupForm = ({
 }
 
 export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth; groupId: string }) => {
-  const { data, loading, refetch } = useGetGroupWithMembersQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGetGroupWithMembersQuery({ variables: { auth, id: groupId } })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false, group: undefined, user: undefined })
   const [addModalState, setAddModalState] = useState({ show: false })
@@ -292,7 +288,7 @@ export const EditGroupMemberTable = ({ auth, groupId }: { auth: Auth; groupId: s
 }
 
 export const DangerZoneForm = ({ auth, groupId }: { auth: Auth; groupId: string }) => {
-  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId }, fetchPolicy: 'network-only' })
+  const { data, loading, refetch } = useGroupQuery({ variables: { auth, id: groupId } })
 
   const [deleteModalState, setDeleteModalState] = useState({ show: false })
 
@@ -419,7 +415,7 @@ const DeleteGroupModal = ({
     <MyModal show={state.show} close={closeModal} title="グループの削除">
       <div>
         <p>
-          グループ <span className="font-bold">{group?.name}</span> を削除しようとしています。
+          グループ <span className="font-meduim">{group?.name}</span> を削除しようとしています。
         </p>
         <ul className="mx-8 list-disc">
           <li>グループに属しているメンバーは自動的にメンバーから削除されます</li>
@@ -442,7 +438,7 @@ const DeleteGroupModal = ({
           onClick={deleteSubmit}
         >
           <span>
-            グループ <span className="font-bold">{group?.name}</span> を削除
+            グループ <span className="font-meduim">{group?.name}</span> を削除
           </span>
         </button>
       </div>
@@ -466,7 +462,7 @@ const SearchUserForm = ({
   const ITEMS_PER_PAGE = 10
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedUsers, setSelectedUsers] = useState({})
-  const { data, loading, error } = useGetUsersQuery({
+  const { data, loading, error } = useUsersQuery({
     variables: { auth: auth, offset: pageIndex * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE },
   })
   const [createGroupMember] = useCreateGroupMemberMutation({ refetchQueries: [GetGroupWithMembersDocument] })

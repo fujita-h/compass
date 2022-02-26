@@ -36,6 +36,7 @@ import { XIcon } from '@heroicons/react/solid'
 import { updatePageViews } from '@lib/localStorage/pageViews'
 
 import dynamic from 'next/dynamic'
+import { NextLink } from '@components/nextLink'
 
 const MarkdownParser = dynamic(() => import('@components/markdown/markdownParser'))
 const MarkdownReactiveTocParser = dynamic(() => import('@components/markdown/markdownReactiveTocParser'))
@@ -98,13 +99,11 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
           <div className="mt-3 p-4">
             <div className="flex place-content-between">
               <div>
-                <Link href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`} passHref>
-                  <a>
-                    <div className="mb-2 inline-block bg-red-200 px-3">
-                      {data.document.paper.group.displayName || data.document.paper.group.name}
-                    </div>
-                  </a>
-                </Link>
+                <NextLink href={`/groups/${encodeURIComponent(data.document.paper.group.name)}`}>
+                  <div className="mb-2 inline-block bg-red-200 px-3">
+                    {data.document.paper.group.displayName || data.document.paper.group.name}
+                  </div>
+                </NextLink>
                 <div>
                   <UserIconNameLinkSmall userId={data.document.paper.user.id} username={data.document.paper.user.username} />
                 </div>
@@ -192,16 +191,18 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
                 )}
               </div>
             </div>
-            <h1 className="mt-1 mb-4 text-3xl font-bold">{data.document.paper.title}</h1>
+            <h1 className="mt-1 mb-4 text-3xl font-medium">{data.document.paper.title}</h1>
             <div>
               <BsTags className="mr-2 inline-block h-5 w-5 text-gray-600" />
               {data.document.paper.tags
                 .split(',')
                 .filter((tag) => tag !== '')
                 .map((tag) => (
-                  <span key={`tag-${tag}`} className="mx-1 rounded-md bg-blue-50 px-2 py-1">
-                    {tag}
-                  </span>
+                  <NextLink href={`/tags/${encodeURIComponent(tag)}`}>
+                    <span key={`tag-${tag}`} className="mx-1 rounded-md bg-blue-50 px-2 py-1">
+                      {tag}
+                    </span>
+                  </NextLink>
                 ))}
             </div>
           </div>
@@ -210,11 +211,11 @@ const InnerPage = ({ router, sessionUserId, documentId }: { router: NextRouter; 
           </div>
         </div>
         <div className="mt-8 mb-8 bg-white p-4">
-          <h2 className="mb-4 border-b text-2xl font-bold">コメント</h2>
+          <h2 className="font-meduim mb-4 border-b text-2xl">コメント</h2>
           <CommentsView userId={sessionUserId} documentId={documentId} />
         </div>
       </div>
-      <div className="ml-4 w-60 flex-none">
+      <div className="ml-4 hidden w-60 flex-none lg:block">
         <RightPane userId={sessionUserId} documentQuery={data} />
       </div>
     </div>
@@ -292,13 +293,13 @@ const StockBadge = ({ userId, documentId }: { userId: string; documentId: string
           setModalState({ ...modalState, show: true })
         }}
       >
-        <span className="text-sm font-bold">Stock</span>
+        <span className="font-meduim text-sm">Stock</span>
         {data.stocks.some((stock) => stock.userId.toLocaleUpperCase() == userId.toUpperCase()) ? (
           <BsBookmarkCheckFill className="mx-auto block h-7 w-7" />
         ) : (
           <BsBookmark className="mx-auto block h-7 w-7" />
         )}
-        <span className="text-sm font-bold">{data.countStocks}</span>
+        <span className="font-meduim text-sm">{data.countStocks}</span>
       </div>
       <MyModal
         show={modalState.show}
@@ -364,9 +365,9 @@ const LikeBadge = ({ userId, documentId }: { userId: string; documentId: string 
       onClick={handleClick}
       data-isliked={isLiked}
     >
-      <span className="text-sm font-bold"> Like </span>
+      <span className="font-meduim text-sm"> Like </span>
       {isLiked ? <AiFillLike className="mx-auto block h-7 w-7" /> : <AiOutlineLike className="mx-auto block h-7 w-7" />}
-      <span className="text-sm font-bold">{countLikes}</span>
+      <span className="font-meduim text-sm">{countLikes}</span>
     </div>
   )
 }

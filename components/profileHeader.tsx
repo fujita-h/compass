@@ -1,32 +1,52 @@
-import Image, { ImageLoader } from 'next/image'
-import { Children } from 'react'
+import Image from 'next/image'
+import { classNames } from '@lib/utils'
 
 type Props = {
-  coverImageUrl: string
-  iconLoader: ImageLoader
-  iconSrc: string
+  children?: JSX.Element // Button Items
   name: string
   displayName: string
-  children?: JSX.Element // Button Items
+  coverSrc: string
+  iconSrc: string
+  iconRounded?: boolean
+  directImageLoading?: boolean
 }
 
 export default function ProfileHeader(props: Props) {
   return (
     <div>
-      <div>
-        <img className="h-32 w-full object-cover lg:h-48" src={props.coverImageUrl} alt="" />
+      <div className="relative h-32 w-full object-cover lg:h-48">
+        {props.directImageLoading ? (
+          <img className="h-32 w-full object-cover lg:h-48" src={props.coverSrc} alt="" />
+        ) : (
+          <Image src={props.coverSrc} layout="fill" alt="cover" className="h-32 w-full object-cover lg:h-48" />
+        )}
       </div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
           <div className="flex">
-            <div className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32">
-              <Image loader={props.iconLoader} src={props.iconSrc} width={128} height={128} alt={props.name} className="rounded-full " />
+            <div
+              className={classNames(props.iconRounded ? 'rounded-full' : 'rounded-lg', 'z-10 h-24 w-24 ring-4 ring-white sm:h-32 sm:w-32')}
+            >
+              {props.directImageLoading ? (
+                <img
+                  src={props.iconSrc}
+                  className={classNames(props.iconRounded ? 'rounded-full' : 'rounded-lg', 'h-24 w-24 bg-white sm:h-32 sm:w-32')}
+                />
+              ) : (
+                <Image
+                  src={props.iconSrc}
+                  width={128}
+                  height={128}
+                  alt={props.name}
+                  className={classNames(props.iconRounded ? 'rounded-full' : 'rounded-lg', 'bg-white')}
+                />
+              )}
             </div>
           </div>
           <div className="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
             <div className="mt-6 min-w-0 flex-1 sm:hidden">
-              <h1 className="truncate text-2xl font-bold text-gray-900">{props.displayName}</h1>
-              <h2 className="truncate text-base font-bold text-gray-400">{props.name}</h2>
+              <h1 className="font-meduim truncate text-2xl text-gray-900">{props.displayName}</h1>
+              <h2 className="font-meduim truncate text-base text-gray-400">{props.name}</h2>
             </div>
             <div className="justify-stretch mt-6 flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
               {/* Button Items Area */}
@@ -43,9 +63,9 @@ export default function ProfileHeader(props: Props) {
             </div>
           </div>
         </div>
-        <div className="mt-6 hidden min-w-0 flex-1 sm:block">
-          <h1 className="truncate text-2xl font-bold text-gray-900">{props.displayName}</h1>
-          <h2 className="truncate text-base font-bold text-gray-400">{props.name}</h2>
+        <div className="mt-4 hidden min-w-0 flex-1 sm:block">
+          <h1 className="font-meduim truncate text-2xl text-gray-900">{props.displayName}</h1>
+          <h2 className="font-meduim truncate text-base text-gray-400">{props.name}</h2>
         </div>
       </div>
     </div>

@@ -29,6 +29,27 @@ query Group($auth: Auth!, $id: String, $name: String) {
   }
 }
 
+query GroupMembers($auth: Auth!, $id: String, $name: String) {
+  group(auth: $auth, id: $id, name: $name) {
+    id
+    name
+    displayName
+    description
+    type
+    user_group_map {
+      userId
+      isAdmin
+      user {
+        id
+        uuid
+        username
+        email
+        displayName
+      }
+    }
+  }
+}
+
 query GetGroupWithMembers($auth: Auth!, $id: String) {
   group(auth: $auth, id: $id) {
     id

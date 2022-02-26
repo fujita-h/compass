@@ -2,37 +2,45 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@lib/prisma/prismaClient'
 import { getAsString } from '@lib/utils'
 import { validateUserSession, validateAdminSession } from '@lib/session'
-import * as CryptoJs from 'crypto-js'
-import Identicon from 'identicon.js'
+import * as jdenticon from 'jdenticon'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userSession = await validateUserSession(req, res)
-  const adminSession = await validateAdminSession(req, res)
+  try {
+    const userSession = await validateUserSession(req, res)
+    const adminSession = await validateAdminSession(req, res)
 
-  if (!userSession?.id && !adminSession?.admin) return res.status(401).end()
+    if (!userSession?.id && !adminSession?.admin) return res.status(401).end()
 
-  const fileType = getAsString(req.query.fileType)
-  const id = getAsString(req.query.id)
+    const fileType = getAsString(req.query.fileType)
+    const id = getAsString(req.query.id)
 
-  if (!fileType) return res.status(400).end()
-  if (!id) return res.status(400).end()
+    if (!fileType) return res.status(400).end()
+    if (!id) return res.status(400).end()
 
-  const data = await getFile(fileType, id)
-  if (!data) return res.status(404).end()
+    const data = await getFile(fileType, id)
+    if (!data) return res.status(404).end()
 
-  res.setHeader('Content-Type', data.mimeType)
-  res.setHeader('Content-Length', data.blob.length)
-  res.status(200).send(data.blob)
+    res.setHeader('Content-Type', data.mimeType)
+    res.setHeader('Content-Length', data.blob.length)
+    res.status(200).send(data.blob)
+    res.end()
+  } catch (error) {
+    res.status(500).json({ error })
+  }
 }
 
-const getFile = async (fileType: string, id: string) => {
+const getFile = (fileType: string, id: string) => {
   switch (fileType) {
     case 'attachments':
       return getAttachmentFile(id)
     case 'usericons':
       return getUserIconFile(id)
+    case 'usercovers':
+      return getUserCoverFile(id)
     case 'groupicons':
       return getGroupIconFile(id)
+    case 'groupcovers':
+      return getGroupCoverFile(id)
     default:
       throw 'Unknown fileType'
   }
@@ -44,17 +52,24 @@ const getAttachmentFile = async (id: string) => {
 
 const getUserIconFile = async (id: string) => {
   const data = await prisma.user_icon.findUnique({ where: { userId: id } })
-  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
+  jdenticon.configure({ backColor: '#ffffff' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: jdenticon.toPng(id, 256) }
+}
+
+const getUserCoverFile = async (id: string) => {
+  const data = await prisma.user_cover.findUnique({ where: { userId: id } })
+  jdenticon.configure({ backColor: '#88882220' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: jdenticon.toPng(id, 800) }
 }
 
 const getGroupIconFile = async (id: string) => {
   const data = await prisma.group_icon.findUnique({ where: { groupId: id } })
-  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/svg+xml', blob: denticon(id).render().getDump() }
+  jdenticon.configure({ backColor: '#ffffff' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 256) }
 }
 
-const denticon = (id: string) => {
-  return new Identicon(CryptoJs.MD5(id.toUpperCase()).toString(), {
-    size: 128,
-    format: 'svg',
-  })
+const getGroupCoverFile = async (id: string) => {
+  const data = await prisma.group_cover.findUnique({ where: { groupId: id } })
+  jdenticon.configure({ backColor: '#22888820' })
+  return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 800) }
 }

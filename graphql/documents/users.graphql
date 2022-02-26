@@ -1,7 +1,8 @@
-query GetUsers($auth: Auth!, $offset: Int, $limit: Int) {
+query Users($auth: Auth!, $offset: Int, $limit: Int) {
   users(auth: $auth, offset: $offset, limit: $limit) {
     id
     username
+    displayName
   }
   countUsers(auth: $auth)
 }

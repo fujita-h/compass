@@ -1,6 +1,5 @@
 import { ChangeEventHandler, MouseEventHandler } from 'react'
 import { ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/solid'
-import { groupIconLoader, userIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -106,9 +105,15 @@ export const UserIconNameLinkSmall = ({ userId, username }: { userId: string; us
   return (
     <div className="inline-block">
       <Link href={`/users/${encodeURIComponent(username.toLowerCase())}`} passHref>
-        <div className="group font-bold hover:cursor-pointer hover:underline">
+        <div className="font-meduim group hover:cursor-pointer hover:underline">
           <div className="mr-1 inline-block group-hover:brightness-90">
-            <Image loader={userIconLoader} src={userId.toLowerCase()} width={16} height={16} alt={username} className="rounded-full" />
+            <Image
+              src={`/api/files/usericons/${encodeURIComponent(userId.toLowerCase())}`}
+              width={16}
+              height={16}
+              alt={username}
+              className="rounded-full"
+            />
           </div>
           <span>@{username}</span>
         </div>

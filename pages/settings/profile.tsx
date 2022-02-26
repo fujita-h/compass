@@ -14,7 +14,7 @@ const uploadUserIcon = async (files) => {
 }
 
 export default function Page() {
-  const { data, loading } = useMyProfileQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useMyProfileQuery()
   const imageSelectForm = useRef(null)
   const [iconFile, setIconFile] = useState(null)
   const [iconImage, setIconImage] = useState(null)
@@ -71,9 +71,6 @@ export default function Page() {
 
   //const rand = useMemo(() => Date.now().toString(), [data])
   const rand = useRef(Date.now().toString())
-  const iconLoader = ({ src }) => {
-    return `/api/files/usericons/${src}?rand=${rand.current}`
-  }
 
   if (loading) return <UserSettingLayout></UserSettingLayout>
 
@@ -81,14 +78,13 @@ export default function Page() {
     <UserSettingLayout>
       <div>
         <FullCard>
-          <h2 className="text-lg font-bold">アイコン</h2>
+          <h2 className="font-meduim text-lg">アイコン</h2>
           <div className="mt-4 ml-4 mb-8 flex">
             <div className="w-60">
               <div>現在のアイコン</div>
               <div className="inline-block">
                 <Image
-                  loader={iconLoader}
-                  src={encodeURIComponent(data.myProfile.id)}
+                  src={`/api/files/usericons/${encodeURIComponent(data.myProfile.id.toLowerCase())}?rand=${rand.current}`}
                   width={128}
                   height={128}
                   alt={data.myProfile.username}
@@ -111,7 +107,7 @@ export default function Page() {
             </div>
           </div>
 
-          <h2 className="text-lg font-bold">ユーザー設定</h2>
+          <h2 className="font-meduim text-lg">ユーザー設定</h2>
           <div className="ml-4">
             <div className="relative">
               <label className="text-gray-700">id</label>

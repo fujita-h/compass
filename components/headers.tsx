@@ -6,7 +6,6 @@ import { FaUserCircle, FaRegBell } from 'react-icons/fa'
 import { getPageViews } from '@lib/localStorage/pageViews'
 import { classNames } from '@lib/utils'
 import Image from 'next/image'
-import { userIconLoader } from '@components/imageLoaders'
 import { NextLink } from '@components/nextLink'
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
@@ -31,7 +30,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
     { name: 'ログアウト', href: '/logout' },
   ]
 
-  const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useSessionQuery()
 
   return (
     <Disclosure as="nav" className="flex-shrink-0 bg-gray-800">
@@ -43,7 +42,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
               <div className="flex items-center px-0">
                 <div className="flex-shrink-0">
                   <Link href="/" passHref>
-                    <a className="rounded-md px-1 py-1 align-middle text-xl font-medium text-gray-200 hover:text-white">Compass</a>
+                    <a className="rounded-md px-1 py-1 align-middle text-lg font-medium text-gray-200 hover:text-white">Compass</a>
                   </Link>
                 </div>
               </div>
@@ -91,7 +90,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                       <NextLink
                         href={item.href}
                         key={item.name}
-                        className="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:text-white"
+                        className="rounded-md px-3 py-2 text-sm font-normal text-gray-200 hover:text-white"
                         aria-current={item.current ? 'page' : undefined}
                       >
                         {item.name}
@@ -105,8 +104,8 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                         <span className="sr-only">Open user menu</span>
                         {!loading && data?.session?.userSession?.id ? (
                           <Image
-                            loader={userIconLoader}
-                            src={data?.session?.userSession?.id.toLowerCase()}
+                            layout="fixed"
+                            src={`/api/files/usericons/${encodeURIComponent(data?.session?.userSession?.id.toLowerCase())}`}
                             width={32}
                             height={32}
                             alt="usericon"
@@ -156,7 +155,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                   href={item.href}
                   className={classNames(
                     item.current ? 'bg-gray-800 text-white' : 'text-gray-200 hover:bg-gray-600 hover:text-gray-100',
-                    'block rounded-md px-3 py-2 text-base font-medium'
+                    'block rounded-md px-3 py-2 text-base font-normal'
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >
@@ -171,7 +170,7 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
                     key={item.name}
                     as="a"
                     href={item.href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-200 hover:bg-gray-600 hover:text-gray-100"
+                    className="block rounded-md px-3 py-2 text-base font-normal text-gray-200 hover:bg-gray-600 hover:text-gray-100"
                   >
                     {item.name}
                   </Disclosure.Button>
@@ -194,7 +193,7 @@ const BlankHeader = ({ children }: { children?: JSX.Element }) => (
 )
 
 export const Header_02 = ({ searchText = '' }: { searchText?: string }) => {
-  const { data, loading } = useSessionQuery({ fetchPolicy: 'network-only' })
+  const { data, loading } = useSessionQuery()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchSuggestOpen, setSearchSuggestOpen] = useState(false)
   const [currentSearchText, setCurrentSearchText] = useState(searchText)
@@ -372,7 +371,7 @@ export const AdminHeader = () => {
           <div>
             <Link href="/admin" passHref>
               <a className="flex-shrink-0 hover:text-current">
-                <span className="text-xl font-bold">compass admin</span>
+                <span className="font-meduim text-xl">compass admin</span>
               </a>
             </Link>
           </div>

@@ -10,3 +10,18 @@ query Tags($auth: Auth!, $size: Int) {
     }
   }
 }
+
+query TagMeta($auth: Auth!, $tag: String!) {
+  tagMeta(auth: $auth, tag: $tag) {
+    tag
+    description
+    user {
+      id
+      uuid
+      username
+      email
+      displayName
+      description
+    }
+  }
+}

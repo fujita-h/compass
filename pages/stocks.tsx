@@ -72,7 +72,7 @@ export default function Page() {
                               )}
                             </div>
                           </div>
-                          <div className="text-lg font-bold">{stock.document.paper.title || 'UNTITLED'}</div>
+                          <div className="font-meduim text-lg">{stock.document.paper.title || 'UNTITLED'}</div>
                         </div>
                       </a>
                     </Link>

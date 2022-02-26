@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { UserGroupIcon } from '@heroicons/react/solid'
-import { userIconLoader } from '@components/imageLoaders'
 import { NextLink } from '@components/nextLink'
 
 type Prop = {
@@ -39,8 +38,7 @@ export const DocListItem = (item: Prop) => {
               <span className="tooltip  mt-10 rounded-lg bg-gray-100 px-2 py-1 text-sm shadow-lg">@{item.userName}</span>
               <div className="mr-2 h-12 w-12 rounded-full border-1 border-gray-300">
                 <Image
-                  loader={userIconLoader}
-                  src={item.userId.toUpperCase()}
+                  src={`/api/files/usericons/${encodeURIComponent(item.userId.toLowerCase())}`}
                   alt={item.userName}
                   width={64}
                   height={64}
@@ -59,8 +57,7 @@ export const DocListItem = (item: Prop) => {
                 <span className="truncate text-sm font-medium text-gray-500 group-hover:text-gray-900 ">
                   <div className="mr-1 inline-block h-4 w-4 align-middle">
                     <Image
-                      loader={userIconLoader}
-                      src={item.userId.toUpperCase()}
+                      src={`/api/files/usericons/${encodeURIComponent(item.userId.toLowerCase())}`}
                       width={16}
                       height={16}
                       alt={item.userName}
@@ -74,7 +71,7 @@ export const DocListItem = (item: Prop) => {
             {/* title */}
             <div className="flex items-center space-x-3">
               <span className="block">
-                <h2 className="text-base font-bold text-gray-700">
+                <h2 className="text-base font-medium text-gray-700">
                   <NextLink href={item.href}>{item.title}</NextLink>
                 </h2>
               </span>
@@ -85,12 +82,12 @@ export const DocListItem = (item: Prop) => {
             <div>
               {/* Group */}
               <div className="flex items-center space-x-3">
-                <a href={item.groupHref} className="group relative flex items-center space-x-2.5">
+                <NextLink href={item.groupHref} className="group relative flex items-center space-x-2.5">
                   <span className="truncate text-sm font-medium text-gray-500 group-hover:text-gray-900">
                     <UserGroupIcon className="mr-1 inline-block h-4 w-4" />
                     {item.groupName}
                   </span>
-                </a>
+                </NextLink>
               </div>
             </div>
             {/* C (down, right) area */}

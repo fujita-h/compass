@@ -16,7 +16,7 @@ export default function Page() {
 }
 
 const InnerPage = ({ templateId }: { templateId: string }) => {
-  const { data, loading } = useUserTemplateQuery({ variables: { auth: 'user', id: templateId }, fetchPolicy: 'network-only' })
+  const { data, loading } = useUserTemplateQuery({ variables: { auth: 'user', id: templateId } })
 
   const submitButtonMap: Array<SubmitButtonSetting> = [{ key: 'save', label: 'テンプレートを保存' }]
 

@@ -2,11 +2,11 @@ import { useGroupsQuery } from '@graphql/generated/react-apollo'
 import { FilterIcon } from '@heroicons/react/solid'
 import { classNames } from '@lib/utils'
 import { useState } from 'react'
-import { groupIconLoader } from '@components/imageLoaders'
 import Image from 'next/image'
+import { NextLink } from '@components/nextLink'
 
 /* group nav */
-export const GroupsNav = ({ current }: { current?: string }) => {
+export const NavGroups = ({ current }: { current?: string }) => {
   const { data, loading } = useGroupsQuery({ variables: { auth: 'user' } })
   const [filter, setFilter] = useState('')
 
@@ -53,15 +53,21 @@ export const GroupsNav = ({ current }: { current?: string }) => {
                     )}
                   >
                     <div className="flex-shrink-0">
-                      <Image loader={groupIconLoader} src={group.id} width={32} height={32} alt={group.name} className="rounded-lg" />
+                      <Image
+                        src={`/api/files/groupicons/${encodeURIComponent(group.id.toLowerCase())}`}
+                        width={32}
+                        height={32}
+                        alt={group.name}
+                        className="rounded-lg"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <a href={`/groups/${encodeURIComponent(group.name)}`} className="focus:outline-none">
+                      <NextLink href={`/groups/${encodeURIComponent(group.name)}`} className="focus:outline-none">
                         {/* Extend touch target to entire panel */}
                         <span className="absolute inset-0" aria-hidden="true" />
                         <p className="text-sm font-medium text-gray-900">{group.name}</p>
                         <p className="truncate text-sm text-gray-500">{group.type}</p>
-                      </a>
+                      </NextLink>
                     </div>
                   </div>
                 </li>

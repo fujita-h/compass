@@ -1,25 +1,25 @@
 overwrite: true
-schema: "graphql/schema.graphql"
+schema: 'graphql/schema.graphql'
 documents:
-  - "graphql/documents/**/*.graphql"
+  - 'graphql/documents/**/*.graphql'
 generates:
   graphql/generated/resolvers.ts:
     config:
       enumsAsTypes: true
     plugins:
-      - "typescript"
-      - "typescript-resolvers"
-#  graphql/generated/operations.ts:
-#    plugins:
-#      - "typescript"
-#      - "typescript-operations"
+      - 'typescript'
+      - 'typescript-resolvers'
+  #  graphql/generated/operations.ts:
+  #    plugins:
+  #      - "typescript"
+  #      - "typescript-operations"
   graphql/generated/react-apollo.ts:
     config:
       enumsAsTypes: true
     plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-react-apollo"
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
 #  graphql/generated/schema.json:
 #    plugins:
 #      - "introspection"

@@ -1,19 +1,19 @@
 query Follows($auth: Auth!, $fromUserId: String, $toUserId: String) {
-  follows(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
+  userFollows(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
     fromUserId
     toUserId
   }
 }
 
-mutation CreateFollow($auth: Auth!, $fromUserId: String!, $toUserId: String!) {
-  createFollow(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
+mutation CreateFollow($auth: Auth!, $fromUserId: String, $toUserId: String!) {
+  createUserFollow(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
     fromUserId
     toUserId
   }
 }
 
-mutation DeleteFollow($auth: Auth!, $fromUserId: String!, $toUserId: String!) {
-  deleteFollow(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
+mutation DeleteFollow($auth: Auth!, $fromUserId: String, $toUserId: String!) {
+  deleteUserFollow(auth: $auth, fromUserId: $fromUserId, toUserId: $toUserId) {
     fromUserId
     toUserId
   }
