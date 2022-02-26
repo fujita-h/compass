@@ -239,6 +239,21 @@ model stock_category {
   @@index([userId])
 }
 
+model tag_meta {
+  tag             String  @id @db.VarChar(255)
+  description     String? @db.VarChar(1023)
+  iconMimeType    String  @db.VarChar(63)
+  iconBlob        Bytes?  @db.Blob
+  coverMimeType   String  @db.VarChar(63)
+  coverBlob       Bytes?  @db.Blob
+  updatedByUserId String  @db.VarChar(26)
+  updatedAt       String  @db.VarChar(50)
+  updatedAtNumber BigInt  @default(0) @db.UnsignedBigInt
+  user            user    @relation(fields: [updatedByUserId], references: [id])
+
+  @@index([updatedByUserId])
+}
+
 model user {
   id              String           @id @db.VarChar(26)
   uuid            String           @unique @db.VarChar(50)
@@ -262,6 +277,7 @@ model user {
   read            read[]
   stock           stock[]
   stock_category  stock_category[]
+  tag_meta        tag_meta[]
   user_cover      user_cover?
   user_group_map  user_group_map[]
   user_icon       user_icon?
