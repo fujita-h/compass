@@ -39,10 +39,10 @@ export default function GroupPageLayout(props: Props) {
     { name: 'メンバー', href: baseUrl + '/members', count: groupMemberCount, current: props.currentUrl == '/members' },
     { name: 'ドキュメント', href: baseUrl + '/documents', count: groupDocumentCount, current: props.currentUrl == '/documents' },
   ]
-  if (isGroupAdmin) {
-    tabs.push({ name: 'グループ設定', href: baseUrl + '/settings', current: props.currentUrl == '/settings' })
-    tabs.push({ name: 'メンバー管理', href: baseUrl + '/settings/members', current: props.currentUrl == '/settings/members' })
-  }
+  const tabs2 = [
+    { name: 'グループ設定', href: baseUrl + '/settings', current: props.currentUrl == '/settings' },
+    { name: 'メンバー管理', href: baseUrl + '/settings/members', current: props.currentUrl == '/settings/members' },
+  ]
 
   return (
     <>
@@ -68,7 +68,7 @@ export default function GroupPageLayout(props: Props) {
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
-          <NavTab tabs={tabs} />
+          <NavTab tabs={tabs} tabs2={isGroupAdmin ? tabs2 : []} />
           <div className="mt-6"></div>
           {props.children}
         </div>
