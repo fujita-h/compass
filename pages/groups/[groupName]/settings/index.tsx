@@ -106,10 +106,10 @@ const InnerPage = ({ userId, groupName }: { userId: string; groupName: string })
     })
   }
 
-  if (loading) return <GroupPageLayout currentUrl="/members" userId={userId} groupName={groupName} />
+  if (loading) return <GroupPageLayout currentUrl="/settings" userId={userId} groupName={groupName} />
   if (!data)
     return (
-      <GroupPageLayout currentUrl="/members" userId={userId} groupName={groupName}>
+      <GroupPageLayout currentUrl="/settings" userId={userId} groupName={groupName}>
         <div>Group Not Found.</div>
       </GroupPageLayout>
     )

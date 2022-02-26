@@ -170,7 +170,7 @@ export const resolvers: Resolvers = {
       if (auth == 'user') {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         return await prisma.user.findMany({
-          select: { id: true, uuid: true, username: true, email: true },
+          select: { id: true, uuid: true, username: true, email: true, displayName: true },
           skip: offset,
           take: limit,
         })
@@ -991,17 +991,10 @@ export const resolvers: Resolvers = {
           include: { group: true },
         })
         if (!check) throw new ApolloError('Forbbiden')
-        if (check.group.type === 'private' || check.group.type === 'normal') {
-          if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-          return await prisma.user_group_map.create({
-            data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin },
-          })
-        } else {
-          if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
-          return await prisma.user_group_map.create({
-            data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin },
-          })
-        }
+        if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
+        return await prisma.user_group_map.create({
+          data: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase(), isAdmin: isAdmin },
+        })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -1021,6 +1014,7 @@ export const resolvers: Resolvers = {
         })
         if (!check) throw new ForbiddenError('Forbbiden')
         if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
+        if (check.userId.toUpperCase() == userId.toUpperCase()) throw new ForbiddenError('Forbbiden. You cannnot delete yourself.')
         return await prisma.user_group_map.update({ data: { isAdmin }, where: { userId_groupId: { userId, groupId } } })
       }
       if (auth == 'none') {
@@ -1043,17 +1037,11 @@ export const resolvers: Resolvers = {
           include: { group: true },
         })
         if (!check) throw new ForbiddenError('Forbbiden')
-        if (check.group.type === 'private' || check.group.type === 'normal') {
-          if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
-          return await prisma.user_group_map.delete({
-            where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } },
-          })
-        } else {
-          if (userId.toUpperCase() !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbbiden')
-          return await prisma.user_group_map.delete({
-            where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } },
-          })
-        }
+        if (!check.isAdmin) throw new ForbiddenError('Forbbiden')
+        if (check.userId.toUpperCase() == userId.toUpperCase()) throw new ForbiddenError('Forbbiden. You cannnot delete yourself.')
+        return await prisma.user_group_map.delete({
+          where: { userId_groupId: { userId: userId.toUpperCase(), groupId: groupId.toUpperCase() } },
+        })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')

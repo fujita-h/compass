@@ -168,3 +168,30 @@ query loginPage {
     name
   }
 }
+
+query GroupMembersSettingPage($auth: Auth!, $name: String) {
+  group(auth: $auth, name: $name) {
+    id
+    name
+    displayName
+    description
+    type
+    user_group_map {
+      userId
+      isAdmin
+      user {
+        id
+        uuid
+        username
+        email
+        displayName
+      }
+    }
+  }
+  users(auth: $auth) {
+    id
+    username
+    displayName
+  }
+  countUsers(auth: $auth)
+}

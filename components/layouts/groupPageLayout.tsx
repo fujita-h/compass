@@ -38,8 +38,11 @@ export default function GroupPageLayout(props: Props) {
     { name: 'グループ概要', href: baseUrl, current: !props.currentUrl },
     { name: 'メンバー', href: baseUrl + '/members', count: groupMemberCount, current: props.currentUrl == '/members' },
     { name: 'ドキュメント', href: baseUrl + '/documents', count: groupDocumentCount, current: props.currentUrl == '/documents' },
-    { name: 'グループ設定', href: baseUrl + '/settings', current: props.currentUrl == '/settings' },
   ]
+  if (isGroupAdmin) {
+    tabs.push({ name: 'グループ設定', href: baseUrl + '/settings', current: props.currentUrl == '/settings' })
+    tabs.push({ name: 'メンバー管理', href: baseUrl + '/settings/members', current: props.currentUrl == '/settings/members' })
+  }
 
   return (
     <>
