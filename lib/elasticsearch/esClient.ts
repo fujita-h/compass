@@ -121,87 +121,83 @@ class ElasticsearchClient {
   }
 
   private documentsQuery(query: string, filterGroupIds: string[]) {
-    return query
-      ? {
-          function_score: {
-            query: {
-              bool: {
-                filter: [{ terms: { groupId: filterGroupIds } }],
-                should: [
-                  {
-                    multi_match: {
-                      query: query,
-                      operator: 'and',
-                      fields: [
-                        'title.sudachi_C^2.0',
-                        'title.sudachi_B^1.0',
-                        'title.sudachi_A^0.5',
-                        'title.kuromoji^0.3',
-                        'title.ngram^0.1',
-                      ],
-                      boost: 1.2,
-                    },
-                  },
-                  {
-                    multi_match: {
-                      query: query,
-                      operator: 'and',
-                      fields: ['tags.sudachi_C^2.0', 'tags.sudachi_B^1.0', 'tags.sudachi_A^0.5', 'tags.kuromoji^0.3', 'tags.ngram^0.1'],
-                      boost: 1.8,
-                    },
-                  },
-                  {
-                    multi_match: {
-                      query: query,
-                      operator: 'and',
-                      fields: ['body.sudachi_C^2.0', 'body.sudachi_B^1.0', 'body.sudachi_A^0.5', 'body.kuromoji^0.3', 'body.ngram^0.1'],
-                      boost: 1.0,
-                    },
-                  },
-                ],
-                minimum_should_match: 1,
-              },
+    if (!query) {
+      return {
+        function_score: {
+          query: {
+            bool: {
+              filter: [{ terms: { groupId: filterGroupIds } }],
+              must: [{ match_all: {} }],
             },
-            functions: [
-              {
-                exp: {
-                  createdAt: {
-                    offset: '30d',
-                    scale: '360d',
-                    decay: 0.5,
-                  },
+          },
+          functions: [
+            {
+              exp: {
+                createdAt: {
+                  offset: '1m',
+                  scale: '360d',
+                  decay: 0.5,
                 },
-                weight: 1,
+              },
+              weight: 1,
+            },
+          ],
+          score_mode: 'multiply',
+          boost_mode: 'sum',
+        },
+      }
+    }
+
+    return {
+      function_score: {
+        query: {
+          bool: {
+            filter: [{ terms: { groupId: filterGroupIds } }],
+            should: [
+              {
+                multi_match: {
+                  query: query,
+                  operator: 'and',
+                  fields: ['title.sudachi_C^2.0', 'title.sudachi_B^1.0', 'title.sudachi_A^0.5', 'title.kuromoji^0.3', 'title.ngram^0.1'],
+                  boost: 1.2,
+                },
+              },
+              {
+                multi_match: {
+                  query: query,
+                  operator: 'and',
+                  fields: ['tags.sudachi_C^2.0', 'tags.sudachi_B^1.0', 'tags.sudachi_A^0.5', 'tags.kuromoji^0.3', 'tags.ngram^0.1'],
+                  boost: 1.8,
+                },
+              },
+              {
+                multi_match: {
+                  query: query,
+                  operator: 'and',
+                  fields: ['body.sudachi_C^2.0', 'body.sudachi_B^1.0', 'body.sudachi_A^0.5', 'body.kuromoji^0.3', 'body.ngram^0.1'],
+                  boost: 1.0,
+                },
               },
             ],
-            score_mode: 'multiply',
-            boost_mode: 'sum',
+            minimum_should_match: 1,
           },
-        }
-      : {
-          function_score: {
-            query: {
-              bool: {
-                filter: [{ terms: { groupId: filterGroupIds } }],
-                must: [{ match_all: {} }],
+        },
+        functions: [
+          {
+            exp: {
+              createdAt: {
+                offset: '30d',
+                scale: '360d',
+                decay: 0.5,
               },
             },
-            functions: [
-              {
-                exp: {
-                  createdAt: {
-                    offset: '1m',
-                    scale: '360d',
-                    decay: 0.5,
-                  },
-                },
-                weight: 1,
-              },
-            ],
-            score_mode: 'multiply',
-            boost_mode: 'sum',
+            weight: 1,
           },
-        }
+        ],
+        score_mode: 'multiply',
+        boost_mode: 'sum',
+      },
+    }
   }
 
   async searchDocuments({
@@ -237,45 +233,47 @@ class ElasticsearchClient {
   }
 
   private groupsQuery(query: string) {
-    return query
-      ? {
-          bool: {
-            should: [
-              {
-                multi_match: {
-                  query: query,
-                  fields: ['name', 'name.ngram'],
-                },
-              },
-              {
-                multi_match: {
-                  query: query,
-                  fields: [
-                    'displayName.sudachi_C',
-                    'displayName.sudachi_B',
-                    'displayName.sudachi_A',
-                    'displayName.kuromoji',
-                    'displayName.ngram',
-                  ],
-                },
-              },
-              {
-                multi_match: {
-                  query: query,
-                  fields: [
-                    'description.sudachi_C',
-                    'description.sudachi_B',
-                    'description.sudachi_A',
-                    'description.kuromoji',
-                    'description.ngram',
-                  ],
-                },
-              },
-            ],
-            minimum_should_match: 1,
+    if (!query) {
+      return { match_all: {} }
+    }
+
+    return {
+      bool: {
+        should: [
+          {
+            multi_match: {
+              query: query,
+              fields: ['name', 'name.ngram'],
+            },
           },
-        }
-      : { match_all: {} }
+          {
+            multi_match: {
+              query: query,
+              fields: [
+                'displayName.sudachi_C',
+                'displayName.sudachi_B',
+                'displayName.sudachi_A',
+                'displayName.kuromoji',
+                'displayName.ngram',
+              ],
+            },
+          },
+          {
+            multi_match: {
+              query: query,
+              fields: [
+                'description.sudachi_C',
+                'description.sudachi_B',
+                'description.sudachi_A',
+                'description.kuromoji',
+                'description.ngram',
+              ],
+            },
+          },
+        ],
+        minimum_should_match: 1,
+      },
+    }
   }
 
   async searchGroups({ query, from = 0, size = 100 }: { query: string; from: number; size: number }): Promise<EsSearchGroupsResponse> {
@@ -301,51 +299,52 @@ class ElasticsearchClient {
   }
 
   private usersQuery(query: string) {
-    return query
-      ? {
-          bool: {
-            should: [
-              {
-                multi_match: {
-                  query: query,
-                  fields: ['name', 'name.ngram'],
-                },
-              },
-              {
-                multi_match: {
-                  query: query,
-                  fields: ['email', 'email.ngram'],
-                },
-              },
-              {
-                multi_match: {
-                  query: query,
-                  fields: [
-                    'displayName.sudachi_C',
-                    'displayName.sudachi_B',
-                    'displayName.sudachi_A',
-                    'displayName.kuromoji',
-                    'displayName.ngram',
-                  ],
-                },
-              },
-              {
-                multi_match: {
-                  query: query,
-                  fields: [
-                    'description.sudachi_C',
-                    'description.sudachi_B',
-                    'description.sudachi_A',
-                    'description.kuromoji',
-                    'description.ngram',
-                  ],
-                },
-              },
-            ],
-            minimum_should_match: 1,
+    if (!query) {
+      return { match_all: {} }
+    }
+    return {
+      bool: {
+        should: [
+          {
+            multi_match: {
+              query: query,
+              fields: ['name', 'name.ngram'],
+            },
           },
-        }
-      : { match_all: {} }
+          {
+            multi_match: {
+              query: query,
+              fields: ['email', 'email.ngram'],
+            },
+          },
+          {
+            multi_match: {
+              query: query,
+              fields: [
+                'displayName.sudachi_C',
+                'displayName.sudachi_B',
+                'displayName.sudachi_A',
+                'displayName.kuromoji',
+                'displayName.ngram',
+              ],
+            },
+          },
+          {
+            multi_match: {
+              query: query,
+              fields: [
+                'description.sudachi_C',
+                'description.sudachi_B',
+                'description.sudachi_A',
+                'description.kuromoji',
+                'description.ngram',
+              ],
+            },
+          },
+        ],
+        minimum_should_match: 1,
+      },
+    }
   }
 
   async searchUsers({ query, from = 0, size = 100 }: { query: string; from: number; size: number }): Promise<EsSearchUsersResponse> {
