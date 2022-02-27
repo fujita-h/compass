@@ -723,7 +723,7 @@ export const resolvers: Resolvers = {
         if (!tag) throw new UserInputError('UserInputError')
         return await prisma.tag_meta.findUnique({
           where: { tag: tag },
-          select: { tag: true, description: true, user: true },
+          select: { tag: true, description: true, user: true, updatedAt: true },
         })
       }
       if (auth == 'none') {
@@ -1942,6 +1942,46 @@ export const resolvers: Resolvers = {
             userId: _userId.toUpperCase(),
             documentId: doc.id,
             paperId: doc.paperId,
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    upsertTagMeta: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, tag, description } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const userId = _context.userSession.id
+        const now = Date.now()
+        return await prisma.tag_meta.upsert({
+          where: { tag },
+          create: {
+            tag: tag,
+            description: description,
+            iconMimeType: '',
+            coverMimeType: '',
+            user: { connect: { id: userId.toUpperCase() } },
+            updatedAt: new Date(now).toISOString(),
+            updatedAtNumber: now,
+          },
+          update: {
+            description: description,
+            user: { connect: { id: userId.toUpperCase() } },
+            updatedAt: new Date(now).toISOString(),
+            updatedAtNumber: now,
+          },
+          select: {
+            tag: true,
+            description: true,
+            user: true,
+            updatedAt: true,
           },
         })
       }

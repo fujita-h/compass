@@ -10,9 +10,6 @@ export default function Page() {
   const router = useRouter()
   const tagname = getAsString(router.query.tagname)
 
-  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tagname } })
-  if (loading || !data) return <></>
-
   if (!session?.id) return <></>
 
   return (
@@ -23,9 +20,14 @@ export default function Page() {
 }
 
 const InnerPage = ({ tagname }: { tagname: string }) => {
+  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tagname } })
+
   return (
     <TagPageLayout currentUrl="" tagname={tagname}>
-      <></>
+      <div className="m-6 p-2">
+        <h2 className="text-lg text-gray-500">タグの説明</h2>
+        <div className="p-2">{data?.tagMeta?.description}</div>
+      </div>
     </TagPageLayout>
   )
 }

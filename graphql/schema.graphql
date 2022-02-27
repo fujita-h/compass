@@ -180,7 +180,8 @@ type GroupFollow {
 type TagMeta {
   tag: String!
   description: String
-  user: User
+  user: User!
+  updatedAt: String!
 }
 
 type UserTemplate {
@@ -442,6 +443,8 @@ type Mutation {
   deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
 
   read(auth: Auth!, userId: String, documentId: String!): Read
+
+  upsertTagMeta(auth: Auth!, tag: String!, description: String): TagMeta
 
   createUserTemplate(auth: Auth!, userId: String): UserTemplate
   updateUserTemplate(auth: Auth!, id: String!, name: String, title: String, tags: String, body: String): UserTemplate

@@ -22,6 +22,7 @@ export default function TagPageLayout(props: Props) {
       current: props.currentUrl == '/documents',
     },
   ]
+  const tabs2 = [{ name: '編集', href: baseUrl + '/edit', current: props.currentUrl == '/edit' }]
 
   return (
     <>
@@ -36,8 +37,8 @@ export default function TagPageLayout(props: Props) {
         <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
           {/* Group header */}
           <ProfileHeader
-            coverSrc={`/api/files/usercovers/${encodeURIComponent(props.tagname)}`}
-            iconSrc={`/api/files/usericons/${encodeURIComponent(props.tagname)}`}
+            coverSrc={`/api/files/tagcovers/${encodeURIComponent(props.tagname)}`}
+            iconSrc={`/api/files/tagicons/${encodeURIComponent(props.tagname)}`}
             name={''}
             displayName={props.tagname}
             iconRounded={false}
@@ -49,7 +50,7 @@ export default function TagPageLayout(props: Props) {
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
-          <NavTab tabs={tabs} />
+          <NavTab tabs={tabs} tabs2={tabs2} />
           <div className="mt-6"></div>
           {props.children}
         </div>

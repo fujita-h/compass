@@ -25,11 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       })
       const groupId = fields.groupId ? (Array.isArray(fields.groupId) ? fields.groupId[0] : fields.groupId) : undefined
+      const tag = fields.tag ? (Array.isArray(fields.tag) ? fields.tag[0] : fields.tag) : undefined
       const results = await Promise.allSettled(
         files.map(
           (file) =>
             new Promise((resolve, reject) => {
-              saveFile(fileType, file, userSession.id, groupId)
+              saveFile(fileType, file, userSession.id, groupId, tag)
                 .then((data) => resolve(data))
                 .catch((error) => reject(error))
             })
@@ -44,10 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-const saveFile = async (fileType: string, file: formidable.File, userId: string, groupId: string) => {
+const saveFile = async (fileType: string, file: formidable.File, userId: string, groupId: string, tag: string) => {
   try {
     const blob = fs.readFileSync(file.filepath)
-    return storeFile({ fileType, userId, groupId, file, blob })
+    return storeFile({ fileType, userId, groupId, tag, file, blob })
   } catch (error) {
     console.error(error)
   } finally {
@@ -59,12 +60,14 @@ const storeFile = ({
   fileType,
   userId,
   groupId,
+  tag,
   file,
   blob,
 }: {
   fileType: string
   userId: string
   groupId: string
+  tag: string
   file: formidable.File
   blob: Buffer
 }) => {
@@ -79,6 +82,10 @@ const storeFile = ({
       return storeGroupIcon({ groupId, file, blob })
     case 'groupcovers':
       return storeGroupCover({ groupId, file, blob })
+    case 'tagicons':
+      return storeTagIcon({ tag, file, blob, userId })
+    case 'tagcovers':
+      return storeTagCover({ tag, file, blob, userId })
     default:
       throw 'Unknown fileType'
   }
@@ -187,6 +194,62 @@ const storeGroupCover = ({ groupId, file, blob }: { groupId: string; file: formi
       groupId: true,
       mimeType: true,
       blob: false,
+    },
+  })
+}
+
+const storeTagIcon = ({ tag, file, blob, userId }: { tag: string; file: formidable.File; blob: Buffer; userId: string }) => {
+  const now = Date.now()
+  return prisma.tag_meta.upsert({
+    where: { tag },
+    create: {
+      tag: tag,
+      iconMimeType: file.mimetype,
+      iconBlob: blob,
+      coverMimeType: '',
+      user: { connect: { id: userId.toUpperCase() } },
+      updatedAt: new Date(now).toISOString(),
+      updatedAtNumber: now,
+    },
+    update: {
+      iconMimeType: file.mimetype,
+      iconBlob: blob,
+      user: { connect: { id: userId.toUpperCase() } },
+      updatedAt: new Date(now).toISOString(),
+      updatedAtNumber: now,
+    },
+    select: {
+      tag: true,
+      iconMimeType: true,
+      iconBlob: true,
+    },
+  })
+}
+
+const storeTagCover = ({ tag, file, blob, userId }: { tag: string; file: formidable.File; blob: Buffer; userId: string }) => {
+  const now = Date.now()
+  return prisma.tag_meta.upsert({
+    where: { tag },
+    create: {
+      tag: tag,
+      coverMimeType: file.mimetype,
+      coverBlob: blob,
+      iconMimeType: '',
+      user: { connect: { id: userId.toUpperCase() } },
+      updatedAt: new Date(now).toISOString(),
+      updatedAtNumber: now,
+    },
+    update: {
+      coverMimeType: file.mimetype,
+      coverBlob: blob,
+      user: { connect: { id: userId.toUpperCase() } },
+      updatedAt: new Date(now).toISOString(),
+      updatedAtNumber: now,
+    },
+    select: {
+      tag: true,
+      coverMimeType: true,
+      coverBlob: true,
     },
   })
 }
