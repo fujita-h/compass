@@ -2,6 +2,13 @@ query Drafts($auth: Auth!, $groupId: String) {
   drafts(auth: $auth, groupId: $groupId) {
     id
     documentIdLazy
+    user {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
     group {
       id
       name
@@ -11,6 +18,8 @@ query Drafts($auth: Auth!, $groupId: String) {
     title
     tags
     body
+    createdAt
+    updatedAt
   }
 }
 
