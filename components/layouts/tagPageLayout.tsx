@@ -1,4 +1,4 @@
-import { NavTags } from '@components/modals/NavTags'
+import { NavTags } from '@components/navTags'
 import NavTab from '@components/navTab'
 import ProfileHeader from '@components/profileHeader'
 import { useCountDocumentsByTagQuery, useTagMetaQuery } from '@graphql/generated/react-apollo'
