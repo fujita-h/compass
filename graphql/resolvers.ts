@@ -485,7 +485,31 @@ export const resolvers: Resolvers = {
         if (!_context.userSession) throw new AuthenticationError('Unauthorized')
         const _userId = userId ?? _context.userSession.id
         if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stock_category.findMany({ where: { userId: _userId.toUpperCase() } })
+        return await prisma.stock_category.findMany({
+          where: { userId: _userId.toUpperCase() },
+          include: { stock: { select: { documentId: true } } },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    stockCategory: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, categoryId } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const result = await prisma.stock_category.findUnique({
+          where: { id: categoryId.toUpperCase() },
+          include: { stock: { select: { documentId: true } } },
+        })
+        if (!result) throw new ForbiddenError('NotFound')
+        if (result.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
+        return result
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -493,7 +517,7 @@ export const resolvers: Resolvers = {
       throw new ApolloError('Unknown')
     },
     stocks: async (_parent, args, _context: GraphQLResolveContext, _info) => {
-      const { auth, userId, documentId } = args
+      const { auth, userId, categoryId, documentId } = args
       if (auth == 'admin') {
         if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
         throw new ApolloError('Unimplemented')
@@ -505,10 +529,11 @@ export const resolvers: Resolvers = {
         return await prisma.stock.findMany({
           where: {
             userId: _userId.toUpperCase(),
+            stockCategoryId: categoryId ? categoryId.toUpperCase() : undefined,
             documentId: documentId ? documentId.toUpperCase() : undefined,
           },
           include: {
-            stock_category: true,
+            stock_category: { include: { stock: { select: { documentId: true } } } },
             document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } },
           },
         })
@@ -1534,6 +1559,7 @@ export const resolvers: Resolvers = {
             userId: userId.toUpperCase(),
             name: name,
           },
+          include: { stock: { select: { documentId: true } } },
         })
       }
       if (auth == 'none') {
@@ -1557,6 +1583,7 @@ export const resolvers: Resolvers = {
         return await prisma.stock_category.update({
           where: { id: id.toUpperCase() },
           data: { name: name },
+          include: { stock: { select: { documentId: true } } },
         })
       }
       if (auth == 'none') {
@@ -1576,7 +1603,10 @@ export const resolvers: Resolvers = {
         const check = await prisma.stock_category.findUnique({ where: { id: id } })
         if (!check) throw new ApolloError('NotFound')
         if (check.userId !== _context.userSession.id.toUpperCase()) throw new ForbiddenError('Forbidden')
-        return await prisma.stock_category.delete({ where: { id: id.toUpperCase() } })
+        return await prisma.stock_category.delete({
+          where: { id: id.toUpperCase() },
+          include: { stock: { select: { documentId: true } } },
+        })
       }
       if (auth == 'none') {
         throw new ApolloError('Unimplemented')
@@ -1602,7 +1632,7 @@ export const resolvers: Resolvers = {
             stockCategoryId: stockCategoryId.toUpperCase(),
           },
           include: {
-            stock_category: true,
+            stock_category: { include: { stock: { select: { documentId: true } } } },
             document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } },
           },
         })
@@ -1633,7 +1663,7 @@ export const resolvers: Resolvers = {
             },
           },
           include: {
-            stock_category: true,
+            stock_category: { include: { stock: { select: { documentId: true } } } },
             document: { include: { paper: { include: { group: { include: { user_group_map: true } }, user: true } } } },
           },
         })

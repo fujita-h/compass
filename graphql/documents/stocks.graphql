@@ -3,6 +3,9 @@ query StockCategories($auth: Auth!, $userId: String) {
     id
     userId
     name
+    stock {
+      documentId
+    }
   }
 }
 
@@ -14,8 +17,8 @@ mutation CreateStockCategory($auth: Auth!, $userId: String!, $name: String!) {
   }
 }
 
-query Stocks($auth: Auth!, $userId: String, $documentId: String) {
-  stocks(auth: $auth, userId: $userId, documentId: $documentId) {
+query Stocks($auth: Auth!, $userId: String, $categoryId: String, $documentId: String) {
+  stocks(auth: $auth, userId: $userId, categoryId: $categoryId, documentId: $documentId) {
     userId
     documentId
     stockCategoryId
@@ -23,6 +26,51 @@ query Stocks($auth: Auth!, $userId: String, $documentId: String) {
       id
       userId
       name
+    }
+  }
+}
+
+query StocksWithDocument($auth: Auth!, $userId: String, $categoryId: String!) {
+  stockCategory(auth: $auth, categoryId: $categoryId) {
+    name
+  }
+  stocks(auth: $auth, userId: $userId, categoryId: $categoryId) {
+    userId
+    documentId
+    stockCategoryId
+    stock_category {
+      id
+      userId
+      name
+    }
+    document {
+      id
+      paperId
+      paper {
+        id
+        userId
+        groupId
+        documentIdLazy
+        title
+        tags
+        isPosted
+        user {
+          id
+          uuid
+          username
+          email
+          displayName
+        }
+        group {
+          id
+          name
+          displayName
+          type
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
     }
   }
 }
@@ -96,4 +144,12 @@ query StockCategoriesAndStocks($auth: Auth!, $userId: String!, $documentId: Stri
     stockCategoryId
   }
   countStocks(auth: $auth, documentId: $documentId)
+}
+
+mutation DeleteStockCategory($auth: Auth!, $id: String!) {
+  deleteStockCategory(auth: $auth, id: $id) {
+    id
+    userId
+    name
+  }
 }

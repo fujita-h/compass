@@ -133,6 +133,11 @@ type StockCategory {
   id: String!
   userId: String!
   name: String!
+  stock: [StockDoc]!
+}
+
+type StockDoc {
+  documentId: String!
 }
 
 type Stock {
@@ -365,7 +370,8 @@ type Query {
   draft(auth: Auth!, id: String!): Paper
 
   stockCategories(auth: Auth!, userId: String): [StockCategory]!
-  stocks(auth: Auth!, userId: String, documentId: String): [Stock]!
+  stockCategory(auth: Auth!, categoryId: String!): StockCategory
+  stocks(auth: Auth!, userId: String, categoryId: String, documentId: String): [Stock]!
   countStocks(auth: Auth!, documentId: String!): Int!
 
   likes(auth: Auth!, userId: String, documentId: String): [Like]!
