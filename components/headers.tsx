@@ -21,11 +21,12 @@ export const Header = ({ searchText = '' }: { searchText?: string }) => {
     { name: 'グループ', href: '/groups', current: false },
     { name: 'タグ', href: '/tags', current: false },
     { name: 'ユーザー', href: '/users', current: false },
-    { name: 'ストック', href: '/stocks', current: false },
   ]
 
   const userNavigation = [
     { name: 'プロファイル', href: '/profile' },
+    { name: 'ストック', href: '/stocks' },
+    { name: '下書き', href: '/drafts' },
     { name: '設定', href: '/settings/profile' },
     { name: 'ログアウト', href: '/logout' },
   ]
