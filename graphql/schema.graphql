@@ -182,6 +182,11 @@ type GroupFollow {
   groupId: String!
 }
 
+type TagFollow {
+  userId: String!
+  tag: String!
+}
+
 type TagMeta {
   tag: String!
   description: String
@@ -382,6 +387,7 @@ type Query {
 
   userFollows(auth: Auth!, fromUserId: String, toUserId: String): [UserFollow]!
   groupFollows(auth: Auth!, userId: String, groupId: String): [GroupFollow]!
+  tagFollows(auth: Auth!, userId: String, tag: String): [TagFollow]!
 
   userTemplates(auth: Auth!, userId: String): [UserTemplate]
   userTemplate(auth: Auth!, id: String!): UserTemplate
@@ -447,6 +453,9 @@ type Mutation {
 
   createGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
   deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
+
+  createTagFollow(auth: Auth!, userId: String, tag: String!): TagFollow
+  deleteTagFollow(auth: Auth!, userId: String, tag: String!): TagFollow
 
   read(auth: Auth!, userId: String, documentId: String!): Read
 

@@ -10,22 +10,22 @@ import { useDropzone } from 'react-dropzone'
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
   const router = useRouter()
-  const tagname = getAsString(router.query.tagname)
+  const tag = getAsString(router.query.tag)
 
-  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tagname } })
+  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tag } })
   if (loading || !data) return <></>
 
   if (!session?.id) return <></>
 
   return (
     <Layout>
-      <InnerPage tagname={tagname} />
+      <InnerPage userId={session.id} tag={tag} />
     </Layout>
   )
 }
 
-const InnerPage = ({ tagname }: { tagname: string }) => {
-  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tagname } })
+const InnerPage = ({ userId, tag }: { userId: string; tag: string }) => {
+  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tag } })
   const [formState, setFormState] = useState(data?.tagMeta)
   const [icon, setIcon] = useState({ file: null, image: null })
   const [cover, setCover] = useState({ file: null, image: null })
@@ -86,25 +86,25 @@ const InnerPage = ({ tagname }: { tagname: string }) => {
 
   const handleSubmit = (e) => {
     if (icon.file) {
-      uploadTagFile(data?.tagMeta?.tag || tagname, [icon.file], '/api/files/tagicons').then((res) => {
+      uploadTagFile(data?.tagMeta?.tag || tag, [icon.file], '/api/files/tagicons').then((res) => {
         setIcon({ file: null, image: null })
       })
     }
 
     if (cover.file) {
-      uploadTagFile(data?.tagMeta?.tag || tagname, [cover.file], '/api/files/tagcovers').then((res) => {
+      uploadTagFile(data?.tagMeta?.tag || tag, [cover.file], '/api/files/tagcovers').then((res) => {
         setCover({ file: null, image: null })
       })
     }
 
     upsertTagMeta({
-      variables: { auth: 'user', tag: tagname, description: formState.description },
+      variables: { auth: 'user', tag: tag, description: formState.description },
       refetchQueries: [TagMetaDocument],
     })
   }
 
   return (
-    <TagPageLayout currentUrl="/edit" tagname={tagname}>
+    <TagPageLayout currentUrl="/edit" userId={userId} tag={tag}>
       <div className="ml-8 mr-4">
         <div>
           <div className="space-y-8 divide-y divide-gray-200">

@@ -8,22 +8,22 @@ import TagPageLayout from '@components/layouts/tagPageLayout'
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
   const router = useRouter()
-  const tagname = getAsString(router.query.tagname)
+  const tag = getAsString(router.query.tag)
 
   if (!session?.id) return <></>
 
   return (
     <Layout>
-      <InnerPage tagname={tagname} />
+      <InnerPage userId={session.id} tag={tag} />
     </Layout>
   )
 }
 
-const InnerPage = ({ tagname }: { tagname: string }) => {
-  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tagname } })
+const InnerPage = ({ userId, tag }: { userId: string; tag: string }) => {
+  const { data, loading } = useTagMetaQuery({ variables: { auth: 'user', tag: tag } })
 
   return (
-    <TagPageLayout currentUrl="" tagname={tagname}>
+    <TagPageLayout currentUrl="" userId={userId} tag={tag}>
       <div className="m-6 p-2">
         <h2 className="text-lg text-gray-500">タグの説明</h2>
         <div className="p-2">{data?.tagMeta?.description}</div>

@@ -9,27 +9,27 @@ import { DocListItem } from '@components/docListItem'
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
   const router = useRouter()
-  const tagname = getAsString(router.query.tagname)
+  const tag = getAsString(router.query.tag)
 
   if (!session?.id) return <></>
 
   return (
     <Layout>
-      <InnerPage tagname={tagname} />
+      <InnerPage userId={session.id} tag={tag} />
     </Layout>
   )
 }
 
-const InnerPage = ({ tagname }: { tagname: string }) => {
+const InnerPage = ({ userId, tag }: { userId: string; tag: string }) => {
   return (
-    <TagPageLayout currentUrl="/documents" tagname={tagname}>
-      <TaggedDocuments tagname={tagname} />
+    <TagPageLayout currentUrl="/documents" userId={userId} tag={tag}>
+      <TaggedDocuments tag={tag} />
     </TagPageLayout>
   )
 }
 
-const TaggedDocuments = ({ tagname }: { tagname: string }) => {
-  const { data, loading } = useEsSearchDocumentsByTagQuery({ variables: { auth: 'user', query: tagname } })
+const TaggedDocuments = ({ tag }: { tag: string }) => {
+  const { data, loading } = useEsSearchDocumentsByTagQuery({ variables: { auth: 'user', query: tag } })
   if (loading || !data) return <></>
   return (
     <div className="m-2 p-2">

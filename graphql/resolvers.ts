@@ -698,6 +698,27 @@ export const resolvers: Resolvers = {
       }
       throw new ApolloError('Unknown')
     },
+    tagFollows: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, tag } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        if (!userId && !tag) throw new UserInputError('UserInputError')
+        return await prisma.follow_tag.findMany({
+          where: {
+            userId: userId ? userId.toUpperCase() : undefined,
+            tag: tag ?? undefined,
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
     userTemplates: async (_parent, args, _context: GraphQLResolveContext, _info) => {
       const { auth, userId } = args
       if (auth == 'admin') {
@@ -1939,6 +1960,54 @@ export const resolvers: Resolvers = {
             userId_groupId: {
               userId: _userId.toUpperCase(),
               groupId: groupId.toUpperCase(),
+            },
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    createTagFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, tag } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        if (!tag) throw new UserInputError('UserInputError')
+        return await prisma.follow_tag.create({
+          data: {
+            userId: _userId.toUpperCase(),
+            tag: tag,
+          },
+        })
+      }
+      if (auth == 'none') {
+        throw new ApolloError('Unimplemented')
+      }
+      throw new ApolloError('Unknown')
+    },
+    deleteTagFollow: async (_parent, args, _context: GraphQLResolveContext, _info) => {
+      const { auth, userId, tag } = args
+      if (auth == 'admin') {
+        if (!_context.adminSession) throw new AuthenticationError('Unauthorized')
+        throw new ApolloError('Unimplemented')
+      }
+      if (auth == 'user') {
+        if (!_context.userSession) throw new AuthenticationError('Unauthorized')
+        const _userId = userId ?? _context.userSession.id
+        if (_context.userSession.id.toUpperCase() !== _userId.toUpperCase()) throw new ForbiddenError('Forbidden')
+        if (!tag) throw new UserInputError('UserInputError')
+        return await prisma.follow_tag.delete({
+          where: {
+            userId_tag: {
+              userId: _userId.toUpperCase(),
+              tag: tag,
             },
           },
         })

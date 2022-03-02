@@ -1,18 +1,28 @@
 import { NavTags } from '@components/navTags'
 import NavTab from '@components/navTab'
 import ProfileHeader from '@components/profileHeader'
-import { useCountDocumentsByTagQuery, useTagMetaQuery } from '@graphql/generated/react-apollo'
+import {
+  TagFollowsDocument,
+  useCountDocumentsByTagQuery,
+  useCreateTagFollowMutation,
+  useDeleteTagFollowMutation,
+  useTagFollowsQuery,
+  useTagMetaQuery,
+} from '@graphql/generated/react-apollo'
+import { useMemo } from 'react'
+import { classNames } from '@lib/utils'
 
 type Props = {
   children?: JSX.Element
-  tagname: string
+  userId: string
+  tag: string
   currentUrl?: string
 }
 
 export default function TagPageLayout(props: Props) {
-  const { data, loading } = useCountDocumentsByTagQuery({ variables: { auth: 'user', query: props.tagname } })
+  const { data, loading } = useCountDocumentsByTagQuery({ variables: { auth: 'user', query: props.tag } })
 
-  const baseUrl = '/tags/' + decodeURIComponent(props.tagname)
+  const baseUrl = '/tags/' + decodeURIComponent(props.tag)
   const tabs = [
     { name: 'タグ概要', href: baseUrl, current: !props.currentUrl },
     {
@@ -31,22 +41,20 @@ export default function TagPageLayout(props: Props) {
         {/* Pane-1 */}
         <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
           <h2 className="mb-2 text-lg font-medium text-gray-900">Tags</h2>
-          <NavTags current={props.tagname} />
+          <NavTags current={props.tag} />
         </div>
         {/* Pane-2 */}
         <div className="bg-white p-3 lg:min-w-0 lg:flex-1">
           {/* Group header */}
           <ProfileHeader
-            coverSrc={`/api/files/tagcovers/${encodeURIComponent(props.tagname)}`}
-            iconSrc={`/api/files/tagicons/${encodeURIComponent(props.tagname)}`}
+            coverSrc={`/api/files/tagcovers/${encodeURIComponent(props.tag)}`}
+            iconSrc={`/api/files/tagicons/${encodeURIComponent(props.tag)}`}
             name={''}
-            displayName={props.tagname}
+            displayName={props.tag}
             iconRounded={false}
           >
             <>
-              {/** 
-              <FollowUserButton fromUserId={props.sessionUserId} toUserId={userId} />
-              */}
+              <FollowTagButton userId={props.userId} tag={props.tag} />
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
@@ -56,5 +64,38 @@ export default function TagPageLayout(props: Props) {
         </div>
       </div>
     </>
+  )
+}
+
+const FollowTagButton = ({ userId, tag, className }: { userId: string; tag: string; className?: string }) => {
+  const { data, loading } = useTagFollowsQuery({ variables: { auth: 'user', tag: tag } })
+  const [createFollow] = useCreateTagFollowMutation({ refetchQueries: [TagFollowsDocument] })
+  const [deleteFollow] = useDeleteTagFollowMutation({ refetchQueries: [TagFollowsDocument] })
+
+  const isFollowing = useMemo(() => data?.tagFollows?.find((follow) => follow.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countFollow = useMemo(() => data?.tagFollows?.length, [data])
+
+  const handleClick = (e) => {
+    if (isFollowing) {
+      deleteFollow({ variables: { auth: 'user', tag: tag } })
+    } else {
+      createFollow({ variables: { auth: 'user', tag: tag } })
+    }
+  }
+
+  if (loading || !data) return <div></div>
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={classNames(
+        isFollowing ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+        className,
+        'focus:ring-indigo-500" inline-flex items-center rounded-lg border border-transparent px-6 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2'
+      )}
+    >
+      <span>{isFollowing ? 'フォロー解除' : 'フォローする'}</span>
+    </button>
   )
 }

@@ -1,0 +1,18 @@
+query TagFollows($auth: Auth!, $userId: String, $tag: String) {
+  tagFollows(auth: $auth, userId: $userId, tag: $tag) {
+    userId
+    tag
+  }
+}
+mutation CreateTagFollow($auth: Auth!, $userId: String, $tag: String!) {
+  createTagFollow(auth: $auth, userId: $userId, tag: $tag) {
+    userId
+    tag
+  }
+}
+mutation DeleteTagFollow($auth: Auth!, $userId: String, $tag: String!) {
+  deleteTagFollow(auth: $auth, userId: $userId, tag: $tag) {
+    userId
+    tag
+  }
+}
