@@ -1,5 +1,4 @@
 import {
-  Auth,
   PageInfo,
   Resolvers,
   UserConnection,
@@ -14,7 +13,6 @@ import { prisma } from '@lib/prisma/prismaClient'
 import { esClient } from '@lib/elasticsearch/esClient'
 import { UserSession, AdminSession } from '@lib/session'
 import { ulid } from 'ulid'
-import { Prisma } from '.prisma/client'
 import { NextApiResponse } from 'next'
 import { IncomingHttpHeaders } from 'http'
 import { validateUsername } from '@lib/auth'
@@ -273,7 +271,17 @@ export const resolvers: Resolvers = {
         await prisma.document.findMany({
           where: {
             paper: {
-              OR: [{ user: { id: { in: usersFollowing } } }, { group: { id: { in: groupsFollowing } } }],
+              AND: [
+                {
+                  OR: [
+                    { group: { OR: [{ type: 'public' }, { type: 'normal' }] } },
+                    { group: { user_group_map: { some: { userId: { equals: _context.userSession.id } } } } },
+                  ],
+                },
+                {
+                  OR: [{ user: { id: { in: usersFollowing } } }, { group: { id: { in: groupsFollowing } } }],
+                },
+              ],
               updatedAtNumber: { lt: Number(targetCursor) },
             },
           },
