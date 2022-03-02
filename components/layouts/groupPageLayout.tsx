@@ -64,7 +64,7 @@ export default function GroupPageLayout(props: Props) {
             directImageLoading={props.directImageLoading}
           >
             <>
-              <FollowGroupButton userId={props.userId} groupId={groupId} className="mr-6" />
+              <FollowGroupButton userId={props.userId} groupId={groupId} />
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
@@ -79,17 +79,17 @@ export default function GroupPageLayout(props: Props) {
 
 const FollowGroupButton = ({ userId, groupId, className }: { userId: string; groupId: string; className?: string }) => {
   const { data, loading } = useGroupFollowsQuery({ variables: { auth: 'user', groupId: groupId } })
-  const [createWatch] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
-  const [deleteWatch] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
+  const [createFollow] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
+  const [deleteFollow] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
 
-  const isWatched = useMemo(() => data?.groupFollows?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
-  const countWatches = useMemo(() => data?.groupFollows.length, [data])
+  const isFollowing = useMemo(() => data?.groupFollows?.find((follow) => follow.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countFollow = useMemo(() => data?.groupFollows?.length, [data])
 
   const handleClick = (e) => {
-    if (isWatched) {
-      deleteWatch({ variables: { auth: 'user', groupId: groupId } })
+    if (isFollowing) {
+      deleteFollow({ variables: { auth: 'user', groupId: groupId } })
     } else {
-      createWatch({ variables: { auth: 'user', groupId: groupId } })
+      createFollow({ variables: { auth: 'user', groupId: groupId } })
     }
   }
 
@@ -100,12 +100,12 @@ const FollowGroupButton = ({ userId, groupId, className }: { userId: string; gro
       type="button"
       onClick={handleClick}
       className={classNames(
-        isWatched ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+        isFollowing ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
         className,
         'focus:ring-indigo-500" inline-flex items-center rounded-lg border border-transparent px-6 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2'
       )}
     >
-      <span>{isWatched ? 'フォロー解除' : 'フォローする'}</span>
+      <span>{isFollowing ? 'フォロー解除' : 'フォローする'}</span>
     </button>
   )
 }
