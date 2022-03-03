@@ -54,7 +54,9 @@ export default function TagPageLayout(props: Props) {
             iconRounded={false}
           >
             <>
+              {/** フォローしたタグをTimelineに反映できるようになるまで、フォローボタンは非表示
               <FollowTagButton userId={props.userId} tag={props.tag} />
+              */}
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
