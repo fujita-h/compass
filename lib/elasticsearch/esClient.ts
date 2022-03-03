@@ -414,7 +414,7 @@ class ElasticsearchClient {
     return {
       bool: {
         filter: [{ terms: { groupId: filterGroupIds } }],
-        must: [{ match: { tags: query } }],
+        must: [{ terms: { tags: query.replace('　', ' ').split(' ') } }],
       },
     }
   }
