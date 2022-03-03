@@ -167,8 +167,8 @@ class ElasticsearchClient {
                 // タグのの完全マッチ
                 terms: {
                   tags: query.replace('　', ' ').split(' '),
-                  boost: 2.0
-                }
+                  boost: 2.0,
+                },
               },
               {
                 // タグの検索マッチ
