@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { getAsString } from '@lib/utils'
-import { useEsSearchDocumentsByTagQuery, useTagMetaQuery } from '@graphql/generated/react-apollo'
+import { useTagMetaQuery } from '@graphql/generated/react-apollo'
 import { Layout } from '@components/layouts'
 import TagPageLayout from '@components/layouts/tagPageLayout'
 
