@@ -58,8 +58,8 @@ const InnerPage = ({ catId }: { catId: string }) => {
       {/* 2-Pane wrapper */}
       <div className="mx-auto w-full max-w-7xl flex-grow lg:flex">
         {/* Pane-1 */}
-        <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
-          <h2 className="mb-2 text-lg font-medium text-gray-900">Stocks</h2>
+        <div className="hidden bg-white pt-3 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
+          <h2 className="mb-2 ml-2 mt-2 text-lg font-medium text-gray-900">Stocks</h2>
           <NavStocks current={catId} />
         </div>
         {/* Pane-2 */}
