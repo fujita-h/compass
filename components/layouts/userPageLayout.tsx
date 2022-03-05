@@ -46,8 +46,8 @@ export default function UserPageLayout(props: Props) {
       {/* 2-Pane wrapper */}
       <div className="mx-auto w-full max-w-7xl flex-grow lg:flex">
         {/* Pane-1 */}
-        <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
-          <h2 className="mb-2 text-lg font-medium text-gray-900">Users</h2>
+        <div className="hidden bg-white pt-3 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
+          <h2 className="mb-2 ml-2 mt-2 text-lg font-medium text-gray-900">Users</h2>
           <NavUsers current={props.username} />
         </div>
         {/* Pane-2 */}
@@ -61,6 +61,7 @@ export default function UserPageLayout(props: Props) {
             iconRounded={true}
           >
             <>
+              {/* 
               <button
                 type="button"
                 className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
@@ -75,6 +76,7 @@ export default function UserPageLayout(props: Props) {
                 <PhoneIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                 <span>Call</span>
               </button>
+              */}
 
               <FollowUserButton fromUserId={props.sessionUserId} toUserId={userId} />
             </>
