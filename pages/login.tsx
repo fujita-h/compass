@@ -1,4 +1,4 @@
-import { MouseEventHandler, useState } from 'react'
+import { MouseEventHandler } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'

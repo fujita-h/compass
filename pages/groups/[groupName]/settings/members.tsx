@@ -1,23 +1,17 @@
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString, classNames } from '@lib/utils'
 import GroupPageLayout from '@components/layouts/groupPageLayout'
 import {
-  GroupMembersDocument,
   GroupMembersSettingPageDocument,
   useCreateGroupMemberMutation,
   useDeleteGroupMemberMutation,
-  useGroupMembersQuery,
   useGroupMembersSettingPageQuery,
   useUpdateGroupMemberMutation,
-  useUpdateGroupMutation,
 } from '@graphql/generated/react-apollo'
-import { EditGroupForm } from '@components/forms/groups'
-import { ChangeEvent, useEffect, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useState } from 'react'
 import Image from 'next/image'
-import { NextLink } from '@components/nextLink'
 import { PlusSmIcon, MinusSmIcon, SearchIcon } from '@heroicons/react/solid'
 
 export default function Page(props) {

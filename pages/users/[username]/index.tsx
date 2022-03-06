@@ -2,18 +2,8 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
-import {
-  FollowsDocument,
-  useCreateFollowMutation,
-  useDeleteFollowMutation,
-  useDocumentsCpQuery,
-  useFollowsQuery,
-  UserQuery,
-  useUserQuery,
-} from '@graphql/generated/react-apollo'
+import { useDocumentsCpQuery, useUserQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
-import Image from 'next/image'
-import { useMemo } from 'react'
 import Link from 'next/link'
 import { UserIconNameLinkSmall } from '@components/elements'
 import UserPageLayout from '@components/layouts/userPageLayout'

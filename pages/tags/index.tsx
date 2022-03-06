@@ -2,7 +2,6 @@ import { Layout } from '@components/layouts'
 import { NavTags } from '@components/navTags'
 import { useTagsQuery } from '@graphql/generated/react-apollo'
 import { useSession } from '@lib/hooks'
-import Link from 'next/link'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })

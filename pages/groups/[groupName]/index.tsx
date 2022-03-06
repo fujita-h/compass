@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
-import { getAsString, classNames } from '@lib/utils'
+import { getAsString } from '@lib/utils'
 import GroupPageLayout from '@components/layouts/groupPageLayout'
 import { useGroupQuery } from '@graphql/generated/react-apollo'
 

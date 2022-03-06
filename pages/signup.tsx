@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import Router from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'

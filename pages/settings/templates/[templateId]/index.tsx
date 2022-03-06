@@ -1,7 +1,7 @@
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { EditorForm, SubmitButtonSetting } from '@components/editors'
-import { useDraftPageQuery, useUserTemplateQuery } from '@graphql/generated/react-apollo'
+import { useUserTemplateQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import { useRouter } from 'next/router'
 

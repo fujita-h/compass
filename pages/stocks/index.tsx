@@ -1,12 +1,5 @@
 import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
-import Link from 'next/link'
-import { useGroupsQuery, useStockCategoriesQuery, useStocksAndCategoriesQuery, useStocksQuery } from '@graphql/generated/react-apollo'
-import { useState } from 'react'
-import { UserIconNameLinkSmall } from '@components/elements'
-import { FilterIcon } from '@heroicons/react/solid'
-import { classNames } from '@lib/utils'
-import { NextLink } from '@components/nextLink'
 import { NavStocks } from '@components/navStocks'
 
 export default function Page() {

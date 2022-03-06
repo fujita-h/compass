@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Layout } from '@components/layouts'
 import { MyModal } from '@components/modals'
-import { Auth, GroupType, useCreateGroupMutation } from '@graphql/generated/react-apollo'
+import { GroupType, useCreateGroupMutation } from '@graphql/generated/react-apollo'
 import Router from 'next/router'
 
 type CreateGroupModalStateType = {

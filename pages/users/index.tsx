@@ -1,6 +1,5 @@
 import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
-import Link from 'next/link'
 import { NavUsers } from '@components/navUsers'
 
 export default function Page() {
