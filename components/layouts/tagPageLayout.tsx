@@ -7,7 +7,6 @@ import {
   useCreateTagFollowMutation,
   useDeleteTagFollowMutation,
   useTagFollowsQuery,
-  useTagMetaQuery,
 } from '@graphql/generated/react-apollo'
 import { useMemo } from 'react'
 import { classNames } from '@lib/utils'

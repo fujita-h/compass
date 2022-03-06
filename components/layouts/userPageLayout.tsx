@@ -1,12 +1,6 @@
-import { ChevronDownIcon, BadgeCheckIcon, SearchIcon, MailIcon, PhoneIcon, FilterIcon } from '@heroicons/react/solid'
-import { NavGroups } from '@components/navGroups'
 import ProfileHeader from '@components/profileHeader'
-import { getAsString, classNames } from '@lib/utils'
+import { classNames } from '@lib/utils'
 import {
-  useCreateGroupFollowMutation,
-  useDeleteGroupFollowMutation,
-  useGroupFollowsQuery,
-  GroupFollowsDocument,
   useUserPageLayoutQuery,
   useFollowsQuery,
   useCreateFollowMutation,
@@ -14,7 +8,6 @@ import {
   FollowsDocument,
 } from '@graphql/generated/react-apollo'
 import { useMemo } from 'react'
-import Link from 'next/link'
 import NavTab from '@components/navTab'
 import { NavUsers } from '@components/navUsers'
 

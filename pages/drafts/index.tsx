@@ -1,11 +1,9 @@
 import { DocListItem } from '@components/docListItem'
 import { Layout } from '@components/layouts'
-import SimpleAlertModal from '@components/modals/simpleAlert'
 import { NavDrafts } from '@components/navDrafts'
 import { useDraftsQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
 
 export default function Page() {
   const router = useRouter()

@@ -4,7 +4,6 @@ import { Layout } from '@components/layouts'
 import { getAsString, classNames } from '@lib/utils'
 import GroupPageLayout from '@components/layouts/groupPageLayout'
 import { GroupMembersDocument, useGroupMembersQuery, useUpdateGroupMutation } from '@graphql/generated/react-apollo'
-import { EditGroupForm } from '@components/forms/groups'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 

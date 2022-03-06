@@ -1,19 +1,8 @@
 import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
-import Link from 'next/link'
-import {
-  useDeleteStockCategoryMutation,
-  useGroupsQuery,
-  useStockCategoriesQuery,
-  useStocksAndCategoriesQuery,
-  useStocksQuery,
-  useStocksWithDocumentQuery,
-} from '@graphql/generated/react-apollo'
+import { useDeleteStockCategoryMutation, useStocksWithDocumentQuery } from '@graphql/generated/react-apollo'
 import { useState } from 'react'
-import { UserIconNameLinkSmall } from '@components/elements'
-import { FilterIcon } from '@heroicons/react/solid'
-import { classNames, getAsString } from '@lib/utils'
-import { NextLink } from '@components/nextLink'
+import { getAsString } from '@lib/utils'
 import { NavStocks } from '@components/navStocks'
 import Router, { useRouter } from 'next/router'
 import { DocListItem } from '@components/docListItem'
