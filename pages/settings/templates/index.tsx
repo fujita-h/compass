@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useSession } from '@lib/hooks'
-import { UserSettingLayout } from '@components/layouts'
+import { Layout } from '@components/layouts'
 import {
   useCreateUserTemplateMutation,
   useDeleteUserTemplateMutation,
@@ -11,6 +11,7 @@ import {
   useUserTemplatesQuery,
 } from '@graphql/generated/react-apollo'
 import { doNothing } from '@lib/utils'
+import { UserSettingsPageLayout } from '@components/layouts/userSettingsPageLayout'
 
 const SimpleAlertModal = dynamic(() => import('@components/modals/simpleAlert'))
 
@@ -21,30 +22,32 @@ export default function Page() {
   const [createUserTemplate] = useCreateUserTemplateMutation()
 
   if (!session) return <></>
-  if (loading) return <UserSettingLayout></UserSettingLayout>
+  if (loading) return <Layout></Layout>
 
   return (
-    <UserSettingLayout>
-      <div className="bg-white p-4">
-        <div>
-          <button
-            className="rounded-md border bg-blue-200 p-2"
-            onClick={() => {
-              createUserTemplate({ variables: { auth: 'user' }, refetchQueries: [UserTemplatesDocument] })
-            }}
-          >
-            新しいテンプレートを作成
-          </button>
+    <Layout>
+      <UserSettingsPageLayout currentUrl="/templates">
+        <div className="bg-white p-4">
+          <div>
+            <button
+              className="rounded-md border bg-blue-200 p-2"
+              onClick={() => {
+                createUserTemplate({ variables: { auth: 'user' }, refetchQueries: [UserTemplatesDocument] })
+              }}
+            >
+              新しいテンプレートを作成
+            </button>
+          </div>
+          <div className="px-10">
+            {data.userTemplates.map((template) => (
+              <div key={`template-${template.id}`}>
+                <TemplateItem id={template.id} name={template.name} title={template.title} />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="px-10">
-          {data.userTemplates.map((template) => (
-            <div key={`template-${template.id}`}>
-              <TemplateItem id={template.id} name={template.name} title={template.title} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </UserSettingLayout>
+      </UserSettingsPageLayout>
+    </Layout>
   )
 }
 
