@@ -155,6 +155,7 @@ class ElasticsearchClient {
             filter: [{ terms: { groupId: filterGroupIds } }],
             should: [
               {
+                // タイトルの検索マッチ
                 multi_match: {
                   query: query,
                   operator: 'and',
@@ -163,6 +164,14 @@ class ElasticsearchClient {
                 },
               },
               {
+                // タグのの完全マッチ
+                terms: {
+                  tags: query.replace('　', ' ').split(' '),
+                  boost: 2.0,
+                },
+              },
+              {
+                // タグの検索マッチ
                 multi_match: {
                   query: query,
                   operator: 'and',
@@ -171,6 +180,7 @@ class ElasticsearchClient {
                 },
               },
               {
+                // 本文の検索マッチ
                 multi_match: {
                   query: query,
                   operator: 'and',
@@ -404,7 +414,7 @@ class ElasticsearchClient {
     return {
       bool: {
         filter: [{ terms: { groupId: filterGroupIds } }],
-        must: [{ match: { tags: query } }],
+        must: [{ terms: { tags: query.replace('　', ' ').split(' ') } }],
       },
     }
   }

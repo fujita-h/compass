@@ -1,8 +1,8 @@
 import { Layout } from '@components/layouts'
 import Link from 'next/link'
-import { useSessionQuery, useMyTimelineCpQuery, useMyJoinedGroupsCpQuery } from '@graphql/generated/react-apollo'
-import { UserIconNameLinkSmall } from '@components/elements'
+import { useSessionQuery, useMyTimelineCpQuery } from '@graphql/generated/react-apollo'
 import { RiCompasses2Line } from 'react-icons/ri'
+import { DocListItem } from '@components/docListItem'
 
 export default function Page() {
   // Indexページはログインの有無でページを切り替える必要があるので、errorPolicy:all
@@ -59,36 +59,26 @@ const Timeline = () => {
   return (
     <>
       <h1 className="border-b-1 text-2xl">タイムライン</h1>
-      <div className="flex flex-wrap">
-        {nodes.map((doc) => (
-          <div key={`docs-${doc.id}`} className="w-full max-w-4xl lg:w-full 2xl:w-1/2">
-            <Link href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`} passHref>
-              <a className="hover:text-green-700">
-                <div className="m-2 border bg-white p-2">
-                  <Link href={`/groups/${encodeURIComponent(doc.paper.group.name)}`} passHref>
-                    <div className="mb-1 inline-block bg-red-100 px-2 text-black hover:underline">
-                      {doc.paper.group.displayName || doc.paper.group.name}
-                    </div>
-                  </Link>
-                  <div className="text-black">
-                    <UserIconNameLinkSmall userId={doc.paper.user.id} username={doc.paper.user.username} />
-                    <div className="ml-2 inline-block">
-                      <span>が{new Date(doc.createdAt).toLocaleString()} に投稿</span>
-                      {doc.createdAt !== doc.paper.updatedAt ? (
-                        <span className="ml-2 text-sm">{new Date(doc.paper.updatedAt).toLocaleString()} に更新</span>
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                  </div>
-                  <div className="font-meduim text-lg">{doc.paper.title || 'UNTITLED'}</div>
-                </div>
-              </a>
-            </Link>
-          </div>
-        ))}
+      <div className="m-2 p-2">
+        <ul role="list" className="relative z-0 divide-y divide-gray-200 border-b border-t border-gray-200">
+          {nodes.map((doc) => (
+            <DocListItem
+              key={doc.id}
+              id={doc.id}
+              title={doc.paper.title}
+              href={`/docs/${encodeURIComponent(doc.id.toLowerCase())}`}
+              groupName={doc.paper.group.displayName || doc.paper.group.name}
+              userId={doc.paper.user.id}
+              userName={doc.paper.user.username}
+              userHref={`/users/${encodeURIComponent(doc.paper.user.username)}`}
+              groupHref={`/groups/${encodeURIComponent(doc.paper.group.name.toLowerCase())}`}
+              updatedAt={doc.paper.updatedAt}
+            />
+          ))}
+        </ul>
+
         {pageInfo.hasNextPage && (
-          <div className="w-full text-center">
+          <div className="mt-6 text-center">
             <button
               className="rounded-md border bg-gray-100 px-4 py-2"
               onClick={() => {
@@ -110,14 +100,14 @@ const WelcomeMessage = () => {
       <div className="rounded-lg bg-white p-4">
         <div className="text-3xl">Welcome to Compass</div>
         <div>Compass へようこそ。</div>
-        <div className="mt-4 border-b text-2xl">興味のあるグループを ウォッチ する</div>
+        <div className="mt-4 border-b text-2xl">興味のあるグループを フォロー する</div>
         <div className="ml-4 mt-2">
           <div>
             Compass のドキュメントは必ずいずれかのグループに属しています。
             <br />
-            興味のあるグループを ウォッチ することで、そのグループの新着記事がトップページに記事が表示されるようになります。
+            興味のあるグループを フォロー することで、そのグループの新着記事がトップページに記事が表示されるようになります。
           </div>
-          <Link href={`search?type=groups`}>
+          <Link href={`/groups`}>
             <div className="mt-2 w-52 rounded-lg border-2 border-blue-200 bg-blue-100 p-1 text-center text-lg hover:cursor-pointer hover:border-blue-400">
               グループを探す
             </div>
@@ -130,7 +120,7 @@ const WelcomeMessage = () => {
             <br />
             興味のあるユーザーを フォロー することで、そのユーザーの新着記事がトップページに記事が表示されるようになります。
           </div>
-          <Link href={`search?type=users`}>
+          <Link href={`/users`}>
             <div className="mt-2 w-52 rounded-lg border-2 border-blue-200 bg-blue-100 p-1 text-center text-lg hover:cursor-pointer hover:border-blue-400">
               ユーザーを探す
             </div>

@@ -41,6 +41,10 @@ const getFile = (fileType: string, id: string) => {
       return getGroupIconFile(id)
     case 'groupcovers':
       return getGroupCoverFile(id)
+    case 'tagicons':
+      return getTagIconFile(id)
+    case 'tagcovers':
+      return getTagCoverFile(id)
     default:
       throw 'Unknown fileType'
   }
@@ -72,4 +76,20 @@ const getGroupCoverFile = async (id: string) => {
   const data = await prisma.group_cover.findUnique({ where: { groupId: id } })
   jdenticon.configure({ backColor: '#22888820' })
   return data ? { mimeType: data.mimeType, blob: data.blob } : { mimeType: 'image/png', blob: jdenticon.toPng(id, 800) }
+}
+
+const getTagIconFile = async (id: string) => {
+  const data = await prisma.tag_meta.findUnique({ where: { tag: id }, select: { iconMimeType: true, iconBlob: true } })
+  jdenticon.configure({ backColor: '#ffffff' })
+  return data && data.iconMimeType && data.iconBlob
+    ? { mimeType: data.iconMimeType, blob: data.iconBlob }
+    : { mimeType: 'image/png', blob: jdenticon.toPng(id, 256) }
+}
+
+const getTagCoverFile = async (id: string) => {
+  const data = await prisma.tag_meta.findUnique({ where: { tag: id }, select: { coverMimeType: true, coverBlob: true } })
+  jdenticon.configure({ backColor: '#22888820' })
+  return data && data.coverMimeType && data.coverBlob
+    ? { mimeType: data.coverMimeType, blob: data.coverBlob }
+    : { mimeType: 'image/png', blob: jdenticon.toPng(id, 800) }
 }

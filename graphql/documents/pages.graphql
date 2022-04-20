@@ -9,53 +9,12 @@ query adminAuthPage {
     name
   }
 }
-query adminGetUsersCP($cursor: String) {
-  usersCP(auth: admin, first: 10, after: $cursor) {
-    edges {
-      cursor
-      node {
-        id
-        username
-      }
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-  }
-}
+
 query adminGroupsIndexPage {
   groups(auth: admin) {
     id
     name
     displayName
-  }
-}
-query adminGroupPage($id: String!) {
-  group(auth: admin, id: $id) {
-    id
-    name
-    displayName
-    description
-    type
-    user_group_map {
-      userId
-      isAdmin
-      user {
-        username
-        displayName
-      }
-    }
-  }
-}
-query adminIndexPage {
-  session {
-    userSession {
-      ...userSessionFragment
-    }
-    adminSession {
-      ...adminSessionFragment
-    }
   }
 }
 query documentEditPage($documentId: String!) {
@@ -100,24 +59,6 @@ query draftPage($paperId: String!) {
     isPosted
   }
 }
-query groupIndexPage($groupName: String!) {
-  group(auth: user, name: $groupName) {
-    id
-    name
-    displayName
-    description
-    type
-    user_group_map {
-      isAdmin
-      user {
-        id
-        username
-        displayName
-      }
-    }
-  }
-  countDocuments(auth: user, groupName: $groupName)
-}
 
 query groupPageLayout($auth: Auth!, $groupName: String!) {
   group(auth: $auth, name: $groupName) {
@@ -155,13 +96,6 @@ query userPageLayout($auth: Auth!, $username: String) {
   countDocuments(auth: $auth, username: $username)
 }
 
-query groupsPage {
-  groups(auth: user) {
-    id
-    name
-    displayName
-  }
-}
 query loginPage {
   samls(auth: none) {
     id

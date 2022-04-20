@@ -25,3 +25,18 @@ query TagMeta($auth: Auth!, $tag: String!) {
     }
   }
 }
+
+mutation UpsertTagMeta($auth: Auth!, $tag: String!, $description: String) {
+  upsertTagMeta(auth: $auth, tag: $tag, description: $description) {
+    tag
+    description
+    user {
+      id
+      uuid
+      username
+      email
+      displayName
+    }
+    updatedAt
+  }
+}

@@ -1,6 +1,6 @@
 import { Layout } from '@components/layouts'
 import { useSession } from '@lib/hooks'
-import { NavUsers } from '@components/navUsers'
+import { NavStocks } from '@components/navStocks'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })
@@ -9,11 +9,11 @@ export default function Page() {
   return (
     <Layout>
       <div className="mx-auto mt-4 mb-2 w-full max-w-7xl bg-white p-4">
-        <div className="flex justify-between">
-          <div className="text-2xl">Users</div>
+        <div>
+          <div className="text-2xl">Stocks</div>
         </div>
         <div className="mt-8">
-          <NavUsers current={''} />
+          <NavStocks current={''} />
         </div>
       </div>
     </Layout>

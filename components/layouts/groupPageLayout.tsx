@@ -1,7 +1,6 @@
-import { ChevronDownIcon, BadgeCheckIcon, SearchIcon, MailIcon, PhoneIcon, FilterIcon } from '@heroicons/react/solid'
 import { NavGroups } from '@components/navGroups'
 import ProfileHeader from '@components/profileHeader'
-import { getAsString, classNames } from '@lib/utils'
+import { classNames } from '@lib/utils'
 import {
   useCreateGroupFollowMutation,
   useDeleteGroupFollowMutation,
@@ -10,7 +9,6 @@ import {
   useGroupPageLayoutQuery,
 } from '@graphql/generated/react-apollo'
 import { useMemo } from 'react'
-import Link from 'next/link'
 import NavTab from '@components/navTab'
 
 type Props = {
@@ -49,8 +47,8 @@ export default function GroupPageLayout(props: Props) {
       {/* 2-Pane wrapper */}
       <div className="mx-auto w-full max-w-7xl flex-grow lg:flex">
         {/* Pane-1 */}
-        <div className="hidden bg-white pt-1 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
-          <h2 className="mb-2 text-lg font-medium text-gray-900">Groups</h2>
+        <div className="hidden bg-white pt-3 xl:block xl:w-80 xl:flex-shrink-0 xl:border-r xl:border-gray-200">
+          <h2 className="mb-2 ml-2 mt-2 text-lg font-medium text-gray-900">Groups</h2>
           <NavGroups current={props.groupName} />
         </div>
         {/* Pane-2 */}
@@ -64,7 +62,7 @@ export default function GroupPageLayout(props: Props) {
             directImageLoading={props.directImageLoading}
           >
             <>
-              <FollowGroupButton userId={props.userId} groupId={groupId} className="mr-6" />
+              <FollowGroupButton userId={props.userId} groupId={groupId} />
             </>
           </ProfileHeader>
           <div className="mt-6"></div>
@@ -79,17 +77,17 @@ export default function GroupPageLayout(props: Props) {
 
 const FollowGroupButton = ({ userId, groupId, className }: { userId: string; groupId: string; className?: string }) => {
   const { data, loading } = useGroupFollowsQuery({ variables: { auth: 'user', groupId: groupId } })
-  const [createWatch] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
-  const [deleteWatch] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
+  const [createFollow] = useCreateGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
+  const [deleteFollow] = useDeleteGroupFollowMutation({ refetchQueries: [GroupFollowsDocument] })
 
-  const isWatched = useMemo(() => data?.groupFollows?.find((watch) => watch.userId.toUpperCase() === userId.toUpperCase()), [data])
-  const countWatches = useMemo(() => data?.groupFollows.length, [data])
+  const isFollowing = useMemo(() => data?.groupFollows?.find((follow) => follow.userId.toUpperCase() === userId.toUpperCase()), [data])
+  const countFollow = useMemo(() => data?.groupFollows?.length, [data])
 
   const handleClick = (e) => {
-    if (isWatched) {
-      deleteWatch({ variables: { auth: 'user', groupId: groupId } })
+    if (isFollowing) {
+      deleteFollow({ variables: { auth: 'user', groupId: groupId } })
     } else {
-      createWatch({ variables: { auth: 'user', groupId: groupId } })
+      createFollow({ variables: { auth: 'user', groupId: groupId } })
     }
   }
 
@@ -100,12 +98,12 @@ const FollowGroupButton = ({ userId, groupId, className }: { userId: string; gro
       type="button"
       onClick={handleClick}
       className={classNames(
-        isWatched ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+        isFollowing ? 'bg-indigo-600 text-white hover:bg-indigo-700 ' : ' bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
         className,
         'focus:ring-indigo-500" inline-flex items-center rounded-lg border border-transparent px-6 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2'
       )}
     >
-      <span>{isWatched ? 'フォロー解除' : 'フォローする'}</span>
+      <span>{isFollowing ? 'フォロー解除' : 'フォローする'}</span>
     </button>
   )
 }

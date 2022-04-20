@@ -1,10 +1,9 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSession } from '@lib/hooks'
 import { Layout } from '@components/layouts'
 import { getAsString } from '@lib/utils'
 import { EditGroupForm, EditGroupMemberTable, DangerZoneForm } from '@components/forms/groups'
-import { Auth, GetGroupWithMembersDocument, useGetGroupWithMembersQuery } from '@graphql/generated/react-apollo'
+import { GetGroupWithMembersDocument, useGetGroupWithMembersQuery } from '@graphql/generated/react-apollo'
 
 export default function Page() {
   const session = useSession({ redirectTo: '/login' })

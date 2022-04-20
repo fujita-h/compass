@@ -1,6 +1,5 @@
 import { AdminLayout } from '@components/layouts'
 import { useAdminSession } from '@lib/hooks'
-import { useAdminIndexPageQuery } from '@graphql/generated/react-apollo'
 
 const Index = () => {
   const session = useAdminSession({ redirectTo: '/admin/login' })

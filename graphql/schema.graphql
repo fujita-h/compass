@@ -133,6 +133,11 @@ type StockCategory {
   id: String!
   userId: String!
   name: String!
+  stock: [StockDoc]!
+}
+
+type StockDoc {
+  documentId: String!
 }
 
 type Stock {
@@ -177,10 +182,16 @@ type GroupFollow {
   groupId: String!
 }
 
+type TagFollow {
+  userId: String!
+  tag: String!
+}
+
 type TagMeta {
   tag: String!
   description: String
-  user: User
+  user: User!
+  updatedAt: String!
 }
 
 type UserTemplate {
@@ -364,7 +375,8 @@ type Query {
   draft(auth: Auth!, id: String!): Paper
 
   stockCategories(auth: Auth!, userId: String): [StockCategory]!
-  stocks(auth: Auth!, userId: String, documentId: String): [Stock]!
+  stockCategory(auth: Auth!, categoryId: String!): StockCategory
+  stocks(auth: Auth!, userId: String, categoryId: String, documentId: String): [Stock]!
   countStocks(auth: Auth!, documentId: String!): Int!
 
   likes(auth: Auth!, userId: String, documentId: String): [Like]!
@@ -375,6 +387,7 @@ type Query {
 
   userFollows(auth: Auth!, fromUserId: String, toUserId: String): [UserFollow]!
   groupFollows(auth: Auth!, userId: String, groupId: String): [GroupFollow]!
+  tagFollows(auth: Auth!, userId: String, tag: String): [TagFollow]!
 
   userTemplates(auth: Auth!, userId: String): [UserTemplate]
   userTemplate(auth: Auth!, id: String!): UserTemplate
@@ -441,7 +454,12 @@ type Mutation {
   createGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
   deleteGroupFollow(auth: Auth!, userId: String, groupId: String!): GroupFollow
 
+  createTagFollow(auth: Auth!, userId: String, tag: String!): TagFollow
+  deleteTagFollow(auth: Auth!, userId: String, tag: String!): TagFollow
+
   read(auth: Auth!, userId: String, documentId: String!): Read
+
+  upsertTagMeta(auth: Auth!, tag: String!, description: String): TagMeta
 
   createUserTemplate(auth: Auth!, userId: String): UserTemplate
   updateUserTemplate(auth: Auth!, id: String!, name: String, title: String, tags: String, body: String): UserTemplate

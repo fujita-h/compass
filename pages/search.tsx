@@ -5,7 +5,7 @@ import { useEsSearchQuery } from '@graphql/generated/react-apollo'
 import { getAsString } from '@lib/utils'
 import Link from 'next/link'
 import { UserIconNameLinkSmall } from '@components/elements'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { RiLock2Fill } from 'react-icons/ri'
 

@@ -220,7 +220,7 @@ model stock {
   documentId      String         @db.VarChar(26)
   stockCategoryId String         @db.VarChar(26)
   document        document       @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  stock_category  stock_category @relation(fields: [stockCategoryId], references: [id])
+  stock_category  stock_category @relation(fields: [stockCategoryId], references: [id], onDelete: Cascade)
   user            user           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([documentId, userId, stockCategoryId])
